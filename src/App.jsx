@@ -8,7 +8,7 @@ import { Header, Sidebar } from "./components/index";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Service from "./config/Service";
 import socket, { connectSocket } from "./socket";
-import useSocketConnection from "./util/useSocket";
+import useSocketConnection from "./middleware/useSocket";
 // import FrappeService from "./frappeConfig/FrappeService";
 import {
   setUserData,

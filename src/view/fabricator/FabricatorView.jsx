@@ -23,13 +23,13 @@ const FabricatorView = () => {
                             Add Client
                         </button>
                         <button
-                            onClick={() => setActiveTab('components')}
+                            onClick={() => setActiveTab('allFabricator')}
                             className={`px-4 py-2 rounded ${activeTab === 'allFabricator' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
                         >
                             All Fabricator
                         </button>
                         <button
-                            onClick={() => setActiveTab('branches')}
+                            onClick={() => setActiveTab('allClient')}
                             className={`px-4 py-2 rounded ${activeTab === 'allClient' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
                         >
                             All Client
@@ -40,6 +40,11 @@ const FabricatorView = () => {
                     {activeTab === 'addFabricator' && (
                         <div>
                             <AddFabricator />
+                        </div>
+                    )}
+                    {activeTab === 'addClient' && (
+                        <div>
+                            <AddClient />
                         </div>
                     )}
                     {activeTab === 'addClient' && (

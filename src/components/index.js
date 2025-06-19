@@ -5,7 +5,7 @@ import Login from "./login/Login";
 import Dashboard from "./dashboard/staff/admin/dashboard/Dashboard";
 import MainContent from "./dashboard/main/MainContent";
 import ChangePassword from "./dashboard/main/ChangePassword";
-import Sidebar from "./dashboard/sidebar/Sidebar";
+import Sidebar from "./sidebar/Sidebar.jsx";
 import Header from "./dashboard/header/Header";
 
 //Project
