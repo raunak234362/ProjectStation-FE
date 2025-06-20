@@ -1,55 +1,38 @@
 import { useState } from "react";
-import { AddClient, AddFabricator } from "../../components";
+import { AddFabricator, AllFabricator } from "../../components";
 
 
 const FabricatorView = () => {
-    const [activeTab, setActiveTab] = useState('allClient');
+    const [activeTab, setActiveTab] = useState('allFabricator');
     return (
         <div className="w-full overflow-y-hidden">
             <div className="flex flex-col w-full h-full">
-                <div className="flex justify-between items-center overflow-x-auto p-4 bg-gray-200">
-                    <h1 className="text-xl font-bold">Fabricator View</h1>
-                    <div className="flex space-x-4">
+                <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
+                    <h1 className="text-2xl py-2 font-bold text-white">Fabricator View</h1>
+                    <div className="flex space-x-2 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('addFabricator')}
-                            className={`px-4 py-2 rounded ${activeTab === 'addFabricator' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
+                            className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === 'addFabricator' ? 'text-base md:text-base bg-teal-500 text-white font-semibold' : 'md:text-base text-sm bg-white'}`}
                         >
                             Add Fabricator
                         </button>
                         <button
-                            onClick={() => setActiveTab('addClient')}
-                            className={`px-4 py-2 rounded ${activeTab === 'addClient' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
-                        >
-                            Add Client
-                        </button>
-                        <button
                             onClick={() => setActiveTab('allFabricator')}
-                            className={`px-4 py-2 rounded ${activeTab === 'allFabricator' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
+                            className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === 'allFabricator' ? 'text-base md:text-base bg-teal-500 text-white font-semibold' : 'md:text-base text-sm bg-white'}`}
                         >
                             All Fabricator
                         </button>
-                        <button
-                            onClick={() => setActiveTab('allClient')}
-                            className={`px-4 py-2 rounded ${activeTab === 'allClient' ? 'bg-teal-500 text-white' : 'bg-gray-300'}`}
-                        >
-                            All Client
-                        </button>
                     </div>
                 </div>
-                <div className="flex-grow p-4 h-[85vh] overflow-y-auto">
+                <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
                     {activeTab === 'addFabricator' && (
                         <div>
                             <AddFabricator />
                         </div>
                     )}
-                    {activeTab === 'addClient' && (
+                    {activeTab === 'allFabricator' && (
                         <div>
-                            <AddClient />
-                        </div>
-                    )}
-                    {activeTab === 'addClient' && (
-                        <div>
-                            <AddClient />
+                            <AllFabricator />
                         </div>
                     )}
                 </div>

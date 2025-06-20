@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,7 +15,7 @@ import { toast } from "react-toastify";
 import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
 
-const AddClient = () => {
+const AddClient = ({ fabricator }) => {
     const dispatch = useDispatch();
     const {
         register,
@@ -24,13 +25,20 @@ const AddClient = () => {
         reset,
         formState: { errors },
     } = useForm();
-
-    const fabricators = useSelector((state) => state.fabricatorData.fabricatorData);
-    const selectedFabricator = watch("fabricator");
+    const countryCode = watch("country_code");
+    console.log("Country Code:", countryCode);
     const [branchOptions, setBranchOptions] = useState([]);
     const [stateOptions, setStateOptions] = useState([]);
     const [cityOptions, setCityOptions] = useState([]);
 
+    const fabricatorAddressOptions = [fabricator?.headquaters, ...fabricator?.branches || []]
+
+    useEffect(() => {
+        setBranchOptions(
+            fabricatorAddressOptions.map((branch) => ({ label: branch.address, value: branch.id }))
+        );
+    }, [fabricator]);
+    // console.log("Fabricator:", fabricatorAddressOptions);
     const countryList = {
         "United States": "US",
         Canada: "CA",
@@ -40,20 +48,20 @@ const AddClient = () => {
     const country = watch("country");
     const state = watch("state");
 
-    useEffect(() => {
-        if (selectedFabricator) {
-            const fabricator = fabricators.find((fab) => fab.id === selectedFabricator);
-            const combinedBranches = [
-                ...(fabricator?.headquaters ? [fabricator.headquaters] : []),
-                ...(fabricator?.branches || []),
-            ];
-            setBranchOptions(
-                combinedBranches.map((branch) => ({ label: branch.address, value: branch.id }))
-            );
-        } else {
-            setBranchOptions([]);
-        }
-    }, [selectedFabricator, fabricators]);
+    // useEffect(() => {
+    //     if (selectedFabricator) {
+    //         const fabricator = fabricators.find((fab) => fab.id === selectedFabricator);
+    //         const combinedBranches = [
+    //             ...(fabricator?.headquaters ? [fabricator.headquaters] : []),
+    //             ...(fabricator?.branches || []),
+    //         ];
+    //         setBranchOptions(
+    //             combinedBranches.map((branch) => ({ label: branch.address, value: branch.id }))
+    //         );
+    //     } else {
+    //         setBranchOptions([]);
+    //     }
+    // }, [selectedFabricator, fabricators]);
 
     useEffect(() => {
         if (country && countryList[country]) {
@@ -78,6 +86,7 @@ const AddClient = () => {
             const payload = {
                 ...data,
                 phone,
+                fabricator: fabricator.id,
                 username: data.username.toUpperCase(),
             };
             const response = await Service.addClient(payload);
@@ -96,17 +105,10 @@ const AddClient = () => {
     }));
 
     return (
-        <div className="flex justify-center text-black my-5">
+        <div className="flex justify-center overflow-y-auto text-black">
             <div className="w-full md:px-10 px-4 py-5 bg-white shadow-md rounded-lg">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <SectionTitle title="Fabricator Details" />
-                    <CustomSelect
-                        label="Fabricator"
-                        options={fabricators?.map((fab) => ({ label: fab.fabName, value: fab.id }))}
-                        {...register("fabricator", { required: true })}
-                        onChange={setValue}
-                    />
-                    {errors.fabricator && <ErrorMsg text="Fabricator is required" />}
+                    <SectionTitle title="Fabricator Address" />
                     <CustomSelect
                         label="Address"
                         options={branchOptions}
@@ -126,7 +128,7 @@ const AddClient = () => {
                     <SectionTitle title="Contact Info" />
                     <Input label="Email" {...register("email")} />
                     <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
-                        <CustomSelect label="Country Code" options={countryOptions} onChange={setValue} />
+                        <CustomSelect label="Country Code" name="country_code" options={countryOptions} onChange={setValue} />
                         <Input label="Phone" {...register("phone", { required: true })} />
                     </div>
                     <Input label="Alternate Phone" {...register("alt_phone")} />

@@ -5,12 +5,10 @@ import {
   AddProject,
   AddVendor,
   AllEmployees,
-  AllProject,
   EditProject,
   ErrorBoundary,
   MainContent,
   ManageTeam,
-  Projects,
   Vendor,
   AllVendors,
   AllDepartment,
@@ -76,6 +74,7 @@ import App from "../App.jsx";
 import TeamDashboard from "../components/dashboard/staff/admin/Team/teamDashboard/TeamDashboard.jsx";
 import RequireAuth from "../middleware/RequireAuth.jsx";
 import FabricatorView from "../view/fabricator/FabricatorView.jsx";
+import ProjectView from "../view/project/ProjectView.jsx";
 
 
 //For Sales-Admin
@@ -108,13 +107,7 @@ const routes = [
           },
           {
             path: "project",
-            element: <Projects />,
-            children: [
-              { path: "projects", element: <ProjectDashboard /> },
-              { path: "add-project", element: <AddProject /> },
-              { path: "all-projects", element: <AllProject /> },
-              { path: "edit-project", element: <EditProject /> },
-            ],
+            element: <ProjectView />,
           },
           {
             path: "fabricator",
@@ -270,7 +263,6 @@ const routes = [
             children: [
               { path: "projects", element: <ProjectDashboard /> },
               { path: "add-project", element: <AddProject /> },
-              { path: "all-projects", element: <AllProject /> },
               { path: "edit-project", element: <EditProject /> },
             ],
           },

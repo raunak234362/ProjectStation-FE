@@ -79,18 +79,18 @@ const App = () => {
       // socket.emit("joinRoom",userId);
       connectSocket(userId);
       if (socket) {
-        console.log("Socket is already connected:", socket);
+        // console.log("Socket is already connected:", socket);
         sessionStorage.setItem("socketId", socket.id);
         const socketId = sessionStorage.getItem("socketId");
         socket.on("connect", () => {
-          console.log("✅ Connected with socket:", socketId);
-          console.log("✅ Connected with userID:", userId);
+          // console.log("✅ Connected with socket:", socketId);
+          // console.log("✅ Connected with userID:", userId);
           // socket.emit("joinRoom", userId);
         });
       }
-      console.log(`🔐 Joined room: ${user.data.id}`);
+      // console.log(`🔐 Joined room: ${user.data.id}`);
       setUserId(user.data?.id);
-      console.log(user.data);
+      // console.log(user.data);
       try {
         if (userType === "admin" || userType === "manager") {
           const fabricator = await Service?.allFabricator(token);

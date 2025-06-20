@@ -9,9 +9,7 @@ import Sidebar from "./sidebar/Sidebar.jsx";
 import Header from "./dashboard/header/Header";
 
 //Project
-import Projects from "./dashboard/staff/admin/Project/Projects";
-import AllProject from "./dashboard/staff/admin/Project/AllProject";
-import AddProject from "./dashboard/staff/admin/Project/AddProject";
+import AddProject from "./project/AddProject.jsx";
 import EditProject from "./dashboard/staff/admin/Project/EditProject";
 import GetProject from "./dashboard/staff/admin/Project/GetProject";
 import AddFiles from "./dashboard/staff/admin/Project/AddFiles";
@@ -30,6 +28,8 @@ import ShowRFQResponse from "./dashboard/staff/admin/rfq/ShowRFQResponse.jsx";
 //Fabricator
 import AddFabricator from "./fabricator/AddFabricator.jsx";
 import AddClient from "./fabricator/AddClient.jsx";
+import GetFabricator from "./fabricator/GetFabricator.jsx";
+import AllFabricator from "./fabricator/AllFabricator.jsx";
 //Team
 import AllTeam from "./dashboard/staff/admin/Team/AllTeam.jsx";
 import AddTeam from "./dashboard/staff/admin/Team/AddTeam";
@@ -82,6 +82,9 @@ import CustomSelect from "./fields/Select";
 import Toggle from "./fields/Toggle";
 import MultipleFileUpload from "./fields/MultipleFileUpload";
 
+//utils
+import ReusableTable from "../util/ReusableTable.jsx";
+import DateFilter from "../util/DateFilter.jsx";
 export {
   Button,
   Input,
@@ -93,13 +96,15 @@ export {
   Dashboard,
   AddFabricator,
   AddClient,
+  GetFabricator,
+  AllFabricator,
+  ReusableTable,
+  DateFilter,
   MainContent,
   ChangePassword,
   Sidebar,
   Header,
   AddProject,
-  Projects,
-  AllProject,
   GetProject,
   EditProject,
   AddWB,

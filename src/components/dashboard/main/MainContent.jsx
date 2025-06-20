@@ -7,27 +7,11 @@ import { setUserData } from '../../../store//userSlice.js';
 import ChangePassword from './ChangePassword'; // Import ChangePassword component
 
 const MainContent = () => {
-  const token = sessionStorage.getItem('token'); // Get token from sessionStorage
-  const dispatch = useDispatch();
 
   // Select the userData from the Redux store
   const userInfo = useSelector((state) => state?.userData?.userData);
   const [showChangePassword, setShowChangePassword] = useState(false);
   console.log(userInfo)
-  // const fetchUser = async () => {
-  //   try {
-  //     const user = await Service.getCurrentUser(token);
-  //     dispatch(setUserData(user));
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (token) {
-  //     fetchUser();
-  //   }
-  // }, [token]);
 
   const toggleChangePasswordModal = () => {
     setShowChangePassword(!showChangePassword);
@@ -61,13 +45,7 @@ const MainContent = () => {
           <div className="block mb-1 w-fit min-w-32 font-semibold">Contact No.:</div>
           <div>{userInfo?.phone}</div>
         </div>
-        {/* <div>
-          <button 
-            onClick={toggleChangePasswordModal} 
-            className="text-blue-500 hover:underline">
-            Change Password
-          </button>
-        </div> */}
+        
       </div>
 
       {/* Conditionally render the ChangePassword modal */}

@@ -7,17 +7,17 @@ import {
   Button,
   Toggle,
   MultipleFileUpload,
-} from "../../../../index";
+} from "../index";
 import { useDispatch, useSelector } from "react-redux";
 import { State, City } from "country-state-city";
 import { useForm } from "react-hook-form";
-import { addBranchToFabricator } from "../../../../../store/fabricatorSlice";
-import Service from "../../../../../config/Service";
+import { addBranchToFabricator } from "../../store/fabricatorSlice";
+import Service from "../../config/Service";
 import { toast } from "react-toastify";
 
-const AddBranch = ({ fabricatorId, isBranch, onBranchClose }) => {
-  console.log(fabricatorId);
-  const [fabricator, setFabricator] = useState();
+const AddBranch = ({ fabricator, isBranch, onBranchClose }) => {
+  console.log(fabricator);
+  // const [fabricator, setFabricator] = useState();
   const token = sessionStorage.getItem("token");
   const [files, setFiles] = useState([]);
   const dispatch = useDispatch();
@@ -76,37 +76,37 @@ const AddBranch = ({ fabricatorId, isBranch, onBranchClose }) => {
     (state) => state.fabricatorData?.fabricatorData?.data
   );
 
-  const fetchFabricator = async () => {
-    try {
-      // Find the fabricator with the matching ID from the Redux store data
-      const fabricator = fabData.find((fab) => fab.id === fabricatorId);
+  // const fetchFabricator = async () => {
+  //   try {
+  //     // Find the fabricator with the matching ID from the Redux store data
+  //     const fabricator = fabData.find((fab) => fab.id === fabricatorId);
 
-      if (fabricator) {
-        setFabricator(fabricator);
-        console.log(fabricator);
-      } else {
-        console.log("Fabricator not found");
-      }
-    } catch (error) {
-      console.log("Error fetching fabricator:", error);
-    }
+  //     if (fabricator) {
+  //       setFabricator(fabricator);
+  //       console.log(fabricator);
+  //     } else {
+  //       console.log("Fabricator not found");
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching fabricator:", error);
+  //   }
 
-    // try {
-    //   const response = await Service.getFabricator(token, fabricatorId);
-    //   //   dispatch(showFabricator(response));
-    //   setFabricator(response);
-    //   console.log(response);
-    // } catch (error) {
-    //   console.log("Error fetching fabricator:", error);
-    // }
-  };
-  useEffect(() => {
-    fetchFabricator();
-  }, []);
+  //   // try {
+  //   //   const response = await Service.getFabricator(token, fabricatorId);
+  //   //   //   dispatch(showFabricator(response));
+  //   //   setFabricator(response);
+  //   //   console.log(response);
+  //   // } catch (error) {
+  //   //   console.log("Error fetching fabricator:", error);
+  //   // }
+  // };
+  // useEffect(() => {
+  //   fetchFabricator();
+  // }, []);
 
   const onSubmit = async (data) => {
     try {
-      const response = await Service.addFabricatorBranch(data, fabricatorId);
+      const response = await Service.addFabricatorBranch(data, fabricator.id);
       toast.success("Branch added successfully");
       console.log(response);
     } catch (error) {

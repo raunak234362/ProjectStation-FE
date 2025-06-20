@@ -30,7 +30,7 @@ const Sidebar = () => {
   const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin", "sales", "department-manager"] },
-    { label: "Project", to: "project/projects", icon: <SquareKanban />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
+    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin", "sales", "client", "department-manager"] },
     { label: "RFI", to: "rfi", icon: <FileChartColumnIncreasing />, roles: ["admin", "department-manager"] },
     { label: "Submittals", to: "submittals", icon: <FileInput />, roles: ["admin", "department-manager"] },
