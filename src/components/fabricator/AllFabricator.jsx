@@ -17,6 +17,7 @@ const AllFabricator = () => {
   const [selectedFabricator, setSelectedFabricator] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
 
   const getAllFabricators = async () => {
     try {
@@ -28,7 +29,10 @@ const AllFabricator = () => {
   };
 
   useEffect(() => {
-    getAllFabricators();
+    if (fabricators) {
+      getAllFabricators();
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -121,6 +125,18 @@ const AllFabricator = () => {
     prepareRow,
   } = tableInstance;
 
+  const renderSkeletonRows = (count = 10) => {
+    return Array.from({ length: count }).map((_, rowIdx) => (
+      <tr key={rowIdx} className="animate-pulse">
+        {columns.map((_, colIdx) => (
+          <td key={colIdx} className="px-4 py-2 border">
+            <div className="h-4 bg-gray-300 rounded w-full"></div>
+          </td>
+        ))}
+      </tr>
+    ));
+  };
+
   return (
     <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
       <div className="mt-5 bg-white h-auto p-4">
@@ -157,10 +173,10 @@ const AllFabricator = () => {
 
         {/* Table Section */}
         <div className="overflow-x-auto rounded-md border max-h-[75vh]">
-        <table
-          {...getTableProps()}
-          className="min-w-[800px] w-full border-collapse text-sm text-center"
-        >
+          <table
+            {...getTableProps()}
+            className="min-w-[800px] w-full border-collapse text-sm text-center"
+          >
             <thead className="sticky top-0 bg-teal-200/80 z-10">
               {headerGroups.map(headerGroup => (
                 <tr {...headerGroup.getHeaderGroupProps()} className="bg-teal-200/70">
@@ -177,19 +193,21 @@ const AllFabricator = () => {
               ))}
             </thead>
             <tbody {...getTableBodyProps()}>
-              {rows.length === 0 ? (
+              {loading ? (
+                renderSkeletonRows(8)
+              ) : rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length} className="text-center py-4">
-                    No Fabricators Found
+                  <td colSpan={columns.length} className="py-4 text-center">
+                    No Projects Found
                   </td>
                 </tr>
               ) : (
-                rows.map(row => {
+                rows.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} className="hover:bg-blue-gray-100 border">
-                      {row.cells.map(cell => (
-                        <td {...cell.getCellProps()} className="border px-2 py-1">
+                    <tr {...row.getRowProps()} className="hover:bg-gray-100">
+                      {row.cells.map((cell) => (
+                        <td {...cell.getCellProps()} className="px-4 py-2 border">
                           {cell.render("Cell")}
                         </td>
                       ))}

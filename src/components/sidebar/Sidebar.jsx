@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { NavLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
@@ -32,9 +33,9 @@ const Sidebar = () => {
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin", "sales", "department-manager"] },
     { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin", "sales", "client", "department-manager"] },
-    { label: "RFI", to: "rfi", icon: <FileChartColumnIncreasing />, roles: ["admin", "department-manager"] },
-    { label: "Submittals", to: "submittals", icon: <FileInput />, roles: ["admin", "department-manager"] },
-    { label: "Change Order", to: "change-order", icon: <ReplaceAll />, roles: ["admin", "department-manager"] },
+    // { label: "RFI", to: "rfi", icon: <FileChartColumnIncreasing />, roles: ["admin", "department-manager"] },
+    // { label: "Submittals", to: "submittals", icon: <FileInput />, roles: ["admin", "department-manager"] },
+    // { label: "Change Order", to: "change-order", icon: <ReplaceAll />, roles: ["admin", "department-manager"] },
     { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin", "department-manager"] },
     { label: "Manage Team", to: "team/all-employees", icon: <Database />, roles: ["admin", "department-manager", "human-resource"] },
     { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "manager", "client", "department-manager"] },

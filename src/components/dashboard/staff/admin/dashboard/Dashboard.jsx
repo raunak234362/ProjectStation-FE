@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useSortBy, useTable } from "react-table";
 import Button from "../../../../fields/Button";
-import ProjectStatus from "../Project/projectStatus/ProjectStatus";
+import ProjectStatus from "../Project/ProjectStatus";
 import Service from "../../../../../config/Service";
 
 const ProjectDashboard = () => {

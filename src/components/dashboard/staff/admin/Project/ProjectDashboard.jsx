@@ -23,7 +23,7 @@ import {
   Loader2,
   PauseCircle,
 } from "lucide-react";
-import ProjectStatus from "./projectStatus/ProjectStatus";
+import ProjectStatus from "../Project/ProjectStatus";
 import { useSortBy, useTable } from "react-table";
 import Button from "../../../../fields/Button";
 

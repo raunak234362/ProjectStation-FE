@@ -11,7 +11,7 @@ import { useTable, useSortBy, useGlobalFilter } from "react-table"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import Service from "../../../../../../config/Service"
 import EmployeeStatus from "../EmployeeStatus"
-import DateFilter from "../../Project/projectStatus/DateFilter"
+import DateFilter from "../../../../../../util/DateFilter"
 import { Clock, CheckCircle, ArrowUp, ChevronUp, ChevronDown } from "lucide-react"
 
 const TeamDashboard = () => {

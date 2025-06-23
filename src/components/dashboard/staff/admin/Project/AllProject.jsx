@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Button, GetProject } from "../../../../index.js";
 import Service from "../../../../../config/Service.js";
 import { showProjects } from "../../../../../store/projectSlice.js";
-import ProjectStatus from "./projectStatus/ProjectStatus.jsx";
+import ProjectStatus from "../Project/ProjectStatus.jsx";
 import { useTable, useSortBy } from "react-table";
 
 const AllProjects = () => {

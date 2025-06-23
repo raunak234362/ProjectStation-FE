@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AddFabricator, AddProject } from "../../components";
+import { AddFabricator, AddProject, AllProjects } from "../../components";
 
 
 const ProjectView = () => {
@@ -39,6 +39,11 @@ const ProjectView = () => {
                     {activeTab === 'addProject' && (
                         <div>
                             <AddProject />
+                        </div>
+                    )}
+                    {activeTab === 'allProject' && (
+                        <div>
+                            <AllProjects />
                         </div>
                     )}
                 </div>

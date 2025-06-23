@@ -10,8 +10,10 @@ import Header from "./dashboard/header/Header";
 
 //Project
 import AddProject from "./project/AddProject.jsx";
+import AllProjects from "./project/AllProjects.jsx";
+import ProjectStatus from "./project/projectTab/ProjectStatus.jsx";
 import EditProject from "./dashboard/staff/admin/Project/EditProject";
-import GetProject from "./dashboard/staff/admin/Project/GetProject";
+import GetProject from "./project/projectTab/GetProject.jsx";
 import AddFiles from "./dashboard/staff/admin/Project/AddFiles";
 import ProjectDashboard from "./dashboard/staff/admin/Project/ProjectDashboard";
 //Work Breakdown
@@ -50,7 +52,7 @@ import GetVendorUser from "./dashboard/staff/admin/vendor/GetVendorUser";
 import AddVendorBranch from "./dashboard/staff/admin/vendor/AddVendorBranch";
 
 //RFI
-import RFI from "./dashboard/staff/admin/rfi/RFI";
+import RFI from "../components/rfi/RFI.jsx";
 import CreateRFI from "./dashboard/staff/admin/rfi/CreateRFI";
 import AllSentRFI from "./dashboard/staff/admin/rfi/AllSentRFI";
 import AllReceivedRFI from "./dashboard/staff/admin/rfi/AllReceivedRFI";
@@ -106,6 +108,8 @@ export {
   Header,
   AddProject,
   GetProject,
+  AllProjects,
+  ProjectStatus,
   EditProject,
   AddWB,
   RFQ,
