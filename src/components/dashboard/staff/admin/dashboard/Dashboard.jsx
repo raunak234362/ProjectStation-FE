@@ -574,7 +574,7 @@ const ProjectDashboard = () => {
     : 0;
 
   return (
-    <div className="w-full my-1 h-[86vh] p-2 rounded-lg overflow-y-auto">
+    <div className="w-full my-1 h-[100vh] p-2 rounded-lg overflow-y-auto">
       <div className="w-full mx-auto">
         {/* Summary Cards */}
         <div className="my-2">
@@ -927,7 +927,7 @@ const ProjectDashboard = () => {
         </div>
 
         {/* Table Section */}
-        <div className="overflow-x-auto rounded-md border max-h-[55vh]">
+        <div className="overflow-x-auto rounded-md border max-h-[70vh]">
           <table
             {...getTableProps()}
             className="min-w-[800px] w-full border-collapse text-sm text-center"
