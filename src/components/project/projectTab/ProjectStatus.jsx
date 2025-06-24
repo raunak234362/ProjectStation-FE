@@ -7,7 +7,7 @@ import GetProject from "./GetProject";
 import Overview from "./OverView";
 import Team from "./TeamTab";
 import TimeLine from "./TimelineTab";
-import { RFI } from "../../index";
+import { RFI, Submittals } from "../../index";
 import Service from "../../../config/Service";
 
 const ProjectStatus = ({ projectId, onClose }) => {
@@ -422,13 +422,16 @@ const ProjectStatus = ({ projectId, onClose }) => {
                                 statusColors={statusColors}
                             />
                         )}
-                        {activeTab === "RFI" && <RFI />}
-                        {["Submittals", "CO"].includes(activeTab) && (
-                            <div className="p-4 bg-gray-50 rounded-lg text-center">
-                                <h2 className="text-lg font-bold">{activeTab} Content</h2>
-                                <p className="text-gray-600">Placeholder for {activeTab} tab content.</p>
-                            </div>
+                        {activeTab === "RFI" && <RFI
+                            projectData={projectData}
+                        />}
+                        {activeTab === "Submittals" && (
+                            <Submittals projectData={projectData} />
                         )}
+                        {/* {activeTab === "CO" && (
+                            <ChangeOrders projectData={projectData} />
+                        )} */}
+
                     </>
                 )}
             </div>

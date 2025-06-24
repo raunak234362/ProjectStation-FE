@@ -3,12 +3,12 @@ import { AddFabricator, AddProject, AllProjects } from "../../components";
 
 
 const ProjectView = () => {
-    const [activeTab, setActiveTab] = useState('ProjectDashboard');
+    const [activeTab, setActiveTab] = useState('allProject');
     return (
         <div className="w-full overflow-y-hidden">
             <div className="flex flex-col w-full h-full">
                 <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
-                    <h1 className="text-2xl py-2 font-bold text-white">Fabricator View</h1>
+                    <h1 className="text-2xl py-2 font-bold text-white">Projects Detail</h1>
                     <div className="flex space-x-2 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('ProjectDashboard')}

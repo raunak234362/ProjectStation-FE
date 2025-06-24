@@ -169,6 +169,7 @@ const ProgressBar = ({ value, max, className = "" }) => {
 
 // Main Component
 const Overview = ({ projectData, projectTasks, userContributions, dateFilter, filterStage }) => {
+    console.log(projectData, "-=-=-=-=-=-=-")
     const [workBreakdownHours, setWorkBreakdownHours] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);

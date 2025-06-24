@@ -88,6 +88,7 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 
 // Main Component
 const GetProject = ({ projectId, onClose, projectData }) => {
+  console.log("Project Data:", projectData);
   const [activeTab, setActiveTab] = useState("details");
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

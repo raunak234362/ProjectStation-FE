@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-/* eslint-disable react/jsx-key */
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useTable, useSortBy } from "react-table";
@@ -268,10 +267,11 @@ const AllProjects = () => {
       <div className="overflow-x-auto rounded-md border max-h-[80vh]">
         <table {...getTableProps()} className="min-w-[800px] w-full border-collapse text-sm text-center">
           <thead className="sticky top-0 z-10 bg-teal-200">
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
+            {headerGroups.map((headerGroup, headerGroupIdx) => (
+              <tr key={headerGroup.id || headerGroupIdx} {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column, colIdx) => (
                   <th
+                    key={column.id || colIdx}
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     className="px-4 py-2 font-semibold border whitespace-nowrap"
                   >
@@ -295,9 +295,9 @@ const AllProjects = () => {
               rows.map((row) => {
                 prepareRow(row);
                 return (
-                  <tr {...row.getRowProps()} className="hover:bg-gray-100">
+                  <tr key={row.id || row.getRowProps().key} {...row.getRowProps()} className="hover:bg-gray-100">
                     {row.cells.map((cell) => (
-                      <td {...cell.getCellProps()} className="px-4 py-2 border">
+                      <td key={cell.column.id || cell.getCellProps().key} {...cell.getCellProps()} className="px-4 py-2 border">
                         {cell.render("Cell")}
                       </td>
                     ))}

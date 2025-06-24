@@ -520,7 +520,7 @@ class Service {
         },
       });
       console.log("Response from fetchProjectByID:", response.data);
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.log("Error fetching projects:", error);
       throw error;
@@ -908,6 +908,22 @@ class Service {
   //     throw error;
   //   }
   // }
+
+  static async getRFIByProjectId(projectId) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/RFI/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching RFI:", error);
+      throw error;
+    }
+  }
 
   static async inboxCO() {
     try {
