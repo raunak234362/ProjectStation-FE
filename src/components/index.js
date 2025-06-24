@@ -52,14 +52,14 @@ import GetVendorUser from "./dashboard/staff/admin/vendor/GetVendorUser";
 import AddVendorBranch from "./dashboard/staff/admin/vendor/AddVendorBranch";
 
 //RFI
-import RFI from "../components/rfi/RFI.jsx";
+import RFI from "./rfi/RFI.jsx";
 import CreateRFI from "./dashboard/staff/admin/rfi/CreateRFI";
 import AllSentRFI from "./dashboard/staff/admin/rfi/AllSentRFI";
 import AllReceivedRFI from "./dashboard/staff/admin/rfi/AllReceivedRFI";
 import GetSentRFI from "./dashboard/staff/admin/rfi/GetSentRFI";
 
 //Submittals
-import Submittals from "./dashboard/staff/admin/submittals/Submittals";
+import Submittals from "./submittals/Submittals.jsx";
 import SendSubmittals from "./dashboard/staff/admin/submittals/SendSubmittals";
 import AllReceivedSubmittals from "./dashboard/staff/admin/submittals/AllReceivedSubmittals";
 import AllSubmittals from "./dashboard/staff/admin/submittals/AllSubmittals";

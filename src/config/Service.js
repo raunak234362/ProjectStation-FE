@@ -1219,6 +1219,23 @@ class Service {
     }
   }
 
+   static async getSubmittalByProjectId(projectId) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/Submittals/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching RFI:", error);
+      throw error;
+    }
+  }
+
+
   //get sent rfi response
   static async getSentRFIResponse(rfiId) {
     console.log("Service:---", rfiId);
