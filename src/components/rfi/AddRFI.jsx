@@ -101,7 +101,7 @@ const AddRFI = ({ projectData }) => {
 
     return (
         <>
-            <div className="h-screen">
+            <div className="h-fit">
                 <div className="overflow-auto max-h-[70%]">
                     <div className="flex justify-center w-full my-5 text-black">
                         <div className="w-full h-full px-2 py-3 overflow-y-auto md:px-10">

@@ -61,7 +61,7 @@ const Login = () => {
         else if (userType === "admin") navigate("dashboard");
         else if (userType === "estimator") navigate("dashboard");
         else if (userType === "human-resource") navigate("dashboard");
-        else if (userType === "client") navigate("client");
+        else if (userType === "client") navigate("dashboard");
         else if (userType === "sales") navigate("sales");
         else if (userType === "user") navigate("dashboard");
         else if (userType === "department-manager")
@@ -130,7 +130,7 @@ const Login = () => {
                 )}
               </div>
               <div className="flex justify-center w-full my-5">
-                <Button type="submit" className="w-[80%]">
+                <Button type="submit" className="w-[80%] bg-teal-400">
                   Sign IN
                 </Button>
               </div>

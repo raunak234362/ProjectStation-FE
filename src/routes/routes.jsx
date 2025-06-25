@@ -35,6 +35,7 @@ import {
   RFQ,
   AllRFQ,
   Chats,
+  WBTDashboard,
 } from "../components/index.js";
 
 //For Client-Admin
@@ -75,6 +76,7 @@ import TeamDashboard from "../components/dashboard/staff/admin/Team/teamDashboar
 import RequireAuth from "../middleware/RequireAuth.jsx";
 import FabricatorView from "../view/fabricator/FabricatorView.jsx";
 import ProjectView from "../view/project/ProjectView.jsx";
+import HomeView from "../view/homeView/HomeView.jsx";
 
 
 //For Sales-Admin
@@ -99,7 +101,7 @@ const routes = [
         children: [
           {
             path: "",
-            element: <Dashboard />,
+            element: <HomeView />,
           },
           {
             path: "profile",

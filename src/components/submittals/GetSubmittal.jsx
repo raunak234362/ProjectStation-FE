@@ -1,11 +1,14 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Button } from "../../../../index";
-import Service from "../../../../../config/Service";
-import ResponseSubmitals from "./ResponseSubmitals";
+import { Button } from "../index";
+import Service from "../../config/Service";
+// import ResponseSubmitals from "./ResponseSubmitals";
 
 const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }) => {
+   
+    console.log("Submittal ID:", submittalId);
   const [submittal, setSubmittal] = useState(null);
   const [response, setResponse] = useState(null);
   const [showClientDetails, setShowClientDetails] = useState(false);
@@ -31,11 +34,9 @@ const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }
     setLoading(true);
     setError(null);
     try {
-      const response = await Service.getSubmittal(submittalId);
-      if (!response.ok) throw new Error(`Failed to fetch submittal: ${response.status}`);
-      const data = await response.json();
-      console.log("Fetched Submittal:", data);
-      setSubmittal(data.data || data); // Handle nested data or flat response
+      const response = await Service.getSentSubmittals(submittalId);
+      console.log("Fetched Submittal:", response);
+      setSubmittal(response || response); // Handle nested data or flat response
     } catch (err) {
       setError("Failed to load submittal data");
       console.error("Error fetching submittal:", err);
@@ -262,9 +263,9 @@ const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }
         </div>
 
         {/* Response Modal (Client Only) */}
-        {userRole === "client" && !submittal?.submittalsResponse && showResponseModal && (
+        {/* {userRole === "client" && !submittal?.submittalsResponse && showResponseModal && (
           <ResponseSubmitals submittalsID={submittal?.id} onClose={handleClose} />
-        )}
+        )} */}
       </div>
     </div>
   );

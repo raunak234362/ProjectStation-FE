@@ -1,41 +1,34 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 "use client";
 
-/* eslint-disable no-unused-vars */
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useMemo, useState, useCallback } from "react";
+import { useSelector } from "react-redux";
 import { Bar, Pie, Line } from "react-chartjs-2";
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import "chart.js/auto";
 import {
   LayoutGrid,
-  ListFilter,
   Search,
-  Building2,
-  ArrowUpDown,
-  ChevronDown,
   BarChart3,
   PieChart,
   LineChart,
-  Calendar,
   CheckCircle2,
-  AlertCircle,
-  Loader2,
-  PauseCircle,
+  Download,
 } from "lucide-react";
 import { useSortBy, useTable } from "react-table";
 import Button from "../../../../fields/Button";
 import ProjectStatus from "../Project/ProjectStatus";
 import Service from "../../../../../config/Service";
+import AllProjects from "../../../../project/AllProjects";
 
 const ProjectDashboard = () => {
   const userType = sessionStorage.getItem("userType");
-  const projectData = useSelector((state) => state?.projectData?.projectData);
-  const taskData = useSelector((state) => state.taskData.taskData);
-  const userData = useSelector((state) => state.userData.staffData);
-  const fabricators = useSelector(
-    (state) => state?.fabricatorData?.fabricatorData
-  );
+  const projectData = useSelector((state) => state?.projectData?.projectData || []);
+  const taskData = useSelector((state) => state.taskData.taskData || []);
+  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData || []);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState({ key: "name", order: "asc" });
@@ -43,91 +36,89 @@ const ProjectDashboard = () => {
   const [projectFilter, setProjectFilter] = useState([]);
   const [departmentTask, setDepartmentTask] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    fabricator: "",
-    status: "",
-  });
+  const [filters, setFilters] = useState({ fabricator: "", status: "" });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Process department tasks for department managers
   useEffect(() => {
     if (userType === "department-manager") {
-      const departmentTaskData = (taskData ?? []).flatMap(
-        (tasks) => tasks?.tasks
-      );
+      const departmentTaskData = taskData.flatMap((tasks) => tasks?.tasks || []);
       setDepartmentTask(departmentTaskData);
     }
   }, [userType, taskData]);
-  // Prepare project data with associated tasks
-  const projectsWithTasks = projectData.map((project) => ({
-    ...project,
-    tasks: (userType === "department-manager"
-      ? departmentTask
-      : taskData
-    ).filter((task) => task?.project_id === project.id),
-  }));
+
+  // Fetch dashboard counts
+  useEffect(() => {
+    const fetchDashboardCount = async () => {
+      setIsLoading(true);
+      try {
+        await Service.getDashboardCounts();
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error fetching dashboard counts:", err);
+        setError("Failed to load dashboard data");
+        setIsLoading(false);
+      }
+    };
+    fetchDashboardCount();
+  }, []);
+
+  // Prepare project data with tasks
+  const projectsWithTasks = useMemo(() =>
+    projectData.map((project) => ({
+      ...project,
+      tasks: (userType === "department-manager" ? departmentTask : taskData).filter(
+        (task) => task?.project_id === project.id
+      ),
+    })), [projectData, taskData, departmentTask, userType]);
 
   // Calculate task statistics
-  const tasksToUse =
-    userType === "department-manager" ? departmentTask : taskData;
-  const completedTasks =
-    tasksToUse?.filter((task) => task?.status === "COMPLETE")?.length || 0;
-  const inProgressTasks =
-    tasksToUse?.filter((task) => task?.status === "IN_PROGRESS")?.length || 0;
-  const assignedTask =
-    tasksToUse?.filter((task) => task?.status === "ASSIGNED")?.length || 0;
-  const inReviewTask =
-    tasksToUse?.filter((task) => task?.status === "IN_REVIEW")?.length || 0;
+  const tasksToUse = useMemo(() =>
+    userType === "department-manager" ? departmentTask : taskData, [userType, departmentTask, taskData]);
 
-  // Chart data with improved colors
-  const chartColors = {
-    completed: "rgba(16, 185, 129, 0.8)", // green
-    inProgress: "rgba(59, 130, 246, 0.8)", // blue
-    assigned: "rgba(139, 92, 246, 0.8)", // purple
-    inReview: "rgba(245, 158, 11, 0.8)", // amber
-    onHold: "rgba(239, 68, 68, 0.8)", // red
-  };
+  const taskStats = useMemo(() => ({
+    completed: tasksToUse?.filter((task) => task?.status === "COMPLETE")?.length || 0,
+    inProgress: tasksToUse?.filter((task) => task?.status === "IN_PROGRESS")?.length || 0,
+    assigned: tasksToUse?.filter((task) => task?.status === "ASSIGNED")?.length || 0,
+    inReview: tasksToUse?.filter((task) => task?.status === "IN_REVIEW")?.length || 0,
+    total: tasksToUse?.length || 0,
+  }), [tasksToUse]);
 
-  // const barData = fabricatorTaskData()
-  const projectTaskData = () => {
-    // Get unique projects
-    const projects =
-      userType === "department-manager"
-        ? taskData.map((p) => p.name)
-        : projectData.map((p) => p.name);
-    // For each project, count tasks by status
+  // Project statistics
+  const projectStats = useMemo(() => ({
+    total: projectData?.length || 0,
+    active: projectData?.filter((p) => p.status === "ACTIVE")?.length || 0,
+    completed: projectData?.filter((p) => p.status === "COMPLETE")?.length || 0,
+    onHold: projectData?.filter((p) => p.status === "ONHOLD")?.length || 0,
+  }), [projectData]);
+
+  // Chart colors
+  const chartColors = useMemo(() => ({
+    completed: "rgba(16, 185, 129, 0.8)",
+    inProgress: "rgba(59, 130, 246, 0.8)",
+    assigned: "rgba(139, 92, 246, 0.8)",
+    inReview: "rgba(245, 158, 11, 0.8)",
+    onHold: "rgba(239, 68, 68, 0.8)",
+  }), []);
+
+  // Project Task Data for Bar Chart
+  const projectTaskData = useMemo(() => {
+    const projects = userType === "department-manager"
+      ? taskData.map((p) => p.name).filter(Boolean)
+      : projectData.map((p) => p.name).filter(Boolean);
     return {
       labels: projects,
       datasets: [
         {
           label: "Tasks Completed",
           data: projects.map((projectName) => {
-            const project =
-              userType === "department-manager"
-                ? taskData.find((p) => p.name === projectName)
-                : projectData.find((p) => p.name === projectName);
-
-            if (userType === "department-manager") {
-              console.log(
-                "==================",
-                taskData?.filter(
-                  (task) =>
-                    task?.id === project?.id &&
-                    task?.tasks?.status === "COMPLETE"
-                ).length
-              );
-              console.log(
-                "==================",
-                taskData?.filter((task) => task?.id === project?.id && task)
-              );
-              return taskData?.filter(
-                (task) =>
-                  task?.id === project?.id && task?.tasks?.status === "COMPLETE"
-              ).length;
-            }
-
-            return taskData?.filter(
-              (task) =>
-                task?.project?.id === project?.id && task?.status === "COMPLETE"
-            ).length;
+            const project = userType === "department-manager"
+              ? taskData.find((p) => p.name === projectName)
+              : projectData.find((p) => p.name === projectName);
+            return tasksToUse?.filter(
+              (task) => task?.project_id === project?.id && task?.status === "COMPLETE"
+            ).length || 0;
           }),
           backgroundColor: chartColors.completed,
           borderRadius: 6,
@@ -135,23 +126,12 @@ const ProjectDashboard = () => {
         {
           label: "Tasks In Review",
           data: projects.map((projectName) => {
-            const project =
-              userType === "department-manager"
-                ? taskData.find((p) => p.name === projectName)
-                : projectData.find((p) => p.name === projectName);
-            if (userType === "department-manager") {
-              return taskData?.filter(
-                (task) =>
-                  task?.id === project?.id &&
-                  task?.tasks?.status === "IN_REVIEW"
-              ).length;
-            }
-
-            return taskData?.filter(
-              (task) =>
-                task?.project?.id === project?.id &&
-                task?.status === "IN_REVIEW"
-            ).length;
+            const project = userType === "department-manager"
+              ? taskData.find((p) => p.name === projectName)
+              : projectData.find((p) => p.name === projectName);
+            return tasksToUse?.filter(
+              (task) => task?.project_id === project?.id && task?.status === "IN_REVIEW"
+            ).length || 0;
           }),
           backgroundColor: chartColors.inReview,
           borderRadius: 6,
@@ -159,23 +139,12 @@ const ProjectDashboard = () => {
         {
           label: "Tasks In Progress",
           data: projects.map((projectName) => {
-            const project =
-              userType === "department-manager"
-                ? taskData.find((p) => p.name === projectName)
-                : projectData.find((p) => p.name === projectName);
-            if (userType === "department-manager") {
-              return taskData?.filter(
-                (task) =>
-                  task?.id === project?.id &&
-                  task?.tasks?.status === "IN_PROGRESS"
-              ).length;
-            }
-
-            return taskData?.filter(
-              (task) =>
-                task?.project?.id === project?.id &&
-                task?.status === "IN_PROGRESS"
-            ).length;
+            const project = userType === "department-manager"
+              ? taskData.find((p) => p.name === projectName)
+              : projectData.find((p) => p.name === projectName);
+            return tasksToUse?.filter(
+              (task) => task?.project_id === project?.id && task?.status === "IN_PROGRESS"
+            ).length || 0;
           }),
           backgroundColor: chartColors.inProgress,
           borderRadius: 6,
@@ -183,45 +152,26 @@ const ProjectDashboard = () => {
         {
           label: "Tasks Assigned",
           data: projects.map((projectName) => {
-            const project =
-              userType === "department-manager"
-                ? taskData.find((p) => p.name === projectName)
-                : projectData.find((p) => p.name === projectName);
-            if (userType === "department-manager") {
-              return taskData?.filter(
-                (task) =>
-                  task?.id === project?.id && task?.tasks?.status === "ASSIGNED"
-              ).length;
-            }
-
-            return taskData?.filter(
-              (task) =>
-                task?.project?.id === project?.id && task?.status === "ASSIGNED"
-            ).length;
+            const project = userType === "department-manager"
+              ? taskData.find((p) => p.name === projectName)
+              : projectData.find((p) => p.name === projectName);
+            return tasksToUse?.filter(
+              (task) => task?.project_id === project?.id && task?.status === "ASSIGNED"
+            ).length || 0;
           }),
           backgroundColor: chartColors.assigned,
           borderRadius: 6,
         },
       ],
     };
-  };
+  }, [projectData, taskData, tasksToUse, userType, chartColors]);
 
-  const dashboardCount = async () => {
-    const response = await Service.getDashboardCounts()
-  }
-
-  useEffect(() => {
-    dashboardCount();
-    // Initialize project filter with all projects
-  }, []);
-
-  const barData = projectTaskData();
-
-  const pieData = {
+  // Pie Chart Data
+  const pieData = useMemo(() => ({
     labels: ["Completed", "In Progress", "Assigned", "In Review"],
     datasets: [
       {
-        data: [completedTasks, inProgressTasks, assignedTask, inReviewTask],
+        data: [taskStats.completed, taskStats.inProgress, taskStats.assigned, taskStats.inReview],
         backgroundColor: [
           chartColors.completed,
           chartColors.inProgress,
@@ -232,17 +182,16 @@ const ProjectDashboard = () => {
         borderColor: "#ffffff",
       },
     ],
-  };
+  }), [taskStats, chartColors]);
 
-  const lineData = {
-    labels: projectsWithTasks?.map((project) => project?.name) || [],
+  // Line Chart Data
+  const lineData = useMemo(() => ({
+    labels: projectsWithTasks?.map((project) => project?.name).filter(Boolean) || [],
     datasets: [
       {
         label: "Tasks Completed",
         data: projectsWithTasks?.map(
-          (project) =>
-            project?.tasks?.filter((task) => task?.status === "COMPLETE")
-              ?.length || 0
+          (project) => project?.tasks?.filter((task) => task?.status === "COMPLETE")?.length || 0
         ),
         borderColor: chartColors.completed,
         backgroundColor: "rgba(16, 185, 129, 0.1)",
@@ -256,9 +205,7 @@ const ProjectDashboard = () => {
       {
         label: "Tasks In Progress",
         data: projectsWithTasks?.map(
-          (project) =>
-            project?.tasks?.filter((task) => task?.status === "IN_PROGRESS")
-              ?.length || 0
+          (project) => project?.tasks?.filter((task) => task?.status === "IN_PROGRESS")?.length || 0
         ),
         borderColor: chartColors.inProgress,
         backgroundColor: "rgba(59, 130, 246, 0.1)",
@@ -272,9 +219,7 @@ const ProjectDashboard = () => {
       {
         label: "Tasks Assigned",
         data: projectsWithTasks?.map(
-          (project) =>
-            project?.tasks?.filter((task) => task?.status === "ASSIGNED")
-              ?.length || 0
+          (project) => project?.tasks?.filter((task) => task?.status === "ASSIGNED")?.length || 0
         ),
         borderColor: chartColors.assigned,
         backgroundColor: "rgba(139, 92, 246, 0.1)",
@@ -286,501 +231,198 @@ const ProjectDashboard = () => {
         pointRadius: 4,
       },
     ],
-  };
+  }), [projectsWithTasks, chartColors]);
 
-  // Calculate dynamic height for bar chart based on number of fabricators
-  const getBarChartHeight = () => {
-    const fabricatorCount = barData.labels.length;
-    // Base height plus additional height per fabricator
+  // Dynamic Bar Chart Height
+  const getBarChartHeight = useMemo(() => {
+    const projectCount = projectTaskData.labels.length;
     const baseHeight = 300;
-    const heightPerFabricator = 40;
-    return Math.max(baseHeight, fabricatorCount * heightPerFabricator);
-  };
-
-  const handleViewClick = (projectID) => {
-    setSelectedProject(projectID);
-    setIsModalOpen(true);
-  };
-
-  const handleModalClose = () => {
-    setSelectedProject(null);
-    setIsModalOpen(false);
-  };
-  useEffect(() => {
-    setProjectFilter(projectData);
-  }, [projectData]);
+    const heightPerProject = 40;
+    return Math.max(baseHeight, projectCount * heightPerProject);
+  }, [projectTaskData.labels.length]);
 
 
-  const filterAndSortData = () => {
-    let filtered = projectData?.filter((project) => {
-      const searchMatch = project?.name
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
-      const filterMatch =
-        (!filters?.fabricator ||
-          project?.fabricator?.fabName === filters?.fabricator) &&
-        (!filters?.status || project?.status === filters?.status);
-      return searchMatch && filterMatch;
-    });
-
-    filtered.sort((a, b) => {
-      let aKey = a[sortOrder?.key];
-      let bKey = b[sortOrder?.key];
-
-      if (sortOrder?.key === "fabricator") {
-        aKey = a.fabricator?.fabName || "";
-        bKey = b.fabricator?.fabName || "";
-      }
-
-      const aValue = typeof aKey === "string" ? aKey.toLowerCase() : aKey ?? "";
-      const bValue = typeof bKey === "string" ? bKey.toLowerCase() : bKey ?? "";
-
-      return sortOrder?.order === "asc"
-        ? aValue > bValue
-          ? 1
-          : -1
-        : aValue < bValue
-          ? 1
-          : -1;
-    });
-
-    setProjectFilter(filtered);
-  };
-
-  useEffect(() => {
-    filterAndSortData();
-  }, [searchQuery, filters, sortOrder, projectData]);
-
-  const handleSearch = (e) => setSearchQuery(e.target.value);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const data = useMemo(() => projectFilter || [], [projectFilter]);
-
-  const columns = useMemo(
-    () => [
-      {
-        Header: "S.No",
-        accessor: (row, i) => i + 1,
-        id: "sno",
-      },
-      {
-        Header: "Fabricator",
-        accessor: (row) => row?.fabricator?.fabName || "N/A",
-        id: "fabricator",
-      },
-      {
-        Header: "Project Name",
-        accessor: "name",
-      },
-
-      // {
-      //   Header: "Status",
-      //   accessor: "status",
-      //   Cell: ({ row }) => {
-      //     const status = row.original.status;
-      //     let StatusIcon = CheckCircle2;
-      //     let statusColor = "text-green-500";
-      //     let statusBgColor = "bg-green-50";
-
-      //     if (status === "ACTIVE") {
-      //       StatusIcon = Loader2;
-      //       statusColor = "text-blue-500";
-      //       statusBgColor = "bg-blue-50";
-      //     } else if (status === "ONHOLD") {
-      //       StatusIcon = PauseCircle;
-      //       statusColor = "text-amber-500";
-      //       statusBgColor = "bg-amber-50";
-      //     } else if (status === "BREAK") {
-      //       StatusIcon = AlertCircle;
-      //       statusColor = "text-red-500";
-      //       statusBgColor = "bg-red-50";
-      //     }
-
-      //     return (
-      //       <span
-      //         className={`px-2 sm:px-3 py-0.5 sm:py-1 inline-flex items-center gap-1 text-xs font-medium rounded-full ${statusBgColor} ${statusColor}`}
-      //       >
-      //         <StatusIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-      //         {status}
-      //       </span>
-      //     );
-      //   },
-      // },
-      {
-        Header: "Stage",
-        accessor: "stage",
-        Cell: ({ row }) => {
-          const status = row.original.stage;
-          let StatusIcon = CheckCircle2;
-          let statusColor = "text-green-500";
-          // let statusBgColor = "bg-green-50";
-
-          return (
-            <span
-              className={`px-2 sm:px-3 py-0.5 sm:py-1 inline-flex items-center gap-1 text-xs font-medium rounded-full text-black`}
-            >
-              <StatusIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-              {status}
-            </span>
-          );
-        },
-      },
-      {
-        Header: "Tasks",
-        id: "tasks",
-        Cell: ({ row }) => {
-          const project = row.original;
-          const projectTasks = tasksToUse.filter(
-            (task) => task?.project_id === project.id
-          );
-          const completedTasksCount = projectTasks.filter(
-            (task) => task.status === "COMPLETED"
-          ).length;
-          return (
-            <div>
-              <div className="text-xs font-medium text-gray-700 sm:text-sm">
-                {projectTasks.length}
-              </div>
-              <div className="text-xs text-gray-500">
-                {completedTasksCount} completed
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        Header: "Approval Date",
-        accessor: "approvalDate",
-        Cell: ({ value, row }) => {
-          // Only show if stage is IFA or RIFA
-          const stage = row?.original?.stage;
-          if (!value || (stage !== "IFA" && stage !== "RIFA")) return <span>Submitted</span>;
-          const dueDate = new Date(value);
-          const today = new Date();
-          // Zero out time for accurate day diff
-          dueDate.setHours(0, 0, 0, 0);
-          today.setHours(0, 0, 0, 0);
-          const diffTime = dueDate.getTime() - today.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          let statusText = "";
-          let statusColor = "";
-          let statusHeader = "";
-
-          if (diffDays > 3) {
-            statusHeader = "On-Track";
-            statusText = `${diffDays} days left`;
-            statusColor = "bg-green-100 border border-green-600 rounded-2xl px-2  text-green-600";
-          } else if (diffDays >= 0 && diffDays <= 3) {
-            statusHeader = "Due Soon";
-            statusText = `${diffDays} days left`;
-            statusColor = "bg-amber-100 text-amber-700 border border-amber-700 rounded-2xl px-2";
-          } else {
-            statusHeader = "Overdue";
-            statusText = `${Math.abs(diffDays)} days late`;
-            statusColor = "bg-red-100 text-red-700 border border-red-700 rounded-2xl px-2";
-          }
-
-          return (
-            <div className={`flex flex-col items-center `}>
-              <span>{dueDate.toLocaleDateString()}</span>
-              <div className={`${statusColor} flex flex-col items-center gap-1`}>
-                <span className="text-xs font-semibold">
-                  {statusHeader}
-                </span>
-                <span className={`text-xs font-semibold `}>
-                  {statusText}
-                </span>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        Header: "Due Date",
-        accessor: "endDate",
-        Cell: ({ value }) => {
-          if (!value) return <span>N/A</span>;
-          const dueDate = new Date(value);
-          const today = new Date();
-          // Zero out time for accurate day diff
-          dueDate.setHours(0, 0, 0, 0);
-          today.setHours(0, 0, 0, 0);
-          const diffTime = dueDate.getTime() - today.getTime();
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          let statusText = "";
-          let statusColor = "";
-          let statusHeader = "";
-
-          if (diffDays > 3) {
-            statusHeader = "On-Track";
-            statusText = `${diffDays} days left`;
-            statusColor = "bg-green-100 border border-green-600 rounded-2xl px-2  text-green-600";
-          } else if (diffDays >= 0 && diffDays <= 3) {
-            statusHeader = "Due Soon";
-            statusText = `${diffDays} days left`;
-            statusColor = "bg-amber-100 text-amber-700 border border-amber-700 rounded-2xl px-2";
-          } else {
-            statusHeader = "Overdue";
-            statusText = `${Math.abs(diffDays)} days late`;
-            statusColor = "bg-red-100 text-red-700 border border-red-700 rounded-2xl px-2";
-          }
-
-          return (
-            <div className={`flex flex-col items-center `}>
-              <span>{dueDate.toLocaleDateString()}</span>
-              <div className={`${statusColor} flex flex-col items-center gap-1`}>
-                <span className="text-xs font-semibold">
-                  {statusHeader}
-                </span>
-                <span className={`text-xs font-semibold `}>
-                  {statusText}
-                </span>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        Header: "Actions",
-        Cell: ({ row }) => (
-          <Button onClick={() => handleViewClick(row.original.id)}>View</Button>
-        ),
-      },
-    ],
-    [projectData, taskData, userType]
+  // Render skeleton for summary cards
+  const renderSummarySkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="p-4 bg-white border border-gray-200 rounded-xl">
+          <Skeleton height={20} width={100} />
+          <Skeleton height={30} width={60} />
+          <Skeleton height={15} width={80} />
+        </div>
+      ))}
+    </div>
   );
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
+  // Render skeleton for table
+  const renderTableSkeleton = () => (
+    <div className="overflow-x-auto rounded-lg border border-gray-200 max-h-[70vh]">
+      <table className="min-w-[800px] w-full border-collapse text-sm">
+        <thead className="sticky top-0 z-10 bg-teal-200">
+          <tr>
+            {[...Array(8)].map((_, i) => (
+              <th key={i} className="px-4 py-3">
+                <Skeleton width={80} />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[...Array(5)].map((_, i) => (
+            <tr key={i}>
+              {[...Array(8)].map((_, j) => (
+                <td key={j} className="px-4 py-2 border">
+                  <Skeleton />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 
-  // Get summary stats
-  const totalProjects = projectData?.length;
-  const activeProjects = projectData?.filter(
-    (p) => p.status === "ACTIVE"
-  ).length;
-  const completeProjects = projectData?.filter(
-    (p) => p.status === "COMPLETE"
-  ).length;
-  const onHoldProjects = projectData?.filter(
-    (p) => p.status === "ONHOLD"
-  ).length;
-  const totalTasks = taskData?.length;
-  const completionRate = totalTasks
-    ? Math.round((completedTasks / totalTasks) * 100)
-    : 0;
+  // Render skeleton for chart
+  const renderChartSkeleton = () => (
+    <div className="mb-6 bg-white border border-gray-200 rounded-xl">
+      <div className="border-b border-gray-200 p-4">
+        <Skeleton width={300} height={20} />
+      </div>
+      <div className="p-6">
+        <Skeleton height={400} />
+      </div>
+    </div>
+  );
+
+  if (error) {
+    return (
+      <div className="w-full h-[100vh] flex items-center justify-center text-red-600">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full my-1 h-[100vh] p-2 rounded-lg overflow-y-auto">
-      <div className="w-full mx-auto">
-        {/* Summary Cards */}
-        <div className="my-2">
-          <div className=" grid grid-cols-4 gap-2">
-            <div className="p-4 transition-all bg-white border border-gray-100 shadow-sm rounded-xl sm:p-6 hover:shadow-md">
-              <div className="flex items-center justify-between flex-row">
-
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <p className="mb-1 text-xs font-medium text-gray-500">
-                      Total Projects
-                    </p>
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {totalProjects}
-                    </h3>
-                  </div>
-                  <div>
-                    <p className="mb-1 text-xs font-medium text-gray-500">
-                      Completed Projects
-                    </p>
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {completeProjects}
-                    </h3>
-                  </div>
-                </div>
-                <div className="p-2 rounded-full bg-blue-50 sm:p-3">
-                  <LayoutGrid className="w-4 h-4 text-blue-500 sm:w-6 sm:h-6" />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 transition-all bg-white border border-gray-100 shadow-sm rounded-xl sm:p-6 hover:shadow-md">
-              <div className="flex items-center justify-between flex-row">
-
-                <div className="flex flex-col justify-between">
-                  <div>
-                    <p className="mb-1 text-xs font-medium text-gray-500">
-                      Active Projects
-                    </p>
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {activeProjects}
-                    </h3>
-                  </div>
-                  <div>
-                    <p className="mb-1 text-xs font-medium text-gray-500">
-                      On-Hold Projects
-                    </p>
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {onHoldProjects}
-                    </h3>
-                  </div>
-                </div>
-                <div className="p-2 rounded-full  bg-green-50 sm:p-3">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 sm:w-6 sm:h-6" />
-                </div>
-              </div>
-              {/* <div className="flex items-center justify-between">
-              <div>
-                <p className="mb-1 text-xs font-medium text-gray-500 sm:text-sm">
-                  Active Projects
-                </p>
-                <h3 className="text-xl font-bold text-gray-800 sm:text-2xl">
-                  {activeProjects}
-                </h3>
-              </div>
-              <div className="p-2 rounded-full bg-green-50 sm:p-3">
-                <CheckCircle2 className="w-4 h-4 text-green-500 sm:w-6 sm:h-6" />
-              </div>
-            </div> */}
-            </div>
-
-            <div className="p-4 transition-all bg-white border border-gray-100 shadow-sm rounded-xl sm:p-6 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="mb-1 text-xs font-medium text-gray-500 sm:text-sm">
-                    Total Tasks
-                  </p>
-                  <h3 className="text-xl font-bold text-gray-800 sm:text-2xl">
-                    {totalTasks}
-                  </h3>
-                </div>
-                <div className="p-2 rounded-full bg-purple-50 sm:p-3">
-                  <CheckCircle2 className="w-4 h-4 text-purple-500 sm:w-6 sm:h-6" />
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 transition-all bg-white border border-gray-100 shadow-sm rounded-xl sm:p-6 hover:shadow-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="mb-1 text-xs font-medium text-gray-500 sm:text-sm">
-                    Completion Rate
-                  </p>
-                  <h3 className="text-xl font-bold text-gray-800 sm:text-2xl">
-                    {completionRate}%
-                  </h3>
-                </div>
-                <div className="p-2 rounded-full bg-amber-50 sm:p-3">
-                  <PieChart className="w-4 h-4 sm:w-6 sm:h-6 text-amber-500" />
-                </div>
-              </div>
-            </div>
+    <SkeletonTheme baseColor="#e5e7eb" highlightColor="#f3f4f6">
+      <div className="w-full h-[100vh] p-4 bg-gray-50 rounded-lg overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Project Dashboard</h1>
+            <Button className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
           </div>
-        </div>
-        {userType === "department-manager" ? null : (
-          <div className="mb-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl sm:mb-8">
-            <div className="overflow-x-auto border-b border-gray-100">
-              <div className="flex min-w-max">
-                <button
-                  onClick={() => setActiveChart("bar")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "bar"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  Fabricator Task Overview
-                </button>
-                <button
-                  onClick={() => setActiveChart("pie")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "pie"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  <PieChart className="w-4 h-4" />
-                  Task Distribution
-                </button>
-                <button
-                  onClick={() => setActiveChart("line")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "line"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  <LineChart className="w-4 h-4" />
-                  Task Trends
-                </button>
+
+          {/* Summary Cards */}
+          {isLoading ? (
+            renderSummarySkeleton()
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Total Projects</p>
+                    <h3 className="text-2xl font-bold text-gray-800">{projectStats.total}</h3>
+                    <p className="text-xs text-gray-500">Completed: {projectStats.completed}</p>
+                  </div>
+                  <div className="p-3 bg-blue-50 rounded-full">
+                    <LayoutGrid className="w-6 h-6 text-blue-500" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Active Projects</p>
+                    <h3 className="text-2xl font-bold text-gray-800">{projectStats.active}</h3>
+                    <p className="text-xs text-gray-500">On-Hold: {projectStats.onHold}</p>
+                  </div>
+                  <div className="p-3 bg-green-50 rounded-full">
+                    <CheckCircle2 className="w-6 h-6 text-green-500" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Total Tasks</p>
+                    <h3 className="text-2xl font-bold text-gray-800">{taskStats.total}</h3>
+                    <p className="text-xs text-gray-500">Completed: {taskStats.completed}</p>
+                  </div>
+                  <div className="p-3 bg-purple-50 rounded-full">
+                    <CheckCircle2 className="w-6 h-6 text-purple-500" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Completion Rate</p>
+                    <h3 className="text-2xl font-bold text-gray-800">{taskStats.total ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%</h3>
+                  </div>
+                  <div className="p-3 bg-amber-50 rounded-full">
+                    <PieChart className="w-6 h-6 text-amber-500" />
+                  </div>
+                </div>
               </div>
             </div>
-            {userType === "department-manager" ? null : (
-              <div className="p-4 sm:p-6">
-                <div
-                  className="w-full"
-                  style={{
-                    height:
-                      activeChart === "bar"
-                        ? `${getBarChartHeight()}px`
-                        : "400px",
-                  }}
-                >
-                  {userType === "department-manager"
-                    ? null
-                    : activeChart === "bar" && (
+          )}
+
+          {/* Chart Section */}
+          {userType !== "department-manager" && (
+            isLoading ? renderChartSkeleton() : (
+              <div className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <div className="border-b border-gray-200">
+                  <div className="flex">
+                    <button
+                      onClick={() => setActiveChart("bar")}
+                      className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "bar" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      Project Task Overview
+                    </button>
+                    <button
+                      onClick={() => setActiveChart("pie")}
+                      className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "pie" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      <PieChart className="w-4 h-4" />
+                      Task Distribution
+                    </button>
+                    <button
+                      onClick={() => setActiveChart("line")}
+                      className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "line" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      <LineChart className="w-4 h-4" />
+                      Task Trends
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <div className="w-full" style={{ height: activeChart === "bar" ? `${getBarChartHeight}px` : "400px" }}>
+                    {activeChart === "bar" && (
                       <Bar
-                        data={barData}
+                        data={projectTaskData}
                         options={{
-                          indexAxis: "y", // This makes the bar chart horizontal
+                          indexAxis: "y",
                           responsive: true,
                           maintainAspectRatio: false,
                           plugins: {
-                            legend: {
-                              position: "top",
-                              labels: {
-                                usePointStyle: true,
-                                boxWidth: 6,
-                                font: {
-                                  size: 12,
-                                },
-                              },
-                            },
-                            tooltip: {
-                              backgroundColor: "rgba(0, 0, 0, 0.8)",
-                              padding: 12,
-                              titleFont: {
-                                size: 14,
-                              },
-                              bodyFont: {
-                                size: 13,
-                              },
-                              cornerRadius: 8,
-                            },
+                            legend: { position: "top", labels: { usePointStyle: true, boxWidth: 6, font: { size: 12 } } },
+                            tooltip: { backgroundColor: "rgba(0, 0, 0, 0.8)", padding: 12, titleFont: { size: 14 }, bodyFont: { size: 13 }, cornerRadius: 8 },
                           },
                           scales: {
-                            x: {
-                              beginAtZero: true,
-                              grid: {
-                                color: "rgba(0, 0, 0, 0.05)",
-                              },
-                              stacked: true,
-                            },
+                            x: { beginAtZero: true, grid: { color: "rgba(0, 0, 0, 0.05)" }, stacked: true },
                             y: {
-                              grid: {
-                                display: false,
-                              },
+                              grid: { display: false },
                               stacked: true,
                               ticks: {
-                                // Ensure fabricator names are fully visible
                                 callback: function (value) {
                                   const label = this.getLabelForValue(value);
-                                  // Truncate long fabricator names on small screens
-                                  const maxLength =
-                                    window.innerWidth < 768 ? 15 : 25;
-                                  return label.length > maxLength
-                                    ? label.substring(0, maxLength) + "..."
-                                    : label;
+                                  const maxLength = window.innerWidth < 768 ? 15 : 25;
+                                  return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
                                 },
                               },
                             },
@@ -788,202 +430,66 @@ const ProjectDashboard = () => {
                         }}
                       />
                     )}
-
-                  {activeChart === "pie" && (
-                    <Pie
-                      data={pieData}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position:
-                              window.innerWidth < 768 ? "bottom" : "right",
-                            labels: {
-                              usePointStyle: true,
-                              padding: window.innerWidth < 768 ? 10 : 20,
-                              font: {
-                                size: 12,
+                    {activeChart === "pie" && (
+                      <Pie
+                        data={pieData}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { position: window.innerWidth < 768 ? "bottom" : "right", labels: { usePointStyle: true, padding: 20, font: { size: 12 } } },
+                            tooltip: { backgroundColor: "rgba(0, 0, 0, 0.8)", padding: 12, titleFont: { size: 14 }, bodyFont: { size: 13 }, cornerRadius: 8 },
+                          },
+                        }}
+                      />
+                    )}
+                    {activeChart === "line" && (
+                      <Line
+                        data={lineData}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: { position: "top", labels: { usePointStyle: true, boxWidth: 6, font: { size: 12 } } },
+                            tooltip: { backgroundColor: "rgba(0, 0, 0, 0.8)", padding: 12, titleFont: { size: 14 }, bodyFont: { size: 13 }, cornerRadius: 8 },
+                          },
+                          scales: {
+                            x: {
+                              grid: { display: false },
+                              ticks: {
+                                callback: function (value) {
+                                  const label = this.getLabelForValue(value);
+                                  const maxLength = window.innerWidth < 768 ? 8 : 15;
+                                  return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+                                },
+                                maxRotation: 45,
+                                minRotation: 45,
                               },
                             },
+                            y: { beginAtZero: true, grid: { color: "rgba(0, 0, 0, 0.05)" } },
                           },
-                          tooltip: {
-                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                            padding: 12,
-                            titleFont: {
-                              size: 14,
-                            },
-                            bodyFont: {
-                              size: 13,
-                            },
-                            cornerRadius: 8,
-                          },
-                        },
-                      }}
-                    />
-                  )}
-                  {activeChart === "line" && (
-                    <Line
-                      data={lineData}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: "top",
-                            labels: {
-                              usePointStyle: true,
-                              boxWidth: 6,
-                              font: {
-                                size: 12,
-                              },
-                            },
-                          },
-                          tooltip: {
-                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                            padding: 12,
-                            titleFont: {
-                              size: 14,
-                            },
-                            bodyFont: {
-                              size: 13,
-                            },
-                            cornerRadius: 8,
-                          },
-                        },
-                        scales: {
-                          x: {
-                            grid: {
-                              display: false,
-                            },
-                            ticks: {
-                              // Handle long project names
-                              callback: function (value) {
-                                const label = this.getLabelForValue(value);
-                                // Truncate long project names
-                                const maxLength =
-                                  window.innerWidth < 768 ? 8 : 15;
-                                return label.length > maxLength
-                                  ? label.substring(0, maxLength) + "..."
-                                  : label;
-                              },
-                              maxRotation: 45,
-                              minRotation: 45,
-                            },
-                          },
-                          y: {
-                            beginAtZero: true,
-                            grid: {
-                              color: "rgba(0, 0, 0, 0.05)",
-                            },
-                          },
-                        },
-                      }}
-                    />
-                  )}
+                        }}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        )}
-        {/* Chart Section with Tabs */}
+            )
+          )}
 
-        {/* Enhanced Filters */}
-        <div className="flex flex-col gap-4 mb-4 md:flex-row">
-          <input
-            type="text"
-            placeholder="Search by name"
-            className="w-full p-2 border rounded"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-          <select
-            name="fabricator"
-            value={filters.fabricator}
-            onChange={handleFilterChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">All Fabricator</option>
-            {fabricators?.map((fab) => (
-              <option key={fab.id} value={fab.fabName}>
-                {fab.fabName}
-              </option>
-            ))}
-          </select>
-          <select
-            name="status"
-            value={filters.status}
-            onChange={handleFilterChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="">All Status</option>
-            <option value="ASSIGNED">ASSIGNED</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="ON-HOLD">ON-HOLD</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="DELAY">DELAY</option>
-            <option value="COMPLETE">COMPLETED</option>
-          </select>
-        </div>
+        
+          {/* Table */}
+          {isLoading ? (
+            renderTableSkeleton()
+          ) : (
+            <div className="overflow-x-auto rounded-lg border border-gray-200 max-h-[70vh]">
+              <AllProjects/>
+            </div>
+          )}
 
-        {/* Table Section */}
-        <div className="overflow-x-auto rounded-md border max-h-[70vh]">
-          <table
-            {...getTableProps()}
-            className="min-w-[800px] w-full border-collapse text-sm text-center"
-          >
-            <thead className="sticky top-0 z-10 bg-teal-200/80">
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="px-4 py-2 font-semibold border whitespace-nowrap"
-                    >
-                      {column.render("Header")}
-                      {column.isSorted ? (column.isSortedDesc ? " " : " ") : ""}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-4 text-center">
-                    No Projects Found
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-100">
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
-                          className="px-4 py-2 border"
-                        >
-                          {cell.render("Cell")}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
-      {selectedProject && (
-        <ProjectStatus
-          projectId={selectedProject}
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          className="max-w-full mx-auto sm:max-w-lg md:max-w-xl lg:max-w-2xl"
-        />
-      )}
-    </div>
+    </SkeletonTheme>
   );
 };
 

@@ -3,6 +3,8 @@ import Login from "./login/Login";
 
 //Dashboard
 import Dashboard from "./dashboard/staff/admin/dashboard/Dashboard";
+import WBTDashboard from "./dashboardComponent/WBTDashboard.jsx";
+import ClientDashboard from "./dashboardComponent/ClientDashboard.jsx";
 import MainContent from "./dashboard/main/MainContent";
 import ChangePassword from "./dashboard/main/ChangePassword";
 import Sidebar from "./sidebar/Sidebar.jsx";
@@ -89,6 +91,8 @@ import ReusableTable from "../util/ReusableTable.jsx";
 import DateFilter from "../util/DateFilter.jsx";
 export {
   Button,
+  WBTDashboard,
+  ClientDashboard,
   Input,
   CustomSelect,
   Toggle,
