@@ -43,7 +43,6 @@ import {
   Dashboard as ClientDashboard,
   Project as ClientProject,
   ClientAllProjects,
-  RFI as ClientRFI,
   ClientCreateRFI,
   AllReceivedRFI as ClientAllReceivedRFI,
   AllSentRFI as ClientAllSentRFI,
@@ -51,8 +50,6 @@ import {
   //to see add AllCO here
   AllCO as ClientAllCO,
   Team as ClientTeam,
-  RFQ as ClientRFQ,
-  AllRFQ as ClientAllRFQ,
   Submittals as ClientSubmittals,
   AllReceivedSubmittals as ClientAllReceivedSubmittals,
   AllSubmittals as ClientAllSubmittals,

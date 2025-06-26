@@ -1,224 +1,194 @@
 /* eslint-disable no-unused-vars */
-import { useState, useEffect } from "react";
-import Button from "../fields/Button";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Service from "../../config/Service";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { useSortBy, useTable } from "react-table";
 
 function AllRFQ() {
   const [rfq, setRfq] = useState([]);
-
+  const [selectedRFQ, setSelectedRFQ] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
-    fabricator: "",
-    project: "",
-    status: "",
-  });
 
-  const [viewData, setViewData] = useState(null);
-  const [click, setClick] = useState(false);
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleFilter = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+  const clientData =
+    useSelector((state) => state?.fabricatorData?.clientData) || [];
 
   const fetchInboxRFQ = async () => {
     try {
       const rfqDetail = await Service.inboxRFQ();
       setRfq(rfqDetail);
-      console.log("Inbox RFQ:", rfqDetail);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching RFQ:", error);
     }
   };
+
   useEffect(() => {
     fetchInboxRFQ();
   }, []);
 
-  useEffect(() => {
-    const filteredData = rfq?.filter((item) => {
-      //search filter
-      const matchedSearchTerm =
-        item.fabricatorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.clientName.toLowerCasnsole().includes(searchTerm.toLowerCase()) ||
-        item.projectName.toLowerCase().includes(searchTerm.toLowerCase());
-      //filter dropdown fabricator
-      const matchedFabricator =
-        !filters.fabricator ||
-        item.fabricatorName.toLowerCase() === filters.fabricator.toLowerCase();
-      //filter dropdown project
-      const matchedProject =
-        !filters.project ||
-        item.projectName.toLowerCase() === filters.project.toLowerCase();
-      //filter dropdown status
-      const matchedStatus =
-        !filters.status ||
-        item.status.toLowerCase() === filters.status.toLowerCase();
-
-      return (
-        matchedSearchTerm &&
-        matchedFabricator &&
-        matchedProject &&
-        matchedStatus
-      );
+  const filteredRFQ = useMemo(() => {
+    return rfq.filter((item) => {
+      const combined =
+        `${item.projectName} ${item.subject} ${item.sender_id}`.toLowerCase();
+      return combined.includes(searchTerm.toLowerCase());
     });
+  }, [rfq, searchTerm]);
 
-    setRfq(filteredData);
-  }, [searchTerm, filters]);
+  const columns = useMemo(
+    () => [
+      {
+        Header: "S.No",
+        accessor: (row, i) => i + 1,
+        id: "sno",
+      },
+      {
+        Header: "Project Name",
+        accessor: "projectName",
+      },
+      {
+        Header: "Mail ID",
+        accessor: (row) => {
+          const matchedClient = clientData.find(
+            (client) =>
+              client.email === row.sender_id || client.id === row.sender_id
+          );
+          return matchedClient ? matchedClient.email : row.sender_id;
+        },
+        id: "mailId",
+      },
+      {
+        Header: "Subject",
+        accessor: "subject",
+      },
+      {
+        Header: "Date",
+        accessor: "date",
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+      },
+    ],
+    [clientData]
+  );
 
-  const [selectedRFQ, setSelectedRFQ] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable({ columns, data: filteredRFQ }, useSortBy);
 
-  const handleModalClose = async () => {
+  const handleRowClick = useCallback((rfqItem) => {
+    setSelectedRFQ(rfqItem);
+    setIsModalOpen(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
     setSelectedRFQ(null);
     setIsModalOpen(false);
-  };
-  const handleViewClick = (rfq) => {
-    console.log(rfq);
-    const updatedRfq = { ...rfq, status: "Opened" };
-    setRfq((prevRfq) =>
-      prevRfq.map((item) => (item.id === rfq.id ? updatedRfq : item))
-    );
-
-    setSelectedRFQ(updatedRfq);
-    setIsModalOpen(true);
-  };
-
-  // const handleViewClick = (data) => {
-  //   setViewData(data);
-  //   setClick(true);
-  // };
-
-  const clientData = useSelector((state) => state?.fabricatorData?.clientData);
-  // console.log("------------------>cd", clientData);
-
-  rfq?.map((data) => {
-    const matchedClient = clientData.find(
-      (client) =>
-        client.email === data.sender_id || client.id === data.sender_id
-    );
-
-    return (
-      <tr key={data.id} className="bg-white">
-        <td className="px-2 py-1">{data.projectName}</td>
-        <td className="px-2 py-1">
-          {matchedClient ? matchedClient.email : data.sender_id}
-        </td>
-        <td className="px-2 py-1">{data.subject}</td>
-        <td className="px-2 py-1">{data.date}</td>
-        <td className="px-2 py-1">{data.rfqStatus}</td>
-        <td className="px-2 py-1">
-          <Button onClick={() => handleViewClick(data)}>View</Button>
-        </td>
-      </tr>
-    );
-  });
-
-  //GET DATA FROM RESPONSE_rfq CHECK IF RESPONSE IS TRUE IF TRUE STATUS IS RESPONDED
+  }, []);
 
   return (
-    <>
-      <div className="flex items-center justify-center w-full bg-white/80">
-        <div className="w-full h-[89vh] overflow-y-hidden mx-5">
-          <input
-            type="text"
-            placeholder="Search by remarks or recipient"
-            className="w-[96%] px-2 py-1 m-5 border border-gray-300 rounded "
-            onChange={handleSearch}
-          />
-          <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-3">
-            <div className="px-2 py-1 border border-gray-300 rounded">
-              <select
-                name="fabricator"
-                onChange={handleFilter}
-                className="px-2 py-1 border border-gray-300 rounded"
+    <div className="w-full p-4 rounded-lg bg-white/70">
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by project, subject, sender..."
+          className="w-full p-2 border border-gray-300 rounded"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <div className="overflow-x-auto border rounded-md">
+        <table {...getTableProps()} className="min-w-full border-collapse">
+          <thead className="bg-gray-100">
+            {headerGroups.map((headerGroup, headerGroupIdx) => (
+              <tr
+                {...headerGroup.getHeaderGroupProps()}
+                key={headerGroup.id || headerGroupIdx}
               >
-                <option value="">Filter by Fabricator</option>
-                <option value="Fabricator 1">Fabricator 1</option>
-              </select>
-            </div>
-            <div className="px-2 py-1 border border-gray-300 rounded">
-              <select
-                name="project"
-                onChange={handleFilter}
-                className="px-2 py-1 border border-gray-300 rounded"
+                {headerGroup.headers.map((column, colIdx) => (
+                  <th
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    key={column.id || colIdx}
+                    className="p-2 text-left border-b cursor-pointer"
+                  >
+                    {column.render("Header")}
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
+                        : ""}
+                    </span>
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody {...getTableBodyProps()}>
+            {rows.length > 0 ? (
+              rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    {...row.getRowProps()}
+                    key={row.id || row.index}
+                    className="hover:bg-gray-100 cursor-pointer transition"
+                    onClick={() => handleRowClick(row.original)}
+                  >
+                    {row.cells.map((cell) => (
+                      <td
+                        {...cell.getCellProps()}
+                        key={cell.column.id}
+                        className="p-2 border-b"
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="p-4 text-center text-gray-500"
+                >
+                  No RFI data available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {isModalOpen && selectedRFQ && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="p-6 bg-white rounded-md shadow-md w-[90%] md:w-[60%]">
+            <h2 className="mb-2 text-lg font-bold">RFQ Details</h2>
+            <p>
+              <strong>Project:</strong> {selectedRFQ.projectName}
+            </p>
+            <p>
+              <strong>Subject:</strong> {selectedRFQ.subject}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedRFQ.status}
+            </p>
+            <p>
+              <strong>Date:</strong> {selectedRFQ.date}
+            </p>
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleModalClose}
+                className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
               >
-                <option value="">Filter by Project</option>
-                <option value="Project 1">Project 1</option>
-              </select>
-            </div>
-            <div className="px-2 py-1 border border-gray-300 rounded">
-              <select
-                name="status"
-                onChange={handleFilter}
-                className="px-2 py-1 border border-gray-300 rounded"
-              >
-                <option value="">Filter by Status</option>
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-              </select>
+                Close
+              </button>
             </div>
           </div>
-
-          <table className="min-w-full text-sm text-center border-collapse md:texport default AllRFQ;ext-lg rounded-xl">
-            <thead>
-              <tr className="bg-teal-200/70">
-                <th className="px-2 py-1 border-2">Project Name</th>
-                <th className="px-2 py-1 border-2">Mail ID</th>
-                <th className="px-2 py-1 border-2">Subject/Remarks</th>
-                <th className="px-2 py-1 border-2">Date</th>
-                <th className="px-2 py-1 border-2">RFQ Status</th>
-                <th className="px-2 py-1 border-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rfq?.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="px-2 py-1 text-center">
-                    No RFQ Found
-                  </td>
-                </tr>
-              ) : (
-                rfq?.map((data) => {
-                  const matchedClient = clientData.find(
-                    (client) =>
-                      client.email === data.sender_id ||
-                      client.id === data.sender_id
-                  );
-                  return (
-                    <tr key={data.id} className="bg-white">
-                      <td className="px-2 py-1 border-2">{data.projectName}</td>
-                      <td className="px-2 py-1 border-2">
-                        {matchedClient ? matchedClient.email : data.sender_id}
-                      </td>
-                      <td className="px-2 py-1 border-2">{data.subject}</td>
-                      <td className="px-2 py-1 border-2">{data.date}</td>
-                      <td className="px-2 py-1 border-2">{data.status}</td>
-                      <td className="px-2 py-1 border-2">
-                        <Button onClick={() => handleViewClick(data)}>
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
         </div>
-      </div>
-      {/* {selectedRFQ && (
-        <ViewRFQ
-          data={selectedRFQ}
-          isOpen={selectedRFQ}
-          onClose={handleModalClose}
-        />
-      )} */}
-    </>
+      )}
+    </div>
   );
 }
 
