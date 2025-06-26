@@ -26,7 +26,7 @@ const Badge = ({ children, variant = "default", className = "" }) => {
 
 const Tabs = ({ tabs, activeTab, onChange, className = "" }) => (
     <div className={`border-b border-gray-200 ${className}`}>
-        <nav className="flex -mb-px space-x-8">
+        <nav className="flex -mb-px space-x-8 overflow-x-auto">
             {tabs.map((tab) => (
                 <button
                     key={tab.id}

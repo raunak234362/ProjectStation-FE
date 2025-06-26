@@ -208,11 +208,8 @@ const routes = [
           },
           {
             path: "rfq",
-            element: <ClientRFQ />,
-            children: [
-              { path: "add-rfq", element: <AddRFQ /> },
-              { path: "all-rfq", element: <ClientAllRFQ /> },
-            ],
+            element: <RFQ />,
+            
           },
           {
             path: "rfi",

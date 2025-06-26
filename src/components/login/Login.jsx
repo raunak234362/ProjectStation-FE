@@ -62,7 +62,7 @@ const Login = () => {
         else if (userType === "estimator") navigate("dashboard");
         else if (userType === "human-resource") navigate("dashboard");
         else if (userType === "client") navigate("dashboard");
-        else if (userType === "sales") navigate("sales");
+        else if (userType === "sales") navigate("dashboard");
         else if (userType === "user") navigate("dashboard");
         else if (userType === "department-manager")
           navigate("dashboard");

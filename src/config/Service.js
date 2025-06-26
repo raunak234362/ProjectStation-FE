@@ -157,7 +157,6 @@ class Service {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Dashboard Counts:", response.data);
       return response.data;
     } catch (error) {
       console.log("Error fetching dashboard counts:", error);
@@ -280,7 +279,6 @@ class Service {
 
   // Fetch Fabricator -- updated
   static async getFabricator(id) {
-    console.log("Service:---", id);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/fabricator/fabricator/${id}`, {
@@ -339,7 +337,6 @@ class Service {
     try {
       const token = sessionStorage.getItem("token");
       const clientData = { ...data };
-      console.log("clientData----", clientData);
       const response = await api.post(
         `/api/client/client/${data.fabricator}/addclient/`,
         clientData,
@@ -404,7 +401,6 @@ class Service {
         if (data[key]) vendorData.append(key, data[key]);
       });
       vendorData.append("role", "VENDOR");
-      console.log(data);
       const response = await api.post(`/api/vendor/`, vendorData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -426,7 +422,6 @@ class Service {
         if (data[key]) vendorUserData.append(key, data[key]);
       });
       vendorUserData.append("role", "VENDOR");
-      console.log(data);
       const response = await api.post(
         `/api/vendor/${data["vendor"]}/users/`,
         vendorUserData,
@@ -511,7 +506,6 @@ class Service {
 
   // Fetch all projects --updated
   static async fetchProjectByID(id) {
-    console.log("Service:---", id);
     try {
       const response = await api.get(`/api/project/projects/${id}`, {
         headers: {
@@ -519,7 +513,6 @@ class Service {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("Response from fetchProjectByID:", response.data);
       return response.data.data;
     } catch (error) {
       console.log("Error fetching projects:", error);
@@ -529,7 +522,6 @@ class Service {
 
   // Edit project by ID -- updated
   static async editProject(id, data) {
-    console.log("Service:---", id);
     try {
       const response = await api.patch(`/api/project/projects/${id}`, data, {
         headers: {
@@ -583,8 +575,6 @@ class Service {
 
   // Fetch all Project File --updated
   static async allProjectFile(projectID, fileID) {
-    console.log("projectID----", projectID);
-    console.log("fileID----", fileID);
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(
@@ -639,8 +629,6 @@ class Service {
   }
 
   static async allSubTasks(projectId, wbActivityId, projectStage) {
-    console.log("Service:---", projectId);
-    console.log("Service:---", wbActivityId);
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(
@@ -662,7 +650,6 @@ class Service {
   //Add WorkBreakdown
   static async addWorkBreakdown(projectId, wbActivityId, workBreakdownData) {
     const formData = { ...workBreakdownData };
-    console.log(formData);
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
@@ -684,7 +671,6 @@ class Service {
   //Add More Subtasks
   static async addOneSubTask(projectId, wbActivityId, workBreakdownData) {
     const formData = { ...workBreakdownData };
-    console.log(formData);
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
@@ -708,7 +694,6 @@ class Service {
   //Add More Subtasks
   static async editOneSubTask(subtaskId, subtask) {
     const formData = { ...subtask };
-    console.log(formData);
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.patch(`/api/st/${subtaskId}`, formData, {
@@ -778,8 +763,6 @@ class Service {
 
   //
   static async addTeamMember(teamID, data) {
-    console.log("Service:---", teamID);
-    console.log("Service:---", data);
     const formData = { ...data };
     try {
       const token = sessionStorage.getItem("token");
@@ -802,12 +785,10 @@ class Service {
 
   // Add CO#---> CO/coTable/coid
   static async addCO(coData) {
-    console.log(coData);
     const data = new FormData();
 
     // Append files
     for (let i = 0; i < coData?.files.length; i++) {
-      console.log("File:", coData?.files[i]);
       data.append("files", coData?.files[i]);
     }
     // Append other fields
@@ -819,7 +800,6 @@ class Service {
     data.append("description", coData?.description);
     // data.append("rows", coData?.rows);
 
-    console.log("Data-------------", data);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(`/api/CO/addco`, data, {
@@ -828,7 +808,6 @@ class Service {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Response CO:", response.data);
       return response.data;
     } catch (error) {
       console.log("Error adding CO:", error);
@@ -838,7 +817,6 @@ class Service {
 
   //Add CO table
   static async addCOTable(coTable, id) {
-    console.log("Sending CO:", coTable);
     const coTableData = { ...coTable };
     try {
       const token = sessionStorage.getItem("token");
@@ -848,8 +826,6 @@ class Service {
           "Content-Type": "application/json",
         },
       });
-
-      console.log("Response CO:", response.data);
       return response.data;
     } catch (error) {
       console.error("Error adding row to CO:", error);
@@ -858,7 +834,6 @@ class Service {
   }
   //submitting co
   static async submitStatusOfCO(coId, formData) {
-    console.log("CO------------", formData);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.put(`api/co/updateStatus/${coId}`, formData, {
@@ -876,7 +851,6 @@ class Service {
 
   //view CO table
   static async fetchCOTable(id) {
-    console.log("iiiiiiiiiiiii", id);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/co/coRow/${id}`, {
@@ -950,7 +924,6 @@ class Service {
           "Content-Type": "application/json",
         },
       });
-      console.log(response);
       return response;
     } catch (error) {
       console.log("Error fetching CO:", error);
@@ -967,7 +940,6 @@ class Service {
           "Content-Type": "application/json",
         },
       });
-      console.log(response);
       return response;
     } catch (error) {
       console.log("Error fetching CO:", error);
@@ -977,12 +949,10 @@ class Service {
 
   //RFI
   static async addRFI(rfiData) {
-    console.log(rfiData);
     const data = new FormData();
 
     // Append files
     for (let i = 0; i < rfiData?.files.length; i++) {
-      console.log("File:", rfiData?.files[i]);
       data.append("files", rfiData?.files[i]);
     }
 
@@ -994,7 +964,6 @@ class Service {
     data.append("subject", rfiData?.subject);
     data.append("description", rfiData?.description);
 
-    console.log("Data-------------", data);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(`/api/rfi/rfi/addrfi`, data, {
@@ -1094,7 +1063,6 @@ class Service {
 
   // Fetch rfq response
   static async fetchRFQResponseById(id) {
-    console.log(id);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/RFQ/getResponse/${id}`, {
@@ -1103,7 +1071,6 @@ class Service {
           "Content-Type": "application/form-data",
         },
       });
-      console.log("rrrddddddddddddddd", response.data);
       return response.data;
     } catch (error) {
       console.log("Error fetching RFQ Response:", error);
@@ -1118,7 +1085,6 @@ class Service {
 
     // Append files
     for (let i = 0; i < RFQData?.files.length; i++) {
-      console.log("File:", RFQData?.files[i]);
       data.append("files", RFQData?.files[i]);
     }
 
@@ -1172,7 +1138,6 @@ class Service {
 
     // Append files
     for (let i = 0; i < submittals?.files.length; i++) {
-      console.log("File:", submittals?.files[i]);
       data.append("files", submittals?.files[i]);
     }
 
@@ -1211,7 +1176,6 @@ class Service {
           },
         }
       );
-      console.log("Response Submittals:", response.data);
       return response.data.data;
     } catch (error) {
       console.log("Error adding RFI:", error);
@@ -1238,7 +1202,6 @@ class Service {
 
   //get sent rfi response
   static async getSentRFIResponse(rfiId) {
-    console.log("Service:---", rfiId);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/RFI/getResponse/${rfiId}`, {
@@ -1290,7 +1253,6 @@ class Service {
   }
   // Fetch submittal response client->admin
   static async fetchSubmittalsResponse(submittalResponseId) {
-    console.log("Service:---", submittalResponseId);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(
@@ -1310,7 +1272,6 @@ class Service {
   }
 
   static async respondSubmittals(submittalsId, formData) {
-    console.log("Submittals------------", formData);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
@@ -1332,7 +1293,6 @@ class Service {
 
   //response rfi
   static async respondRFI(rfiId, formData) {
-    console.log("RFI------------", formData);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
@@ -1412,7 +1372,6 @@ class Service {
           },
         }
       );
-      console.log("Work Breakdown Hours:", response.data.data);
       return response.data.data;
     } catch (error) {
       console.log("Error fetching work breakdown activity:", error);
@@ -1433,7 +1392,6 @@ class Service {
           },
         }
       );
-      console.log("Work Breakdown Hours:", response.data.data);
       return response.data.data;
     } catch (error) {
       console.log("Error fetching work breakdown activity:", error);
@@ -1550,7 +1508,6 @@ class Service {
           },
         }
       );
-      console.log("Chat by Group ID: ", response.data.data);
       return response.data.data;
     } catch (error) {
       console.log("Error in getting Group Chat: ", error);

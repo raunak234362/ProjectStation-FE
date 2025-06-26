@@ -5,6 +5,7 @@ import Login from "./login/Login";
 import Dashboard from "./dashboard/staff/admin/dashboard/Dashboard";
 import WBTDashboard from "./dashboardComponent/WBTDashboard.jsx";
 import ClientDashboard from "./dashboardComponent/ClientDashboard.jsx";
+import SalesDashboard from "./dashboardComponent/SalesDashboard.jsx";
 import MainContent from "./dashboard/main/MainContent";
 import ChangePassword from "./dashboard/main/ChangePassword";
 import Sidebar from "./sidebar/Sidebar.jsx";
@@ -22,9 +23,7 @@ import ProjectDashboard from "./dashboard/staff/admin/Project/ProjectDashboard";
 import AddWB from "./dashboard/staff/admin/Project/wb/AddWB";
 import JobStudy from "./dashboard/staff/admin/Project/wb/JobStudy";
 import SelectedWBTask from "./dashboard/staff/admin/Project/wb/SelectedWBTask";
-
 //RFQ
-import RFQ from "./dashboard/staff/admin/rfq/RFQ";
 import AllRFQ from "./dashboard/staff/admin/rfq/AllRFQ.jsx";
 import SendRFQ from "./dashboard/staff/admin/rfq/SendRFQ.jsx";
 import ShowRFQResponse from "./dashboard/staff/admin/rfq/ShowRFQResponse.jsx";
@@ -60,6 +59,10 @@ import AllSentRFI from "./dashboard/staff/admin/rfi/AllSentRFI";
 import AllReceivedRFI from "./dashboard/staff/admin/rfi/AllReceivedRFI";
 import GetSentRFI from "./dashboard/staff/admin/rfi/GetSentRFI";
 
+//RFQ 
+import RFQ from "./rfq/RFQ.jsx";
+
+
 //Submittals
 import Submittals from "./submittals/Submittals.jsx";
 import SendSubmittals from "./dashboard/staff/admin/submittals/SendSubmittals";
@@ -92,7 +95,9 @@ import DateFilter from "../util/DateFilter.jsx";
 export {
   Button,
   WBTDashboard,
+  RFQ,
   ClientDashboard,
+  SalesDashboard,
   Input,
   CustomSelect,
   Toggle,
@@ -116,7 +121,6 @@ export {
   ProjectStatus,
   EditProject,
   AddWB,
-  RFQ,
   AllRFQ,
   Chats,
   SendRFQ,
