@@ -77,7 +77,7 @@ import SendCO from "./dashboard/staff/admin/co/SendCO";
 // import AllCO from "./dashboard/client/admin/co/AllCO.jsx"
 
 //Chats
-import Chats from "./dashboard/staff/admin/chats/Chats";
+import Chats from "./chats/Chats";
 
 //Error Handling
 import ErrorBoundary from "./error/ErrorBoundary";

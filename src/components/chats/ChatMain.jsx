@@ -1,15 +1,14 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { Smile, Paperclip, Mic, Send } from "lucide-react"
-import Button from "../../../../fields/Button"
 import ChatHead from "./ChatHead"
 import { useForm } from "react-hook-form"
-import Input from "../../../../fields/Input"
 import { useSelector } from "react-redux"
 import { useEffect, useState, useRef } from "react"
-import socket from "../../../../../socket"
-import Service from "../../../../../config/Service"
-import ChatBG from "../../../../../assets/CHATBG.webp"
+import socket from "../../socket"
+import Service from "../../config/Service"
+import ChatBG from "../../assets/CHATBG.webp"
+import Button from "../fields/Button"
 
 const ChatMain = ({ activeChat, setActiveChat }) => {
   const [recentChats, setRecentChats] = useState([])
@@ -296,7 +295,7 @@ const ChatMain = ({ activeChat, setActiveChat }) => {
             placeholder="Type a message (Shift + Enter for newline)"
             className="flex-1 resize-none border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring"
           />
-          <Button size="icon" onClick={handleMessage} className="text-green-500">
+          <Button size="icon" onClick={handleMessage} className="bg-teal-500 text-white hover:bg-teal-600 rounded-full p-2">
             <Send size={24} />
           </Button>
         </form>

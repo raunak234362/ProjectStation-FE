@@ -2,11 +2,11 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import Select from "react-select";
-import Button from "../../../../fields/Button";
 import { useSelector } from "react-redux";
-import { Input } from "../../../..";
 import { useForm, Controller } from "react-hook-form";
-import Service from "../../../../../config/Service";
+import Service from "../../config/Service";
+import Button from "../fields/Button";
+import Input from "../fields/Input";
 
 const AddGroupModal = ({ onClose }) => {
     const [step, setStep] = useState(1);

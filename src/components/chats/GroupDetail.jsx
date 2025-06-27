@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import Service from "../../../../../config/Service";
-import Button from "../../../../fields/Button";
 import { useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
+import Service from "../../config/Service";
+import Button from "../fields/Button";
 
 const GroupDetail = ({ group, onClose }) => {
     console.log("Group in GroupDetail:", group)
@@ -107,7 +107,7 @@ const GroupDetail = ({ group, onClose }) => {
                 </div>
                 {userType === "admin" && (
                     <div>
-                        <Button className="mt-4" onClick={() => handleAddGroupMemberClick(groupId)}>
+                        <Button className="mt-4 bg-teal-500 px-2 py-1" onClick={() => handleAddGroupMemberClick(groupId)}>
                             Add Group Member
                         </Button>
                     </div>

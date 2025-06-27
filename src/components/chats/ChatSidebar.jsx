@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
-import Button from "../../../../fields/Button"
 import { useState } from "react"
 import AddGroupModal from "./AddGroupModal"
 import { MdGroupAdd } from "react-icons/md"
 import { TiUserAdd } from "react-icons/ti";
+import Button from "../fields/Button";
 const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, setUnreadChatIds }) => {
   // const [activeChat, setActiveChat] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false);

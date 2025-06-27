@@ -3,8 +3,8 @@ import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import ChatSidebar from "./ChatSidebar"
 import ChatMain from "./ChatMain"
-import Service from "../../../../../config/Service"
-import socket from "../../../../../socket"
+import Service from "../../config/Service"
+import socket from "../../socket"
 import useGroupMessages from "./ReceivedGroupMessage"
 
 const Chats = () => {
@@ -83,7 +83,7 @@ const Chats = () => {
 
 
   return (
-    <div className="w-full md:mr-5 h-[89vh] md:h-[88vh] mt-4 flex overflow-hidden bg-white rounded-lg shadow-lg relative">
+    <div className="w-full h-[90vh] md:h-screen flex overflow-hidden bg-white rounded-lg shadow-lg relative">
 
       {/* Desktop View: Sidebar + Chat */}
       <div className="hidden md:flex w-full h-full">

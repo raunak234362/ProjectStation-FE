@@ -1,7 +1,7 @@
 // useGroupMessages.js
 
 import { useEffect } from "react";
-import socket from "../../../../../socket";
+import socket from "../../socket";
 
 const useGroupMessages = (onGroupMessageReceived) => {
   useEffect(() => {
