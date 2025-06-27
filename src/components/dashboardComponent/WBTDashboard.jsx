@@ -373,7 +373,7 @@ const WBTDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               Project Dashboard
             </h1>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2 bg-teal-500 text-white hover:bg-teal-600">
               <Download className="w-4 h-4" />
               Export CSV
             </Button>
