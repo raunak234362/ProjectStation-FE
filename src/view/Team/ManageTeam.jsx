@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
 
 import { useState } from "react";
-import AllEmployees from "./AllEmployee";
-import AddDepartment from "./AddDepartment";
-import AddEmployee from "./AddEmployee";
-import AllDepartment from "./AllDepartment";
-import TeamDashboard from "./teamDashboard/TeamDashboard";
+import AllEmployees from "../../components/Team/AllEmployee";
+import AddDepartment from "../../components/Team/AddDepartment";
+import AddEmployee from "../../components/Team/AddEmployee";
+import AllDepartment from "../../components/Team/AllDepartment";
+import TeamDashboard from "../../components/Team/teamDashboard/TeamDashboard";
 
 const ManageTeam = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);

@@ -34,7 +34,7 @@ import AddClient from "./fabricator/AddClient.jsx";
 import GetFabricator from "./fabricator/GetFabricator.jsx";
 import AllFabricator from "./fabricator/AllFabricator.jsx";
 //Team
-import ManageTeam from "./Team/ManageTeam.jsx"
+import ManageTeam from "../view/Team/ManageTeam.jsx"
 import AllTeam from "./dashboard/staff/admin/Team/AllTeam.jsx";
 import AddTeam from "./dashboard/staff/admin/Team/AddTeam";
 import AddEmployee from "./Team/AddEmployee";
