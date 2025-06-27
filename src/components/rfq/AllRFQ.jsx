@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Service from "../../config/Service";
 import { useSelector } from "react-redux";
 import { useSortBy, useTable } from "react-table";
+import GetRFQ from "./GetRFQ";
 
 function AllRFQ() {
   const [rfq, setRfq] = useState([]);
@@ -161,33 +162,7 @@ function AllRFQ() {
         </table>
       </div>
 
-      {isModalOpen && selectedRFQ && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="p-6 bg-white rounded-md shadow-md w-[90%] md:w-[60%]">
-            <h2 className="mb-2 text-lg font-bold">RFQ Details</h2>
-            <p>
-              <strong>Project:</strong> {selectedRFQ.projectName}
-            </p>
-            <p>
-              <strong>Subject:</strong> {selectedRFQ.subject}
-            </p>
-            <p>
-              <strong>Status:</strong> {selectedRFQ.status}
-            </p>
-            <p>
-              <strong>Date:</strong> {selectedRFQ.date}
-            </p>
-            <div className="mt-4 text-right">
-              <button
-                onClick={handleModalClose}
-                className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {isModalOpen && (<GetRFQ data={selectedRFQ} onClose={handleModalClose} isOpen={isModalOpen} />)}
     </div>
   );
 }

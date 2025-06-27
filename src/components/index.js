@@ -34,13 +34,13 @@ import AddClient from "./fabricator/AddClient.jsx";
 import GetFabricator from "./fabricator/GetFabricator.jsx";
 import AllFabricator from "./fabricator/AllFabricator.jsx";
 //Team
+import ManageTeam from "./Team/ManageTeam.jsx"
 import AllTeam from "./dashboard/staff/admin/Team/AllTeam.jsx";
 import AddTeam from "./dashboard/staff/admin/Team/AddTeam";
-import ManageTeam from "./dashboard/staff/admin/Team/ManageTeam";
-import AddEmployee from "./dashboard/staff/admin/Team/AddEmployee";
-import AllEmployees from "./dashboard/staff/admin/Team/AllEmployees";
-import AllDepartment from "./dashboard/staff/admin/Team/AllDepartment";
-import AddDepartment from "./dashboard/staff/admin/Team/AddDepartment";
+import AddEmployee from "./Team/AddEmployee";
+import AllEmployees from "./Team/AllEmployee";
+import AllDepartment from "./Team/AllDepartment";
+import AddDepartment from "./Team/AddDepartment";
 
 //Vendor
 import Vendor from "./dashboard/staff/admin/vendor/Vendor";
@@ -99,6 +99,7 @@ export {
   ClientDashboard,
   SalesDashboard,
   Input,
+  ManageTeam,
   CustomSelect,
   Toggle,
   AddFiles,
@@ -128,7 +129,6 @@ export {
   JobStudy,
   SelectedWBTask,
   ProjectDashboard,
-  ManageTeam,
   AddEmployee,
   AllEmployees,
   AllDepartment,

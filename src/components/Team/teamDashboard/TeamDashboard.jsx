@@ -9,9 +9,9 @@ import { useEffect, useState, useMemo } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { useTable, useSortBy, useGlobalFilter } from "react-table"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
-import Service from "../../../../../../config/Service"
-import EmployeeStatus from "../EmployeeStatus"
-import DateFilter from "../../../../../../util/DateFilter"
+import Service from "../../../config/Service"
+import EmployeeStatus from "../../dashboard/staff/admin/Team/EmployeeStatus"
+import DateFilter from "../../../util/DateFilter"
 import { Clock, CheckCircle, ArrowUp, ChevronUp, ChevronDown } from "lucide-react"
 
 const TeamDashboard = () => {
@@ -438,7 +438,7 @@ const TeamDashboard = () => {
     )
 
     return (
-        <div className="bg-gray-50 h-[80vh] overflow-y-auto p-4 md:p-6">
+        <div className="bg-gray-50 overflow-y-auto p-4 md:p-6">
             {/* Dashboard Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                 <h1 className="text-2xl font-bold text-gray-800">Team Performance Dashboard</h1>

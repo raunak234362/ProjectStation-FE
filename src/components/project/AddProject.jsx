@@ -190,7 +190,12 @@ const AddProject = () => {
           </div>
 
           <div className="text-center">
-            <Button type="submit">Add Project</Button>
+            <Button
+              type="submit"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            >
+              Add Project
+            </Button>
           </div>
         </form>
       </div>

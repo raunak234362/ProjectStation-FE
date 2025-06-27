@@ -168,7 +168,7 @@ const ViewRFQ = ({ data, onClose, isOpen }) => {
                                   // >
                                   //   {file.originalName || "Unnamed File"}
                                   // </a>
-                                  <a>Files</a>
+                                  <a key={file.id}>Files</a>
                                 ))
                               ) : (
                                 <div className="bg-gray-500">

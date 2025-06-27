@@ -145,7 +145,7 @@ const AddFabricator = () => {
                     </div>
 
                     <div className="pt-4">
-                        <Button type="submit" className="w-full">
+                         <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold">
                             Add Fabricator
                         </Button>
                     </div>

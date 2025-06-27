@@ -2,12 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import Input from "../../../../fields/Input";
-import Button from "../../../../fields/Button";
-import Service from "../../../../../config/Service";
+import Service from "../../config/Service";
 import { toast } from "react-toastify";
-import { CustomSelect } from "../../../..";
-import { updateStaffData } from "../../../../../store/userSlice";
+import { updateStaffData } from "../../store/userSlice";
+import Input from "../fields/Input";
+import { Button, CustomSelect } from "..";
 
 /* eslint-disable react/prop-types */
 const EditEmployee = ({ employee, onClose }) => {
@@ -151,7 +150,7 @@ const EditEmployee = ({ employee, onClose }) => {
                 {...register("email")}
               />
             </div>
-            <div className="flex flex-row gap-2 mt-5">
+            <div className="flex flex-row justify-between gap-2 mt-5">
               <div>
                 <Button type="submit">Edit Employee</Button>
               </div>

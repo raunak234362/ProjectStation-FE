@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import GetDepartment from "./GetDepartment";
-import Button from "../../../../fields/Button";
+import Button from "../fields/Button";
 
 const AllDepartment = () => {
   const [filteredDepartments, setFilteredDepartments] = useState([]);
@@ -62,7 +62,7 @@ const AllDepartment = () => {
 
   return (
     <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="mt-5 p-4">
+      <div className="p-4">
         {/* Search Bar */}
         <input
           type="text"

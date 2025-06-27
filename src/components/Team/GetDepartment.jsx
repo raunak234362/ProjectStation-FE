@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
-import Button from "../../../../fields/Button";
+import Button from "../fields/Button";
 import { useSelector } from "react-redux";
-import EditDepartment from "./EditDepartment";
+import EditDepartment from "../dashboard/staff/admin/Team/EditDepartment";
 
 const GetDepartment = ({ departmentID, onClose }) => {
   console.log(departmentID);

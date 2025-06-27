@@ -1,18 +1,14 @@
 /* eslint-disable no-unused-vars */
 //For WBT-Admin
 import {
-  AddEmployee,
   AddProject,
   AddVendor,
-  AllEmployees,
   EditProject,
   ErrorBoundary,
   MainContent,
   ManageTeam,
   Vendor,
   AllVendors,
-  AllDepartment,
-  AddDepartment,
   ChangePassword,
   AllVendorUser,
   AddVendorUser,
@@ -28,14 +24,10 @@ import {
   SendCO,
   AllReceivedCO,
   AllSentCO,
-  Dashboard,
-  AllTeam,
-  AddTeam,
   ProjectDashboard,
   RFQ,
   AllRFQ,
   Chats,
-  WBTDashboard,
 } from "../components/index.js";
 
 //For Client-Admin
@@ -69,7 +61,7 @@ import {
 
 import LoginContent from "../view/login/LoginContent";
 import App from "../App.jsx";
-import TeamDashboard from "../components/dashboard/staff/admin/Team/teamDashboard/TeamDashboard.jsx";
+import TeamDashboard from "../components/Team/teamDashboard/TeamDashboard.jsx";
 import RequireAuth from "../middleware/RequireAuth.jsx";
 import FabricatorView from "../view/fabricator/FabricatorView.jsx";
 import ProjectView from "../view/project/ProjectView.jsx";
@@ -129,15 +121,7 @@ const routes = [
           {
             path: "team",
             element: <ManageTeam />,
-            children: [
-              { path: "add-employee", element: <AddEmployee /> },
-              { path: "all-employees", element: <AllEmployees /> },
-              { path: "all-department", element: <AllDepartment /> },
-              { path: "add-department", element: <AddDepartment /> },
-              { path: "add-team", element: <AddTeam /> },
-              { path: "all-team", element: <AllTeam /> },
-              { path: "team-dashboard", element: <TeamDashboard /> },
-            ],
+            
           },
           {
             path: "rfi",
