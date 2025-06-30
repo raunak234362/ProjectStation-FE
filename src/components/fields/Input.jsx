@@ -23,7 +23,7 @@ function Input(
           label={label}
           className={`px-3 py-1 w-full rounded-lg bg-white text-gray-700 focus:bg-slate-300 focus:bg-opacity-60 duration-200 ${className}`}
           ref={ref}
-          placeholder={label}
+          // placeholder={label}
           {...props}
           id={id}
         />

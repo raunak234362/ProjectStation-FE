@@ -38,7 +38,7 @@ const Sidebar = () => {
     // { label: "Change Order", to: "change-order", icon: <ReplaceAll />, roles: ["admin", "department-manager"] },
     { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin", "department-manager"] },
     { label: "Manage Team", to: "team", icon: <Database />, roles: ["admin", "department-manager", "human-resource"] },
-    { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "manager", "client", "department-manager"] },
+    { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "department-manager", "client", "project-manager", "user"] },
     { label: "Profile", to: "profile", icon: <CgProfile />, roles: ["admin", "user", "client", "estimator", "sales", "department-manager", "human-resource"] },
   ];
 

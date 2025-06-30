@@ -10,13 +10,17 @@ function AllRFQ() {
   const [selectedRFQ, setSelectedRFQ] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const clientData =
-    useSelector((state) => state?.fabricatorData?.clientData) || [];
+  const userType = sessionStorage.getItem("userType");
+  const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
   const fetchInboxRFQ = async () => {
     try {
-      const rfqDetail = await Service.inboxRFQ();
+      let rfqDetail;
+      if (userType === "client") {
+        rfqDetail = await Service.sentRFQ();
+      } else {
+        rfqDetail = await Service.inboxRFQ();
+      }
       setRfq(rfqDetail);
     } catch (error) {
       console.error("Error fetching RFQ:", error);
@@ -162,7 +166,13 @@ function AllRFQ() {
         </table>
       </div>
 
-      {isModalOpen && (<GetRFQ data={selectedRFQ} onClose={handleModalClose} isOpen={isModalOpen} />)}
+      {isModalOpen && (
+        <GetRFQ
+          data={selectedRFQ}
+          onClose={handleModalClose}
+          isOpen={isModalOpen}
+        />
+      )}
     </div>
   );
 }

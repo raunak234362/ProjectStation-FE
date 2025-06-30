@@ -16,12 +16,7 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
     reset,
     register,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      description: "",
-      files: [],
-    },
-  });
+  } = useForm();
 
   const handleModalClose = useCallback(() => {
     onClose(false);
@@ -37,7 +32,7 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
 
   const onSubmit = useCallback(
     async (data) => {
-      if (files.length === 0) {
+      if (!files.length) {
         toast.error("Please select at least one file.");
         return;
       }
@@ -49,11 +44,11 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
       try {
         setIsSubmitting(true);
         setResponseTime(new Date());
-        const response = await Service.respondRfq(rfqID, formData);
+        await Service.respondRfq(rfqID, formData);
         toast.success("RFQ response submitted successfully");
         handleModalClose();
-      } catch (error) {
-        console.error("RFQ submission error:", error);
+      } catch (err) {
+        console.error("RFQ submission error:", err);
         toast.error("Failed to submit RFQ. Please try again.");
         setIsSubmitting(false);
         setResponseTime(null);
@@ -63,66 +58,51 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-2 bg-black bg-opacity-50">
-      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl p-4 sm:p-6">
-        <div className="flex justify-end mb-4">
-          <Button
-            className="hover:bg-red-500"
-            onClick={handleModalClose}
-            disabled={isSubmitting}
-          >
-            Close
-          </Button>
-        </div>
-        <h2 className="mb-4 text-xl font-bold text-center text-white bg-teal-400 rounded-lg py-2">
-          Response Form
-        </h2>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <MultipleFileUpload
-              label="Select Files"
-              onFilesChange={onFilesChange}
-              files={files}
-              accept="image/*,application/pdf,.pdf,.pptx,.txt,.doc,.docx"
-              disabled={isSubmitting}
-              {...register("files")}
-            />
-            {errors.files && (
-              <p className="mt-1 text-sm text-red-500">
-                This field is required
-              </p>
-            )}
-            <label className="block mt-4 text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <Input
-              type="textarea"
-              placeholder="Enter description"
-              className="w-full mt-1 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-teal-400"
-              rows={2}
-              disabled={isSubmitting}
-              {...register("description", {
-                required: "Description is required",
-              })}
-            />
-            {errors.description && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </Button>
-        </form>
-
-        {responseTime && (
-          <p className="mt-4 text-sm text-gray-600">
-            Submitted at: {responseTime.toLocaleString()}
-          </p>
-        )}
+    <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
+      <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
+        <div className="text-lg font-semibold text-white">Response To RFQ</div>
       </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <MultipleFileUpload
+          label="Upload Files"
+          onFilesChange={onFilesChange}
+          files={files}
+          accept="image/*,application/pdf,.doc,.docx,.pptx"
+          disabled={isSubmitting}
+        />
+        <div>
+          <Input
+            label="Description"
+            type="textarea"
+            rows={3}
+            className="w-full mt-1 rounded-md focus:ring-2 "
+            disabled={isSubmitting}
+            {...register("description", {
+              required: "Description is required",
+            })}
+          />
+          {errors.description && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.description.message}
+            </p>
+          )}
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+      </form>
+
+      {responseTime && (
+        <p className="mt-3 text-sm text-gray-500">
+          Submitted at: {responseTime.toLocaleString()}
+        </p>
+      )}
     </div>
   );
 };

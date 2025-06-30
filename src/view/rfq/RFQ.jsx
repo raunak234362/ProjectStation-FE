@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 
 import { useState } from "react";
-import AddRFQ from "./AddRFQ";
-import AllRFQ from "./AllRFQ";
+import AddRFQ from "../../components/rfq/AddRFQ";
+import AllRFQ from "../../components/rfq/AllRFQ";
 
 const RFQ = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);

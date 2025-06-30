@@ -60,7 +60,7 @@ import AllReceivedRFI from "./dashboard/staff/admin/rfi/AllReceivedRFI";
 import GetSentRFI from "./dashboard/staff/admin/rfi/GetSentRFI";
 
 //RFQ 
-import RFQ from "./rfq/RFQ.jsx";
+import RFQ from "../view/rfq/RFQ.jsx";
 
 
 //Submittals

@@ -112,12 +112,10 @@ const App = () => {
   }, [dispatch]);
   useSocketConnection(userId);
 
-
   return (
     <Provider store={store}>
-     
-          <NotificationReceiver />
-          <DashboardView/>
+      <NotificationReceiver />
+      <DashboardView />
     </Provider>
   );
 };

@@ -2,14 +2,18 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback } from "react";
 import Button from "../fields/Button";
+import { X } from "lucide-react";
+import RFQDetail from "./RFQDetail";
+import ResponseRFQ from "./ResponseRFQ";
 // import ResponseRFQ from "./ResponseRFQ";
 // import ViewRFQResponse from "./ViewRFQResponse";
 
 const GetRFQ = ({ data, onClose, isOpen }) => {
+  const userType = sessionStorage.getItem("userType");
   const [responseModal, setResponseModal] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedRfqId, setSelectedRfqId] = useState(null);
-
+  console.log("GetRFQ data:", data);
   const handleModalClose = useCallback(() => {
     onClose();
   }, [onClose]);
@@ -31,73 +35,27 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-      <div className="relative w-11/12 max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl p-6">
-        <Button
-          className="absolute top-4 right-4 bg-red-600 text-white rounded-full shadow-md hover:bg-red-700 transition font-semibold w-10 h-10 flex items-center justify-center"
-          onClick={handleModalClose}
-        >
-          ✕
-        </Button>
-
-        <h2 className="mb-6 pb-2 text-2xl font-extrabold text-teal-600 border-b border-teal-300">
-          RFQ Details
-        </h2>
-
-        <section className="mb-8">
-          <h3 className="px-3 py-2 mt-3 font-bold text-white bg-teal-400 rounded-lg shadow-md md:text-2xl">
-            RFQ Information
-          </h3>
-          <div className="p-5 space-y-4 text-gray-700 rounded-lg shadow-inner bg-gray-50">
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <span className="font-bold">Subject:</span>
-              <span className="sm:pl-4">{data?.subject || "N/A"}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <span className="font-bold">Description:</span>
-              <span className="sm:pl-4 whitespace-pre-wrap">
-                {data?.description || "N/A"}
-              </span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <span className="font-bold">Date:</span>
-              <span className="sm:pl-4">
-                {data?.date ? new Date(data.date).toLocaleString() : "N/A"}
-              </span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <span className="font-bold">Status:</span>
-              <span className="sm:pl-4">{data?.status || "N/A"}</span>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <span className="font-bold">Files:</span>
-              <div className="flex flex-wrap gap-3">
-                {data?.files?.length ? (
-                  data.files.map((file) => (
-                    <a
-                      key={file.id}
-                      href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${data.id}/${file.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 underline hover:text-blue-800 transition"
-                    >
-                      {file.originalName || "Unnamed File"}
-                    </a>
-                  ))
-                ) : (
-                  <span className="text-gray-400">No files attached</span>
-                )}
-              </div>
-            </div>
+    <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
+      <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
+        <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
+          <div className="text-lg text-white">
+            <span className="font-bold">Subject:</span> {data?.subject}
           </div>
-        </section>
+          <button
+            className="p-2 text-gray-800 transition-colors bg-gray-200 rounded-full hover:bg-gray-300"
+            onClick={handleModalClose}
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-        <Button
-          onClick={() => handleResponse(data)}
-          className="mb-8 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-lg"
-        >
-          Submit Response
-        </Button>
+        <section className={`mb-8 grid  gap-4 ${userType !== "client" ? "grid-cols-1 md:grid-cols-2" : ""}`}>
+          <RFQDetail data={data} />
+          {userType !== "client" ? (
+            <ResponseRFQ onClose={handleResponseClose} rfqID={data.id} />
+          ): (null)}
+        </section>
 
         <section>
           <h3 className="px-3 py-2 mt-3 font-bold text-white bg-teal-400 rounded-lg shadow-md md:text-2xl">
@@ -108,11 +66,21 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
               <table className="min-w-full text-sm text-center text-gray-700 border-collapse rounded-xl">
                 <thead>
                   <tr className="bg-teal-200/90">
-                    <th className="px-2 py-2 border-2 whitespace-nowrap">Sl.no</th>
-                    <th className="px-2 py-2 border-2 whitespace-nowrap">Files</th>
-                    <th className="px-2 py-2 border-2 whitespace-nowrap">Description</th>
-                    <th className="px-2 py-2 border-2 whitespace-nowrap">Status</th>
-                    <th className="px-2 py-2 border-2 whitespace-nowrap">Action</th>
+                    <th className="px-2 py-2 border-2 whitespace-nowrap">
+                      Sl.no
+                    </th>
+                    <th className="px-2 py-2 border-2 whitespace-nowrap">
+                      Files
+                    </th>
+                    <th className="px-2 py-2 border-2 whitespace-nowrap">
+                      Description
+                    </th>
+                    <th className="px-2 py-2 border-2 whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-2 py-2 border-2 whitespace-nowrap">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,7 +99,9 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
                             response.files.map((file) => (
                               <a
                                 key={file.id}
-                                href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${data.id}/${file.id}`}
+                                href={`${
+                                  import.meta.env.VITE_BASE_URL
+                                }/api/RFQ/rfq/${data.id}/${file.id}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 underline hover:text-blue-800 transition block"
@@ -140,11 +110,17 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
                               </a>
                             ))
                           ) : (
-                            <span className="text-gray-500">No files available</span>
+                            <span className="text-gray-500">
+                              No files available
+                            </span>
                           )}
                         </td>
-                        <td className="px-2 py-2 border-2">{response.description || "N/A"}</td>
-                        <td className="px-2 py-2 border-2">{response.status || "N/A"}</td>
+                        <td className="px-2 py-2 border-2">
+                          {response.description || "N/A"}
+                        </td>
+                        <td className="px-2 py-2 border-2">
+                          {response.status || "N/A"}
+                        </td>
                         <td className="px-2 py-2 border-2">
                           <Button
                             onClick={() => setViewModalOpen(true)}
@@ -170,6 +146,5 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
     </div>
   );
 };
-
 
 export default GetRFQ;
