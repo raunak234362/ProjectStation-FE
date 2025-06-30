@@ -7,11 +7,7 @@ import {
   ErrorBoundary,
   MainContent,
   ManageTeam,
-  Vendor,
-  AllVendors,
   ChangePassword,
-  AllVendorUser,
-  AddVendorUser,
   RFI,
   CreateRFI,
   AllSentRFI,
@@ -25,7 +21,6 @@ import {
   AllReceivedCO,
   AllSentCO,
   ProjectDashboard,
-  RFQ,
   AllRFQ,
   Chats,
 } from "../components/index.js";
@@ -47,8 +42,6 @@ import {
   AllSubmittals as ClientAllSubmittals,
   GetSentSubmittals as ClientGetSentSubmittals,
   SendSubmittals as ClientSendSubmittals,
-  Project,
-  AddRFQ,
 } from "../components/dashboard/client/clientIndex.js";
 
 //For Sales-Admin
@@ -58,15 +51,13 @@ import {
   SalesRFQ,
 } from "../components/dashboard/staff/sales/salesIndex.js";
 
-
 import LoginContent from "../view/login/LoginContent";
 import App from "../App.jsx";
-import TeamDashboard from "../components/Team/teamDashboard/TeamDashboard.jsx";
 import RequireAuth from "../middleware/RequireAuth.jsx";
 import FabricatorView from "../view/fabricator/FabricatorView.jsx";
 import ProjectView from "../view/project/ProjectView.jsx";
 import HomeView from "../view/homeView/HomeView.jsx";
-
+import RFQ from "../view/rfq/RFQ.jsx";
 
 //For Sales-Admin
 // import {Dashboard as SalesDashboard} from './components/dashboard/staff/sales/dashboard/Dashboard.jsx'
@@ -109,57 +100,12 @@ const routes = [
             element: <Chats />,
           },
           {
-            path: "vendor",
-            element: <Vendor />,
-            children: [
-              { path: "add-vendor", element: <AddVendor /> },
-              { path: "all-vendors", element: <AllVendors /> },
-              { path: "all-vendor-user", element: <AllVendorUser /> },
-              { path: "add-vendor-user", element: <AddVendorUser /> },
-            ],
-          },
-          {
             path: "team",
             element: <ManageTeam />,
-            
-          },
-          {
-            path: "rfi",
-            element: <RFI />,
-            children: [
-              { path: "create-rfi", element: <CreateRFI /> },
-              { path: "all-sent-rfi", element: <AllSentRFI /> },
-              { path: "all-received-rfi", element: <AllReceivedRFI /> },
-            ],
-          },
-          {
-            path: "submittals",
-            element: <Submittals />,
-            children: [
-              { path: "send-submittals", element: <SendSubmittals /> },
-              {
-                path: "all-received-submittals",
-                element: <AllReceivedSubmittals />,
-              },
-              { path: "all-submittals", element: <AllSubmittals /> },
-            ],
-          },
-          {
-            path: "change-order",
-            element: <CO />,
-            children: [
-              { path: "send-co", element: <SendCO /> },
-              { path: "all-received-co", element: <AllReceivedCO /> },
-              { path: "all-sent-co", element: <AllSentCO /> },
-            ],
           },
           {
             path: "rfq",
             element: <RFQ />,
-            children: [
-              { path: "all-rfq", element: <AllRFQ /> },
-              { path: "add-rfq", element: <AddRFQ /> },
-            ],
           },
         ],
       },
@@ -187,11 +133,7 @@ const routes = [
               // {path:'create-project',element:<CreateProject/>},
             ],
           },
-          {
-            path: "rfq",
-            element: <RFQ />,
-            
-          },
+
           {
             path: "rfi",
             element: <RFI />,
@@ -211,7 +153,10 @@ const routes = [
                 path: "all-received-submittals",
                 element: <ClientAllReceivedSubmittals />,
               },
-              { path: "get-sent-submittals", element: <ClientGetSentSubmittals /> },
+              {
+                path: "get-sent-submittals",
+                element: <ClientGetSentSubmittals />,
+              },
             ],
           },
           {
@@ -290,7 +235,7 @@ const routes = [
           },
         ],
       },
-    ]
+    ],
   },
 
   { path: "*", element: <ErrorBoundary /> },

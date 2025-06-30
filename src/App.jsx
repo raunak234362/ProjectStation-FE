@@ -1,5 +1,5 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import { Provider, useDispatch } from "react-redux";
 import store from "./store/store";
 
@@ -9,7 +9,6 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import Service from "./config/Service";
 import socket, { connectSocket } from "./socket";
 import useSocketConnection from "./middleware/useSocket";
-// import FrappeService from "./frappeConfig/FrappeService";
 import {
   setUserData,
   showDepartment,
@@ -22,6 +21,7 @@ import { ToastContainer } from "react-toastify";
 import { showTask } from "./store/taskSlice";
 import NotificationReceiver from "./util/NotificationReceiver";
 import DashboardView from "./view/dashboard/DashboardView";
+import getUserType from "./util/getUserType";
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -32,23 +32,13 @@ const App = () => {
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
-  }, [setSidebarOpen]);
+  }, []);
 
-  const [isConnected, setIsConnected] = useState(false);
-  const [result, setResult] = useState(true);
-  const userType = sessionStorage.getItem("userType");
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const result = await Service.ping();
-  //     if (result) setIsConnected(result);
-  //     else setResult(result);
-  //   };
-  //   fetchData();
-  // }, []);
   const fetchAllProjects = async () => {
     const projectData = await Service.allprojects(token);
     dispatch(showProjects(projectData?.data));
   };
+
   const fetchAllTasks = async () => {
     const taskData = await Service.getAllTask(token);
     dispatch(showTask(taskData));
@@ -69,40 +59,41 @@ const App = () => {
     dispatch(showStaff(staffData));
   };
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await Service.getCurrentUser(token);
-      dispatch(setUserData(user.data));
-      sessionStorage.setItem("userId", user?.data?.id);
-      sessionStorage.setItem("username", user?.data?.username);
-      const userId = sessionStorage.getItem("userId");
-      // socket.emit("joinRoom",userId);
+  const fetchUser = async () => {
+    try {
+      const response = await Service.getCurrentUser(token);
+      const userData = response.data;
+      const userType = getUserType(userData);
+
+      dispatch(setUserData(userData));
+      sessionStorage.setItem("userId", userData.id);
+      sessionStorage.setItem("username", userData.username);
+      sessionStorage.setItem("userType", userType);
+
+      const userId = userData.id;
+      setUserId(userId);
+
       connectSocket(userId);
       if (socket) {
-        // console.log("Socket is already connected:", socket);
         sessionStorage.setItem("socketId", socket.id);
-        const socketId = sessionStorage.getItem("socketId");
         socket.on("connect", () => {
-          // console.log("✅ Connected with socket:", socketId);
-          // console.log("✅ Connected with userID:", userId);
-          // socket.emit("joinRoom", userId);
+          // Optional log or action
         });
       }
-      // console.log(`🔐 Joined room: ${user.data.id}`);
-      setUserId(user.data?.id);
-      // console.log(user.data);
-      try {
-        if (userType === "admin" || userType === "manager") {
-          const fabricator = await Service?.allFabricator(token);
-          dispatch(loadFabricator(fabricator));
-          const client = await Service?.allClient(token);
-          dispatch(showClient(client));
-        }
-      } catch (error) {
-        console.log(error);
-        navigate("/");
+
+      if (["admin", "department-manager"].includes(userType)) {
+        const fabricator = await Service.allFabricator(token);
+        dispatch(loadFabricator(fabricator));
+        const client = await Service.allClient(token);
+        dispatch(showClient(client));
       }
-    };
+    } catch (error) {
+      console.error("❌ Error fetching user:", error);
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
     fetchAllTeams();
     fetchAllStaff();
     fetchAllDepartments();
@@ -110,6 +101,7 @@ const App = () => {
     fetchAllProjects();
     fetchUser();
   }, [dispatch]);
+
   useSocketConnection(userId);
 
   return (

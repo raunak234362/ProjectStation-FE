@@ -1112,11 +1112,11 @@ class Service {
 
   //Respond rfq
 
-  static async respondRfq(rfqId, formData) {
+  static async respondRfq(rfqID, formData) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
-        `/api/RFQ/addresponse/${rfqId}`,
+        `/api/RFQ/addresponse/${rfqID}`,
         formData,
         {
           headers: {

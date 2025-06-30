@@ -5,6 +5,7 @@ import Button from "../fields/Button";
 import { X } from "lucide-react";
 import RFQDetail from "./RFQDetail";
 import ResponseRFQ from "./ResponseRFQ";
+import UpdateStatus from "./UpdateStatus";
 // import ResponseRFQ from "./ResponseRFQ";
 // import ViewRFQResponse from "./ViewRFQResponse";
 
@@ -13,13 +14,14 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   const [responseModal, setResponseModal] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedRfqId, setSelectedRfqId] = useState(null);
-  console.log("GetRFQ data:", data);
+  console.log("GetRFQ data:", data.id);
+  const rfqID = data.id;
   const handleModalClose = useCallback(() => {
     onClose();
   }, [onClose]);
 
-  const handleResponse = useCallback((rfq) => {
-    setSelectedRfqId(rfq?.id);
+  const handleResponse = useCallback(() => {
+    setSelectedRfqId(rfqID);
     setResponseModal(true);
   }, []);
 
@@ -50,11 +52,18 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
           </button>
         </div>
 
-        <section className={`mb-8 grid  gap-4 ${userType !== "client" ? "grid-cols-1 md:grid-cols-2" : ""}`}>
+        <section
+          className={`mb-8 gap-4 ${
+            userType === "client"
+              ? "flex flex-col w-full"
+              : "flex flex-row md:flex-row justify-between w-full"
+          }`}
+        >
           <RFQDetail data={data} />
-          {userType !== "client" ? (
+
+          {userType !== "client" && (
             <ResponseRFQ onClose={handleResponseClose} rfqID={data.id} />
-          ): (null)}
+          )}
         </section>
 
         <section>
@@ -137,11 +146,11 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
             </div>
           </div>
         </section>
-
-        {/* {responseModal && (
+{/* 
+        {responseModal && (
           <ResponseRFQ onClose={handleResponseClose} rfqID={selectedRfqId} />
-        )}
-        {viewModalOpen && <ViewRFQResponse onClose={handleViewModalClose} />} */}
+        )} */}
+        {viewModalOpen && <UpdateStatus rfqID={rfqID} onClose={handleViewModalClose} />}
       </div>
     </div>
   );

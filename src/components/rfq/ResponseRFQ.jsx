@@ -8,7 +8,6 @@ import Service from "../../config/Service";
 
 const ResponseRFQ = ({ onClose, rfqID }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [responseTime, setResponseTime] = useState(null);
   const [files, setFiles] = useState([]);
 
   const {
@@ -22,7 +21,6 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
     onClose(false);
     reset();
     setIsSubmitting(false);
-    setResponseTime(null);
     setFiles([]);
   }, [onClose, reset]);
 
@@ -43,7 +41,6 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
 
       try {
         setIsSubmitting(true);
-        setResponseTime(new Date());
         await Service.respondRfq(rfqID, formData);
         toast.success("RFQ response submitted successfully");
         handleModalClose();
@@ -51,7 +48,6 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
         console.error("RFQ submission error:", err);
         toast.error("Failed to submit RFQ. Please try again.");
         setIsSubmitting(false);
-        setResponseTime(null);
       }
     },
     [files, rfqID, handleModalClose]
@@ -98,11 +94,7 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
         </Button>
       </form>
 
-      {responseTime && (
-        <p className="mt-3 text-sm text-gray-500">
-          Submitted at: {responseTime.toLocaleString()}
-        </p>
-      )}
+     
     </div>
   );
 };

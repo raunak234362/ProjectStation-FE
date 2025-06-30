@@ -11,64 +11,29 @@ import AuthService from "../../config/AuthService";
 import Service from "../../config/Service";
 import { useState } from "react";
 
-const getUserType = (user) => {
-  if (user.role === "STAFF") {
-    if (user.is_est && user.is_superuser) return "estimator";
-    if (user.is_superuser) return "admin";
-    if (user.is_sales) return "sales";
-    if (user.is_staff && user.is_manager) return "department-manager";
-    if (user.is_manager) return "project-manager";
-    if (user.is_hr) return "human-resource";
-    return "user";
-  } else if (user.role === "CLIENT") return "client";
-  else if (user.role === "VENDOR") return "vendor";
-  return "user";
-};
-
-const roleRedirectMap = {
-  admin: "/dashboard",
-  estimator: "/dashboard",
-  "human-resource": "/dashboard",
-  client: "/dashboard",
-  sales: "/dashboard",
-  user: "/dashboard",
-  "department-manager": "/dashboard",
-  "project-manager": "/dashboard",
-  vendor: "/vendor",
-};
-
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const userInfo = useSelector((state) => state?.userData?.userData);
+
   const login = async (data) => {
     try {
       const user = await AuthService.login(data);
       if (!user?.token) throw new Error("Invalid Credentials");
 
       const token = user.token;
-      const userData = await Service.getCurrentUser(token);
-      const userType = getUserType(userData.data);
 
+      // Store session data
       sessionStorage.setItem("token", token);
-      sessionStorage.setItem("userId", userData.data.id);
-      sessionStorage.setItem("username", userData.data.username);
-      sessionStorage.setItem("userType", userType);
 
       dispatch(authLogin(user));
-      dispatch(setUserData(userData.data));
 
-      if (userData.data.is_firstLogin) {
-        return navigate("/change-password/");
-      }
-
-      const redirectPath = roleRedirectMap[userType] || "/";
-      navigate(redirectPath);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       alert(
@@ -97,7 +62,7 @@ const Login = () => {
         </div>
 
         {/* Login form */}
-        <div className="flex items-center justify-center">
+        <div className="flex items-center bg-black/50 backdrop-blur-lg justify-center">
           <div className="bg-white bg-opacity-90 h-fit w-[80%] md:w-2/3 rounded-2xl shadow-lg border-4 border-green-500 p-5">
             <h1 className="mb-10 text-4xl font-bold text-center text-gray-600">
               Login

@@ -59,8 +59,6 @@ import AllSentRFI from "./dashboard/staff/admin/rfi/AllSentRFI";
 import AllReceivedRFI from "./dashboard/staff/admin/rfi/AllReceivedRFI";
 import GetSentRFI from "./dashboard/staff/admin/rfi/GetSentRFI";
 
-//RFQ 
-import RFQ from "../view/rfq/RFQ.jsx";
 
 
 //Submittals
@@ -95,7 +93,6 @@ import DateFilter from "../util/DateFilter.jsx";
 export {
   Button,
   WBTDashboard,
-  RFQ,
   ClientDashboard,
   SalesDashboard,
   Input,
