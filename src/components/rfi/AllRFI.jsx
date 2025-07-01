@@ -145,7 +145,7 @@ const AllRFI = ({ projectData }) => {
                     </tbody>
                 </table>
             </div>
-            {isModalOpen && (
+            {selectedRFI && (
                 <GetRFI rfiId={selectedRFI.id} isOpen={isModalOpen} onClose={handleModalClose} />
             )}
         </div>

@@ -124,7 +124,7 @@ const ActionCenter = () => {
                         onChange={setItemType}
                         className="mb-4"
                     />
-                    <div className="space-y-3">
+                    <div className="space-y-3 h-64 overflow-y-auto">
                         {itemType === "rfi" ? (
                             noreplyRFI?.length === 0 ? (
                                 <div className="text-center py-8 text-gray-500">

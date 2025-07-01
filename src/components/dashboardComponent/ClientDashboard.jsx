@@ -29,7 +29,7 @@ import "chart.js/auto";
 import PropTypes from "prop-types";
 import Service from "../../config/Service";
 import ActionCenter from "./ActionCenter";
-// import ClientAllProjects from "../project/ClientAllProjects";
+import ClientAllProjects from "../project/ClientAllProjects";
 
 // UI Component Styles
 const buttonStyles = {
@@ -640,7 +640,7 @@ export default function ProjectDashboard() {
 
             {/* Projects Section */}
             <Card className="p-1">
-              {/* <ClientAllProjects onViewClick={handleViewClick} /> */}
+              <ClientAllProjects onViewClick={handleViewClick} />
             </Card>
           </div>
 
@@ -812,62 +812,3 @@ export default function ProjectDashboard() {
     </div>
   );
 }
-
-Button.propTypes = {
-  children: PropTypes.node.isRequired,
-  onClick: PropTypes.func,
-  className: PropTypes.string,
-  variant: PropTypes.oneOf(["primary", "success", "outline"]),
-  size: PropTypes.oneOf(["sm", "md", "lg"]),
-  disabled: PropTypes.bool,
-};
-
-Card.propTypes = {
-  children: PropTypes.node.isRequired,
-  className: PropTypes.string,
-  hover: PropTypes.bool,
-};
-
-Badge.propTypes = {
-  children: PropTypes.node.isRequired,
-  variant: PropTypes.oneOf(["default", "success", "warning", "info", "purple"]),
-  className: PropTypes.string,
-};
-
-Progress.propTypes = {
-  value: PropTypes.number.isRequired,
-  max: PropTypes.number,
-  className: PropTypes.string,
-  color: PropTypes.oneOf(["blue", "green", "yellow", "purple"]),
-};
-
-Tabs.propTypes = {
-  tabs: PropTypes.arrayOf(
-    PropTypes.shape({ id: PropTypes.string, label: PropTypes.string })
-  ).isRequired,
-  activeTab: PropTypes.string.isRequired,
-  onChange: PropTypes.func.isRequired,
-  className: PropTypes.string,
-};
-
-Modal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-  size: PropTypes.oneOf(["sm", "md", "lg"]),
-};
-
-StatusBadge.propTypes = {
-  status: PropTypes.string.isRequired,
-};
-
-StatCard.propTypes = {
-  title: PropTypes.string.isRequired,
-  value: PropTypes.number.isRequired,
-  subtitle: PropTypes.string,
-  icon: PropTypes.node.isRequired,
-  trend: PropTypes.string,
-  color: PropTypes.string.isRequired,
-  progress: PropTypes.number,
-};

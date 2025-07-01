@@ -30,24 +30,16 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
 
   const onSubmit = useCallback(
     async (data) => {
-      if (!files.length) {
-        toast.error("Please select at least one file.");
-        return;
-      }
-
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
       formData.append("description", data.description);
 
       try {
-        setIsSubmitting(true);
         await Service.respondRfq(rfqID, formData);
         toast.success("RFQ response submitted successfully");
-        handleModalClose();
       } catch (err) {
         console.error("RFQ submission error:", err);
         toast.error("Failed to submit RFQ. Please try again.");
-        setIsSubmitting(false);
       }
     },
     [files, rfqID, handleModalClose]
@@ -65,7 +57,6 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
           onFilesChange={onFilesChange}
           files={files}
           accept="image/*,application/pdf,.doc,.docx,.pptx"
-          disabled={isSubmitting}
         />
         <div>
           <Input

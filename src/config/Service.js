@@ -1077,6 +1077,22 @@ class Service {
       throw error;
     }
   }
+  // Fetch rfq response
+  static async fetchRFQOfResponseById(id) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/RFQ/getResponse/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data?.data;
+    } catch (error) {
+      console.log("Error fetching RFQ Response:", error);
+      throw error;
+    }
+  }
 
   //Add RFQ
 
@@ -1112,11 +1128,11 @@ class Service {
 
   //Respond rfq
 
-  static async respondRfq(rfqID, formData) {
+  static async respondRfq(rfqId, formData) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
-        `/api/RFQ/addresponse/${rfqID}`,
+        `/api/RFQ/addresponse/${rfqId}`,
         formData,
         {
           headers: {
@@ -1131,6 +1147,38 @@ class Service {
       throw error;
     }
   }
+  //Respond rfq
+
+  static async respondClientRfq(rfqID, responseData) {
+    const data= new FormData();
+    // Append files
+    for (let i = 0; i < responseData?.files?.length; i++) {
+      data.append("files", responseData?.files[i]);
+    }
+    // Append other fields
+    data.append("description", responseData?.description);
+    data.append("parentResponseId", responseData?.parentResponseId || null);
+    data.append("status", responseData?.status || null);
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.post(
+        `/api/RFQ/addresponse/${rfqID}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
 
   // Submittals
   static async addSubmittal(submittals) {

@@ -5,7 +5,6 @@ import AddRFI from "./AddRFI";
 import AllRFI from "./AllRFI";
 
 const RFI = ({ projectData }) => {
-  console.log("RFI Component Rendered with projectData:", projectData);
   const [activeTab, setActiveTab] = useState('allRFI');
 
 

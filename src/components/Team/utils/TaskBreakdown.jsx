@@ -89,9 +89,9 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                       {task["taskcomment"].map((comment, i) => (
                         <div key={i}>
                           <span className="font-semibold text-gray-800">
-                            {`${comment.user.f_name || ""} ${
-                              comment.user.m_name || ""
-                            } ${comment.user.l_name || ""}`.trim()}
+                            {`${comment.user?.f_name || ""} ${
+                              comment.user?.m_name || ""
+                            } ${comment.user?.l_name || ""}`.trim()}
                             :
                           </span>{" "}
                           {comment.data}

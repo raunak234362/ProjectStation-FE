@@ -41,7 +41,6 @@ const ProjectStatus = ({ projectId, onClose }) => {
         setError(null);
         try {
             const response = await Service.fetchProjectByID(id);
-            console.log("Project Data:", response);
             setProjectData(response);
         } catch (err) {
             setError("Failed to load project data");
