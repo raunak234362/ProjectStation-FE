@@ -40,7 +40,7 @@ const UpdateStatus = ({ rfqID, rfqResponseId, onClose }) => {
     onClose();
   };
   const responseId = rfqResponseId;
-
+console.log("RFQ Response Details:", rfqResponseDetails);
   console.log("RFQ  ID:", rfqId);
   console.log("RFQ  Response ID:", responseId);
   const userType = sessionStorage.getItem("userType");

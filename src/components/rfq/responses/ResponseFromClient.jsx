@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 
 const ResponseFromClient = ({ responseDetail }) => {
-  const childResponse = responseDetail?.childResponses[0];
-  console.log("Response Detail:", childResponse);
+  const childResponse = responseDetail?.childResponses[0] || {};
+  console.log("Response Detail:", responseDetail);
   return (
     <div>
       <div className="bg-gray-100 rounded-md p-4">
@@ -21,13 +21,13 @@ const ResponseFromClient = ({ responseDetail }) => {
               <a
                 key={file.id}
                 href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfqResponse/${
-                  childResponse.id
-                }/${file.id}`}
+                  childResponse?.id
+                }/${file?.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-blue-600 underline hover:text-blue-800"
               >
-                {file.originalName || "Unnamed File"}
+                {file?.originalName || "Unnamed File"}
               </a>
             ))
           ) : (
