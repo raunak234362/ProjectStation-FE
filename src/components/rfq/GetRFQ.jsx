@@ -16,7 +16,7 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   const handleModalClose = useCallback(() => {
     onClose();
   }, [onClose]);
-  const RFQData= data || {};
+  const RFQData = data || {};
   const handleViewModalOpen = (id) => {
     setSelectedResponseId(id);
     setViewModalOpen(true);
@@ -41,8 +41,18 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
       },
       {
         Header: "Status",
-        accessor: "status",
-        Cell: ({ value }) => value || "N/A",
+        accessor: (row) => {
+          if (userType === "client") {
+            return row.status;
+          } else if (
+            userType === "admin" ||
+            userType === "project-manager" ||
+            userType === "department-manager"
+          ) {
+            return row.wbtStatus;
+          }
+        },
+        id: "status",
       },
       {
         Header: "Action",
@@ -73,7 +83,7 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
-        <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
+        <div className="sticky top-0 z-50 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
           <div className="text-lg text-white">
             <span className="font-bold">Subject:</span> {data?.subject}
           </div>

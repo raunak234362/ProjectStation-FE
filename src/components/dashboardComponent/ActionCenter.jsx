@@ -49,6 +49,7 @@ const Tabs = ({ tabs, activeTab, onChange, className = "" }) => (
 );
 
 const ActionCenter = () => {
+  const userType = sessionStorage.getItem("userType");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -61,15 +62,20 @@ const ActionCenter = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [rfiRes, subRes, rfqRes] = await Promise.all([
+      const [rfiRes, subRes] = await Promise.all([
         Service.inboxRFI(),
         Service.reciviedSubmittal(),
-        Service.inboxRFQ(),
       ]);
-      console.log("RFQ Response:", rfqRes);
+      let rfqDetail;
+      if (userType === "client") {
+        rfqDetail = await Service.sentRFQ();
+      } else {
+        rfqDetail = await Service.inboxRFQ();
+      }
+      console.log("RFQ Response:", rfqDetail);
       setRFIList(rfiRes?.data || []);
       setSubmittalList(subRes?.data || []);
-      setRFQList(rfqRes?.data || []);
+      setRFQList(rfqDetail || []);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Failed to load dashboard data");
@@ -78,6 +84,7 @@ const ActionCenter = () => {
     }
   };
 
+  console.log("RFI List:", rfiList);
   useEffect(() => {
     fetchData();
   }, []);
@@ -87,9 +94,11 @@ const ActionCenter = () => {
     submittals: submittalList.filter(
       (item) => item?.submittalsResponse === null
     ),
-    rfq: rfqList.filter((item) => item?.rfqResponse === null),
+      rfq: rfqList.filter((item) => (item.response?.length > 0)),
     co: [], // Placeholder if Change Orders added later
   };
+
+  console.log("Pending Items:", pendingItems?.rfq?.status);
 
   const renderItemCard = (item, type) => (
     <div

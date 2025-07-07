@@ -33,7 +33,7 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
       formData.append("description", data.description);
-
+      
       try {
         await Service.respondRfq(rfqID, formData);
         toast.success("RFQ response submitted successfully");

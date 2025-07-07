@@ -13,6 +13,7 @@ import { X } from "lucide-react";
 import UpdateResponseDetail from "./responses/UpdateResponseDetail";
 import UpdateResponseSend from "./responses/UpdateResponseSend";
 import ResponseFromClient from "./responses/ResponseFromClient";
+import UpdateResponse from "./responses/UpdateResponse";
 
 const UpdateStatus = ({ rfqID, rfqResponseId, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +41,7 @@ const UpdateStatus = ({ rfqID, rfqResponseId, onClose }) => {
     onClose();
   };
   const responseId = rfqResponseId;
-console.log("RFQ Response Details:", rfqResponseDetails);
+  console.log("RFQ Response Details:", rfqResponseDetails);
   console.log("RFQ  ID:", rfqId);
   console.log("RFQ  Response ID:", responseId);
   const userType = sessionStorage.getItem("userType");
@@ -75,13 +76,22 @@ console.log("RFQ Response Details:", rfqResponseDetails);
             <UpdateResponseDetail responseDetail={rfqResponseDetails} />
           </div>
           {userType === "client" ? (
-            <div>
-              <UpdateResponseSend
-                rfqID={rfqId}
-                responseId={responseId}
-                onClose={onClose}
-              />
-            </div>
+            rfqResponseDetails?.childResponses &&
+            rfqResponseDetails.childResponses.length > 0 ? (
+              <div>
+                <UpdateResponse
+                  responseDetail={rfqResponseDetails?.childResponses}
+                />
+              </div>
+            ) : (
+              <div>
+                <UpdateResponseSend
+                  rfqID={rfqId}
+                  responseId={responseId}
+                  onClose={onClose}
+                />
+              </div>
+            )
           ) : (
             <div>
               <ResponseFromClient responseDetail={rfqResponseDetails} />
