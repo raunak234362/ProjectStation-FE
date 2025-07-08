@@ -52,6 +52,7 @@ const AddRFQ = () => {
       ...data,
       files,
       recipient_id: data.recipients,
+      salesPersonId: data.recipients,
       status: "RECEIVED",
     };
     console.log("RFQ Data:", RFQData);

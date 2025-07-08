@@ -10,7 +10,7 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
   if (!Array.isArray(files)) return "Not available";
 
   const baseURL = import.meta.env.VITE_BASE_URL;
-
+ 
   return files.map((file, index) => {
     const fileUrl = isResponse
       ? `${baseURL}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`

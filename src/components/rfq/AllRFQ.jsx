@@ -11,7 +11,6 @@ function AllRFQ() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const userType = sessionStorage.getItem("userType");
-  const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
   const fetchInboxRFQ = async () => {
     try {
@@ -53,11 +52,8 @@ function AllRFQ() {
       {
         Header: "Mail ID",
         accessor: (row) => {
-          const matchedClient = clientData.find(
-            (client) =>
-              client.email === row.sender_id || client.id === row.sender_id
-          );
-          return matchedClient ? matchedClient.email : row.sender_id;
+          // Assuming recipient email is stored in row.recipient or row.recipient_email
+          return row.recepients.email || row.recipient || "Null";
         },
         id: "mailId",
       },
@@ -74,7 +70,7 @@ function AllRFQ() {
           const yy = String(date.getFullYear()).slice(-2);
           const hh = String(date.getHours()).padStart(2, "0");
           const min = String(date.getMinutes()).padStart(2, "0");
-          return `${mm}:${dd}:${yy} | ${hh}:${min}`;
+          return `${mm}:${dd}:${yy} , ${hh}:${min}`;
         },
         id: "createdAt",
       },
@@ -83,7 +79,7 @@ function AllRFQ() {
         accessor: "status",
       },
     ],
-    [clientData]
+    []
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =

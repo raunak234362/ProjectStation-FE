@@ -5,7 +5,7 @@ const RFQDetail = ({ data }) => {
     { label: "Description", value: data?.description },
     {
       label: "Date",
-      value: data?.date ? new Date(data.date).toLocaleString() : "N/A",
+      value: data?.createdAt ? new Date(data.createdAt).toLocaleString() : "N/A",
     },
     { label: "Status", value: data?.status },
   ];

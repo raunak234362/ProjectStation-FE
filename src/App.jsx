@@ -20,7 +20,7 @@ import { showProjects } from "./store/projectSlice";
 import { ToastContainer } from "react-toastify";
 import { showTask } from "./store/taskSlice";
 import NotificationReceiver from "./util/NotificationReceiver";
-import DashboardView from "./view/dashboard/DashboardView";
+import DashboardView from "./pages/dashboard/DashboardView";
 import getUserType from "./util/getUserType";
 
 const App = () => {

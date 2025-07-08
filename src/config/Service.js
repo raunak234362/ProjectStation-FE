@@ -1111,6 +1111,7 @@ class Service {
     data.append("recepient_id", RFQData?.recipient_id);
     data.append("subject", RFQData?.subject);
     data.append("description", RFQData?.description);
+    data.append("salesPersonId", RFQData?.salesPersonId);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(`/api/RFQ/rfq/addrfq`, data, {
