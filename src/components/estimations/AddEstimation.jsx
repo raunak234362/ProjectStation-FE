@@ -8,6 +8,7 @@ import { showRFQs } from "../../store/rfqSlice";
 import Input from "../fields/Input";
 import ErrorMsg from "../../util/ErrorMsg";
 import { Button, CustomSelect } from "..";
+import toast from "react-hot-toast";
 
 const AddEstimation = () => {
   const userType = sessionStorage.getItem("userType");
@@ -40,14 +41,25 @@ const AddEstimation = () => {
   useEffect(() => {
     fetchInboxRFQ();
   }, []);
-
+  
   const onSubmit = async (data) => {
-    // Handle form submission logic here
     console.log("Form Data:", data);
+    const estData = {
+      ...data,
+      estimateDate: data.estimateDate ? new Date().toISOString() : null,
+    }
+    try {
+      const response = await Service.addEstimation(estData);
+      console.log("Estimation added:", response);
+      toast.success("Estimation added successfully!");
+    } catch (error) {
+      console.error("Error adding estimation:", error);
+      toast.error("Failed to add estimation. Please try again.");
+    }
   };
 
   return (
-    <div className="flex justify-center w-full text-black bg-white rounded-lg shadow-md">
+    <div className="flex justify-center w-full h-[90vh] text-black bg-white rounded-lg shadow-md">
       <div className="w-full h-full py-3 px-3 overflow-y-auto ">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <SectionTitle title="RFQ Details" />
@@ -75,7 +87,7 @@ const AddEstimation = () => {
               label: fab.fabName,
               value: fab.id,
             }))}
-            {...register("fabricator")}
+            {...register("fabricatorId")}
             onChange={setValue}
           />
           <SectionTitle title="Project Details" />
@@ -87,7 +99,7 @@ const AddEstimation = () => {
           <Input
             label="Estimated Date"
             type="date"
-            {...register("estimatedDate", { required: true })}
+            {...register("estimateDate", { required: true })}
           />
           {errors.estimatedDate && (
             <ErrorMsg msg={errors.estimatedDate.message} />

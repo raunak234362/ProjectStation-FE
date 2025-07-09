@@ -1,11 +1,28 @@
-import { useState } from "react";
-import {  AllFabricator } from "../../components";
+import { useEffect, useState } from "react";
+import {  AllEstimations } from "../../components";
 import Estimations from "../../components/estimations/Estimations";
 import AddEstimation from "../../components/estimations/AddEstimation";
+import Service from "../../config/Service";
 
 
 const EstimationView = () => {
     const [activeTab, setActiveTab] = useState('Estimations');
+    const [estimationData, setEstimationData] = useState(null);
+
+    const fetchEstimationData = async () => {
+        try {
+            const response = await Service.allEstimations();
+            setEstimationData(response.data);
+        } catch (error) {
+            console.error("Error fetching estimation data:", error);
+        }
+    };
+
+    console.log("Estimation Data:", estimationData);
+    useEffect(() => {
+        fetchEstimationData();
+    }, []);
+
     return (
         <div className="w-full overflow-y-hidden">
             <div className="flex flex-col w-full h-full">
@@ -45,7 +62,7 @@ const EstimationView = () => {
                     )}
                     {activeTab === 'allEstimation' && (
                         <div>
-                            <AllFabricator />
+                            <AllEstimations estimationData={estimationData} />
                         </div>
                     )}
                 </div>

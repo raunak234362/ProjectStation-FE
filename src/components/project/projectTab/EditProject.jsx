@@ -5,13 +5,13 @@ import AddFiles from "./AddFiles";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import Service from "../../../config/Service";
 import { updateProjectData } from "../../../store/projectSlice";
 import Input from "../../fields/Input";
 import { Button, CustomSelect } from "../..";
 
-const EditProject = ({ project, onClose }) => {
+const EditProject = ({ project, onUpdate, onClose }) => {
   const [teamOptions, setTeamOptions] = useState([]);
   const teams = useSelector((state) => state?.userData?.teamData);
   const [files, setFiles] = useState([]);
@@ -56,7 +56,6 @@ const EditProject = ({ project, onClose }) => {
   };
 
   const onSubmit = async (data) => {
-    console.log(data);
     const projectData = {
       ...data,
       approvalDate: data.approvalDate
@@ -64,6 +63,7 @@ const EditProject = ({ project, onClose }) => {
         : null,
       endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
     };
+
     try {
       const updatedProject = await Service.editProject(
         project?.id,
@@ -71,12 +71,15 @@ const EditProject = ({ project, onClose }) => {
       );
       dispatch(updateProjectData(updatedProject?.data));
       toast.success("Project updated successfully");
-      console.log("Successfully Updated Task: ", updatedProject?.data);
+
+      if (onUpdate) {
+        onUpdate();
+      }
+      onClose(); // Close modal
     } catch (error) {
       toast.error("Error updating project");
       console.log(error);
     }
-    onClose();
   };
 
   const handleDelete = async () => {
@@ -95,7 +98,6 @@ const EditProject = ({ project, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white h-[93%] md:p-5 rounded-lg shadow-lg w-full md:w-6/12 ">
-        <Toaster />
         <div className="flex justify-between my-5 bg-teal-200/50 p-2 rounded-lg">
           <h2 className="text-2xl font-bold">Edit Project</h2>
           <button

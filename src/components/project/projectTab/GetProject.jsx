@@ -1,10 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar, Edit2, FileText, Globe, HardDrive, Plus, X, ChevronRight, BarChart2, Layers } from "lucide-react";
 import AddWB from "../../dashboard/staff/admin/Project/wb/AddWB";
 import AllWorkBreakdown from "../../dashboard/staff/admin/Project/wb/AllWorkBreakdown";
 import EditProject from "./EditProject";
+import { use } from "react";
+import Service from "../../../config/Service";
 
 // UI Components
 const Button = ({ children, variant = "primary", size = "md", className = "", onClick, ...props }) => {
@@ -87,12 +89,28 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 };
 
 // Main Component
-const GetProject = ({ projectId, onClose, projectData }) => {
+const GetProject = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("details");
+  const [projectData, setProjectData] = useState(null);
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectStatus, setSelectedProjectStatus] = useState(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const fetchProjectByID = async () => {
+    try {
+      const response = await Service.fetchProjectByID(projectId);
+      setProjectData(response);
+      console.log("Project Data:", response);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching project data:", error);
+      return null;
+    }
+  };
+
+  useEffect(() => {
+   fetchProjectByID()
+  },[setProjectData])
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -377,7 +395,7 @@ const GetProject = ({ projectId, onClose, projectData }) => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
 
-      {selectedEditProject && <EditProject project={selectedEditProject} onClose={handleModalClose} />}
+      {selectedEditProject && <EditProject project={selectedEditProject} onUpdate={fetchProjectByID} onClose={handleModalClose} />}
       {/* Note: ProjectStatus modal not implemented here as it requires additional context */}
     </>
   );

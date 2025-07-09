@@ -593,6 +593,40 @@ class Service {
     }
   }
 
+  //Add Estimations
+  static async addEstimation(estData){
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(`/api/Estimation/addEstimation`, estData, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching estimations:", error);
+      throw error;
+    }
+  }
+
+  // Fetch all estimations
+  static async allEstimations() {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Estimation/getAllEstimations`, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching estimations:", error);
+      throw error;
+    }
+  }
+
   // Add JobStudy
   static async addJobStudy(jobData) {
     const formData = { ...jobData };

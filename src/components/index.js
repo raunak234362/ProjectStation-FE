@@ -74,6 +74,8 @@ import AllReceivedCO from "./dashboard/staff/admin/co/AllReceivedCO";
 import SendCO from "./dashboard/staff/admin/co/SendCO";
 // import AllCO from "./dashboard/client/admin/co/AllCO.jsx"
 
+import AllEstimations from "./estimations/AllEstimations.jsx";
+
 //Chats
 import Chats from "./chats/Chats";
 
@@ -122,6 +124,7 @@ export {
   AllRFQ,
   Chats,
   SendRFQ,
+  AllEstimations,
   ShowRFQResponse,
   JobStudy,
   SelectedWBTask,

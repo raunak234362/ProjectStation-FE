@@ -16,6 +16,8 @@ const Estimations = () => {
     totalEstimatedTime: "120 hours",
   };
 
+  
+
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6 ">
       <h1 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8 text-gray-800">
