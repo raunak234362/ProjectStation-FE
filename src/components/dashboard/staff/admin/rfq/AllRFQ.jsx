@@ -4,7 +4,7 @@ import Button from "../../../../fields/Button";
 import Service from "../../../../../config/Service";
 import ViewRFQ from "./ViewRFQ";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 function AllRFQ() {
 

@@ -5,7 +5,7 @@ import { Input, Button } from "../../../../../index";
 import { useForm, Controller } from "react-hook-form";
 import { useSelector } from "react-redux";
 import Service from "../../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import EditQuantityForm from "./EditQuantityForm";
 import AddMoreSubtask from "./AddMoreSubtask.jsx";
 import EditUnitTime from "./EditUnitTime";

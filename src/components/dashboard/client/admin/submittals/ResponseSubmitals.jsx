@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import { Button, Input, MultipleFileUpload, Toggle } from "../../../../index";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import Service from "../../../../../config/Service";
 import Radio from "@mui/material/Radio";

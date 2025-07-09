@@ -10,7 +10,7 @@ import {
   MultipleFileUpload,
 } from "../../../../index";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { showStaff } from "../../../../../store/userSlice";
 
 const AddRFQ = () => {

@@ -11,7 +11,7 @@ import {
 } from "../../../../index";
 import { addRFI } from "../../../../../store/projectSlice";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const SendSubmittals = () => {
   const projectData = useSelector((state) => state.projectData.projectData);

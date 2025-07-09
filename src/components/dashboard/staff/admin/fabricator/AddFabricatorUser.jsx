@@ -11,7 +11,7 @@ import {
 import Service from "../../../../../config/Service";
 import { useEffect, useState } from "react";
 import { City, State } from "country-state-city";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AddFabricatorUser = () => {
   const dispatch = useDispatch();

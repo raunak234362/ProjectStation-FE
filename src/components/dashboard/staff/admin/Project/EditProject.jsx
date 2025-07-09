@@ -13,7 +13,7 @@ import {
   MultipleFileUpload,
 } from "../../../../index";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 const EditProject = ({ project, onClose }) => {
   const [teamOptions, setTeamOptions] = useState([]);
   const teams = useSelector((state) => state?.userData?.teamData);

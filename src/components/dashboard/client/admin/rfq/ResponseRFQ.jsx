@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button, MultipleFileUpload, Input } from "../../../../index";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useForm, Controller, set } from "react-hook-form";
 import Service from "../../../../../config/Service";
 

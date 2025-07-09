@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import Button from "../../../../../fields/Button";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import Service from "../../../../../../config/Service";
 
 

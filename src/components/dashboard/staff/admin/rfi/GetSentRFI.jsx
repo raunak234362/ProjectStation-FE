@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Button } from "../../../../index";
 import api from "../../../../../config/api";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { set } from "react-hook-form";
 
 const GetSentRFI = ({ rfiId, isOpen, onClose }) => {

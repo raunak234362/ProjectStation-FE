@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Input from "../../../../fields/Input";
 import Button from "../../../../fields/Button";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { CustomSelect } from "../../../..";
 import { updateStaffData } from "../../../../../store/userSlice";
 

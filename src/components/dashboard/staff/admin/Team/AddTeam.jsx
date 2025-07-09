@@ -3,7 +3,7 @@ import Service from "../../../../../config/Service";
 import { Input, CustomSelect, Button } from "../../../../index";
 import { useDispatch, useSelector } from "react-redux";
 import { addTeam } from "../../../../../store/userSlice";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const AddTeam = () => {

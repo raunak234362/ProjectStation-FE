@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { updateStaffData } from "../../store/userSlice";
 import Input from "../fields/Input";
 import { Button, CustomSelect } from "..";

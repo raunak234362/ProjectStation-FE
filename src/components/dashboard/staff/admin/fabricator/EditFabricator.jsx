@@ -10,7 +10,7 @@ import {
 } from "../../../../index";
 import Service from "../../../../../config/Service";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { updateFabricator } from "../../../../../store/fabricatorSlice";
 import AddFiles from "./AddFiles";
 

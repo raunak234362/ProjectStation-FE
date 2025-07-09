@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { Button, Input, MultipleFileUpload } from "../../../../index";
 import Service from "../../../../../config/Service";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { updateFabricator } from "../../../../../store/fabricatorSlice";
 

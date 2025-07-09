@@ -7,7 +7,7 @@ import {
 } from "../../../../index";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import Service from "../../../../../config/Service";
 
 const SendCoTable = ({ data, onClose }) => {

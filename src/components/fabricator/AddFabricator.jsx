@@ -5,9 +5,10 @@ import { State, City } from "country-state-city";
 import { Input, CustomSelect, Button } from "../index";
 import { addFabricator } from "../../store/fabricatorSlice";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+
 import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
+import toast from "react-hot-toast";
 
 const AddFabricator = () => {
     const dispatch = useDispatch();

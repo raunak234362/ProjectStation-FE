@@ -9,7 +9,7 @@ import {
 } from "country-codes-flags-phone-codes";
 import { useState } from "react";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AddEmployee = () => {
   const token = sessionStorage.getItem("token");

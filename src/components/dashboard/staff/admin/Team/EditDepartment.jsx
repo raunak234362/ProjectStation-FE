@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Input, CustomSelect, Button } from "../../../../index";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { updateDepartmentData } from "../../../../../store/userSlice";
 const EditDepartment = ({ department, onClose, handleClose }) => {
   const dispatch = useDispatch();

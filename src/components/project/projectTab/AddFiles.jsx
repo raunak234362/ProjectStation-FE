@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import Service from "../../../config/Service";
 import { updateFabricator } from "../../../store/fabricatorSlice";

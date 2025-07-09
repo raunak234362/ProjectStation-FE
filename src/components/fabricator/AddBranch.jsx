@@ -13,7 +13,7 @@ import { State, City } from "country-state-city";
 import { useForm } from "react-hook-form";
 import { addBranchToFabricator } from "../../store/fabricatorSlice";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AddBranch = ({ fabricator, isBranch, onBranchClose }) => {
   console.log(fabricator);

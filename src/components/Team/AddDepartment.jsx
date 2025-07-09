@@ -4,7 +4,7 @@ import { Input, CustomSelect, Button } from "../index";
 import { useEffect, useState } from "react";
 import Service from "../../config/Service";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { addDepartment } from "../../store/userSlice";
 
 const AddDepartment = () => {

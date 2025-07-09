@@ -7,7 +7,7 @@ import MultipleFileUpload from "../fields/MultipleFileUpload";
 import Input from "../fields/Input";
 import { useCallback, useEffect, useState } from "react";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { CustomSelect } from "..";
 import { X } from "lucide-react";
 import UpdateResponseDetail from "./responses/UpdateResponseDetail";

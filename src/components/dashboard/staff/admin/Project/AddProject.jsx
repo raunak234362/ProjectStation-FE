@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Input, CustomSelect, Button, Toggle } from "../../../../index";
 import { addProject } from "../../../../../store/projectSlice";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 // import { Option } from '@material-tailwind/react'
 const AddProject = () => {
   const projectData = useSelector((state) => state.projectData?.projectData);

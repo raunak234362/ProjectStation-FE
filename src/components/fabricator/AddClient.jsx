@@ -11,7 +11,7 @@ import {
 } from "country-codes-flags-phone-codes";
 import { State, City } from "country-state-city";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
 

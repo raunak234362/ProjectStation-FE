@@ -40,7 +40,7 @@ const WBTDashboard = () => {
   // Process department tasks for department managers
   useEffect(() => {
     if (userType === "department-manager") {
-      const departmentTaskData = taskData.flatMap(
+      const departmentTaskData = taskData?.flatMap(
         (tasks) => tasks?.tasks || []
       );
       setDepartmentTask(departmentTaskData);

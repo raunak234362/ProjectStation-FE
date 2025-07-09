@@ -13,7 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { addFabricator } from "../../../../../store/fabricatorSlice";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 const AddFabricator = () => {
   const token = sessionStorage.getItem("token");
   const [files, setFiles] = useState([]);

@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { Button } from "../index";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import RFIResponse from "./response/RFIResponse";
 import { X } from "lucide-react";

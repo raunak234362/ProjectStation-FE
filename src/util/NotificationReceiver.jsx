@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 // src/util/NotificationReceiver.jsx
 import { useEffect } from "react";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import socket from "../socket";
 import { useSelector } from "react-redux";
 

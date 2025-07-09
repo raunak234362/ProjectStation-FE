@@ -8,7 +8,7 @@ import {
   Button,
   MultipleFileUpload,
 } from "../../../../index";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import Service from "../../../../../config/Service";
 
 const SendSubmittals = () => {

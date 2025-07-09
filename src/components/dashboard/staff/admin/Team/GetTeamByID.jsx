@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { Button, CustomSelect } from "../../../../index";
 import Service from "../../../../../config/Service";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const GetTeamByID = ({ team, isOpen, onClose }) => {
   const [segregatedMembers, setSegregatedMembers] = useState({});

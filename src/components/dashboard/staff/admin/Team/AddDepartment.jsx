@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Service from "../../../../../config/Service";
 import { useDispatch, useSelector } from "react-redux";
 import { addDepartment } from "../../../../../store/userSlice";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 
 const AddDepartment = () => {
   const {

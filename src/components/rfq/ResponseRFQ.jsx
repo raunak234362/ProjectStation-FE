@@ -2,7 +2,7 @@
 import { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { Button, MultipleFileUpload, Input } from "../index";
-import { toast } from "react-toastify";
+import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import Service from "../../config/Service";
 
