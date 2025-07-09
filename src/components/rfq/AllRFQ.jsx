@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Service from "../../config/Service";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSortBy, useTable } from "react-table";
 import GetRFQ from "./GetRFQ";
+import { showRFQs } from "../../store/rfqSlice";
 
 function AllRFQ() {
   const [rfq, setRfq] = useState([]);
@@ -11,7 +12,7 @@ function AllRFQ() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const userType = sessionStorage.getItem("userType");
-
+  const dispatch = useDispatch();
   const fetchInboxRFQ = async () => {
     try {
       let rfqDetail;
@@ -21,6 +22,7 @@ function AllRFQ() {
         rfqDetail = await Service.inboxRFQ();
       }
       setRfq(rfqDetail);
+      dispatch(showRFQs(rfqDetail));
     } catch (error) {
       console.error("Error fetching RFQ:", error);
     }

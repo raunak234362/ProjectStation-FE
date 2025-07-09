@@ -3,8 +3,8 @@
 import { useForm, Controller } from "react-hook-form";
 import { Button, CustomSelect, Input, MultipleFileUpload } from "../..";
 import { useCallback, useState } from "react";
-import { toast } from "react-toastify";
 import Service from "../../../config/Service";
+import { Toaster, toast } from "react-hot-toast";
 
 const UpdateResponseSend = ({ rfqID, responseId }) => {
   const [files, setFiles] = useState([]);
@@ -16,19 +16,17 @@ const UpdateResponseSend = ({ rfqID, responseId }) => {
     control,
     reset,
   } = useForm();
-console.log("RFQ Response ID:", responseId);
-console.log("RFQ ID:", rfqID);
   const onFilesChange = useCallback((updatedFiles) => {
     setFiles(updatedFiles);
   }, []);
 
   const onSubmitWithFiles = async (data) => {
     console.log("Form data:", files);
-    const responseData= {
-        ...data,
-        files,
-        parentResponseId: responseId
-    }
+    const responseData = {
+      ...data,
+      files,
+      parentResponseId: responseId,
+    };
     console.log("RFQ Response Data:", responseData);
     try {
       await Service.respondClientRfq(rfqID, responseData);
@@ -41,6 +39,7 @@ console.log("RFQ ID:", rfqID);
 
   return (
     <div>
+      <Toaster />
       <form onSubmit={handleSubmit(onSubmitWithFiles)} className="w-full">
         <div>
           <h2 className="pb-2 mb-6 text-2xl font-extrabold text-teal-600 border-b border-teal-300">

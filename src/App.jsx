@@ -106,7 +106,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <NotificationReceiver />
+     
       <DashboardView />
     </Provider>
   );

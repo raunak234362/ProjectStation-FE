@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Calendar, Edit2, FileText, Globe, HardDrive, Plus, X, ChevronRight, BarChart2, Layers } from "lucide-react";
 import AddWB from "../../dashboard/staff/admin/Project/wb/AddWB";
-import EditProject from "../../dashboard/staff/admin/Project/EditProject";
 import AllWorkBreakdown from "../../dashboard/staff/admin/Project/wb/AllWorkBreakdown";
+import EditProject from "./EditProject";
 
 // UI Components
 const Button = ({ children, variant = "primary", size = "md", className = "", onClick, ...props }) => {

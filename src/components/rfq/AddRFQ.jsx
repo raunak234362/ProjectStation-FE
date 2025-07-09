@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Input, CustomSelect, Button, MultipleFileUpload } from "../index";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
 import { showStaff } from "../../store/userSlice";
 import SectionTitle from "../../util/SectionTitle";
 
@@ -55,7 +55,6 @@ const AddRFQ = () => {
       salesPersonId: data.recipients,
       status: "RECEIVED",
     };
-    console.log("RFQ Data:", RFQData);
 
     try {
       const response = await Service.addRFQ(RFQData);
@@ -70,6 +69,7 @@ const AddRFQ = () => {
   return (
     <div className="flex justify-center w-full my-5 text-black bg-white rounded-lg shadow-md">
       <div className="w-full h-full py-3 px-3 overflow-y-auto ">
+        <Toaster />
         <form onSubmit={handleSubmit(CreateRFQ)} className="space-y-6">
           {/* Project Info */}
           <SectionTitle title="Project Information" />

@@ -92,6 +92,7 @@ const AddFabricator = () => {
                             placeholder="Enter zipcode"
                             {...register("headquater.zip_code", { required: "Zipcode is required" })}
                         />
+                        
                     </div>
                     {errors.headquater?.zip_code && (
                         <ErrorMsg msg={errors.headquater.zip_code.message} />

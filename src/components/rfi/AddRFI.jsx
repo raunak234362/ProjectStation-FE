@@ -11,8 +11,8 @@ import {
     MultipleFileUpload,
 } from "../index";
 import Service from "../../config/Service";
-import { toast } from "react-toastify";
 import socket from "../../socket";
+import toast, { Toaster } from "react-hot-toast";
 
 const AddRFI = ({ projectData }) => {
     const project = projectData || {};
@@ -103,6 +103,7 @@ const AddRFI = ({ projectData }) => {
         <>
             <div className="h-fit">
                 <div className="overflow-auto max-h-[70%]">
+                    <Toaster />
                     <div className="flex justify-center w-full my-5 text-black">
                         <div className="w-full h-full px-2 py-3 overflow-y-auto md:px-10">
                             <form onSubmit={handleSubmit(CreateRFI)}>
