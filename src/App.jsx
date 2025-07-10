@@ -95,8 +95,8 @@ const App = () => {
 
   useEffect(() => {
     // fetchAllTeams();
-    // fetchAllStaff();
-    // fetchAllDepartments();
+    fetchAllStaff();
+    fetchAllDepartments();
     // fetchAllTasks();
     // fetchAllProjects();
     fetchUser();

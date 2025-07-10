@@ -38,7 +38,7 @@ const ChangePassword = () => {
     console.log(cngPassword);
     if (cngPassword.status == 200) {
       alert(cngPassword.data.success)
-      navigate('/admin/dashboard')
+      navigate('/dashboard/dashboard')
     } else {
       if ("cnf_password" in cngPassword.response.data)
         errors.cnf_password = cngPassword.response.data.cnf_password;
@@ -128,7 +128,7 @@ const ChangePassword = () => {
               </ul>
             )}
             <div className="flex items-center justify-center w-full">
-              <Button className="w-full" type="submit">
+              <Button className="w-full bg-teal-500" type="submit">
                 Save
               </Button>
             </div>
