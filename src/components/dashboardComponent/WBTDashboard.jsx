@@ -65,6 +65,12 @@ const WBTDashboard = () => {
   }, []);
   console.log("Dashboard Counts:", dashboardCounts);
 
+
+  const exportCsv=async()=>{
+    const response = await Service.exportCSV();
+    console.log("CSV Export Response:", response);
+  }
+
   // Prepare project data with tasks
   const projectsWithTasks = useMemo(
     () =>
@@ -373,7 +379,7 @@ const WBTDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               Project Dashboard
             </h1>
-            <Button className="flex items-center gap-2 bg-teal-500 text-white hover:bg-teal-600">
+            <Button onClick={exportCsv} className="flex items-center gap-2 bg-teal-500 text-white hover:bg-teal-600">
               <Download className="w-4 h-4" />
               Export CSV
             </Button>

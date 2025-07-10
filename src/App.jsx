@@ -94,11 +94,11 @@ const App = () => {
   };
 
   useEffect(() => {
-    // fetchAllTeams();
+    fetchAllTeams();
     fetchAllStaff();
     fetchAllDepartments();
-    // fetchAllTasks();
-    // fetchAllProjects();
+    fetchAllTasks();
+    fetchAllProjects();
     fetchUser();
   }, [dispatch]);
 

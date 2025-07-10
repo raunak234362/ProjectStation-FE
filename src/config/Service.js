@@ -1614,6 +1614,22 @@ class Service {
     }
   }
 
+  //Export CSV
+  static async exportCSV(){
+    try {
+      const response = await api.get(`/api/auth/exports/projects`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in exporting CSV: ", error);
+      throw error;
+    }
+  }
+
   // Ping server
   // static async ping() {
   //   try {
