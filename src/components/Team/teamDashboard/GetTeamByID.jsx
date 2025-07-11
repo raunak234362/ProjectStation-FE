@@ -70,7 +70,7 @@ const GetTeamByID = ({ team, isOpen, onClose }) => {
   const addMembers = async (data) => {
     try {
       await Service.addTeamMember(team, data);
-      fetchTeamData()
+      fetchTeamData();
       toast.success("Team member has been added successfully!");
     } catch (error) {
       toast.error("Failed to add team member");
@@ -100,7 +100,7 @@ const GetTeamByID = ({ team, isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-       <div className="bg-white h-fit overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
+      <div className="bg-white h-fit overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
         <div className="flex justify-between p-2 my-5 rounded-lg bg-gradient-to-r from-teal-400 to-teal-100">
           <h2 className="text-2xl font-bold">Manage Team</h2>
           <button
@@ -122,9 +122,14 @@ const GetTeamByID = ({ team, isOpen, onClose }) => {
                 <p className="mb-2">
                   <strong className="text-gray-700">Manager:</strong>{" "}
                   {
-                    staffData?.find((staff) => staff?.id === teamMembers?.managerID)?.f_name
-                  } {
-                    staffData?.find((staff) => staff?.id === teamMembers?.managerID)?.l_name
+                    staffData?.find(
+                      (staff) => staff?.id === teamMembers?.managerID
+                    )?.f_name
+                  }{" "}
+                  {
+                    staffData?.find(
+                      (staff) => staff?.id === teamMembers?.managerID
+                    )?.l_name
                   }
                 </p>
                 <div className="mb-2">

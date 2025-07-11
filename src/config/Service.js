@@ -627,6 +627,27 @@ class Service {
     }
   }
 
+  //Add Estimation Task
+  static async addEstimationTask(estimationId, taskData) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(
+        `/api/Estimation/addEstimationTask/${estimationId}`,
+        taskData,
+        {
+          headers: {
+            "Content-Type": "Application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error adding estimation task:", error);
+      throw error;
+    }
+  }
+
   // Add JobStudy
   static async addJobStudy(jobData) {
     const formData = { ...jobData };
