@@ -30,6 +30,8 @@ import {
 } from "lucide-react";
 import Button from "../../fields/Button";
 import AddTeam from "./AddTeam";
+import GetTeamByID from "./GetTeamByID";
+import GetEmployee from "../GetEmployee";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -43,6 +45,7 @@ const TeamDashboard = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [addTeam, setAddTeam] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [monthlyEfficiency, setMonthlyEfficiency] = useState([]);
   const [dateFilter, setDateFilter] = useState({
@@ -66,7 +69,7 @@ const TeamDashboard = () => {
   const token = useSelector((state) => state?.auth?.token);
   const staffData = useSelector((state) => state?.userData?.staffData);
   const teamData = useSelector((state) => state?.userData?.teamData?.data);
-
+  console.log("Selected Employee-------------",selectedEmployee);
   const handleAddTeam = useCallback(() => {
     setIsModalOpen(true);
   });
@@ -125,7 +128,7 @@ const TeamDashboard = () => {
 
     fetchTeamData();
   }, [selectedTeam]);
-
+  console.log("Selected Team:", selectedTeam);
   // Calculate team statistics
   const calculateTeamStats = async (members) => {
     try {
@@ -530,6 +533,19 @@ const TeamDashboard = () => {
     useSortBy
   );
 
+  const handleViewClick = async (teamId) => {
+    try {
+      setSelectedTeam(teamId);
+      setIsViewModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching team details:", error);
+    }
+  };
+
+  const handleViewCloseModal = () => {
+    setIsViewModalOpen(false);
+  };
+
   return (
     <div className="bg-gray-50 overflow-y-auto p-4 md:p-6">
       {/* Dashboard Header */}
@@ -583,10 +599,12 @@ const TeamDashboard = () => {
                     onClick={() => handleTeamSelect(team.id)}
                   >
                     <h3 className="font-medium text-gray-800">{team.name}</h3>
-                    <div className="flex justify-between items-center mt-2 text-sm">
-                      <span className="text-gray-600">
-                        {team.members?.length || 0} members
-                      </span>
+                    <div className="flex justify-between text-gray-600">
+                      <div className="flex justify-between items-center mt-2 text-sm">
+                        <span className="text-gray-600">
+                          {team.members?.length || 0} members
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -608,10 +626,21 @@ const TeamDashboard = () => {
                 </div>
               ) : (
                 <div className="p-4">
-                  <h2 className="text-xl font-bold text-gray-800 mb-6">
-                    {teamData?.find((t) => t.id === selectedTeam)?.name ||
-                      "Team Details"}
-                  </h2>
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-bold text-gray-800 mb-6">
+                      Team:-{" "}
+                      <span className="font-normal">
+                        {teams?.find((t) => t.id === selectedTeam)?.name ||
+                          "Team Details"}
+                      </span>
+                    </h2>
+                    <Button
+                      onClick={() => handleViewClick(selectedTeam)}
+                      className="bg-teal-500"
+                    >
+                      View Details
+                    </Button>
+                  </div>
 
                   {/* Team Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -964,12 +993,17 @@ const TeamDashboard = () => {
         </div>
       )}
 
+      {isViewModalOpen && (
+        <GetTeamByID
+          isOpen={isViewModalOpen}
+          team={selectedTeam}
+          onClose={handleViewCloseModal}
+        />
+      )}
+
       {/* Employee Modal */}
       {selectedEmployee && (
-        <EmployeeStatus
-          employee={selectedEmployee}
-          onClose={handleCloseModal}
-        />
+        <GetEmployee employee={selectedEmployee} onClose={handleCloseModal} />
       )}
       {isModalOpen && <AddTeam onClose={handleCloseAddTeam} />}
     </div>

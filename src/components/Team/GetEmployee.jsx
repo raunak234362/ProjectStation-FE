@@ -22,7 +22,7 @@ import {
 import DateFilter from "../../util/DateFilter";
 
 const GetEmployee = ({ employee, onClose }) => {
-  const employeeID = employee?.actions;
+  const employeeID = employee;
   const [selectedEditEmployee, setSelectedEditEmployee] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [employeeStatus, setEmployeeStatus] = useState(null);
