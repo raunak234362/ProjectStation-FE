@@ -36,7 +36,7 @@ const Header = ({ projectData, filterStage, setFilterStage, dateFilter, setDateF
                         <option value="BFC">(BFC) Back from Construction</option>
                         <option value="RIFC">(RIFC) Re-issue for Construction</option>
                         <option value="REV">(REV) Revision</option>
-                        <option value="CO#">(CO#) Change Order</option>
+                        <option value="CO">(CO#) Change Order</option>
                     </select>
                 </div>
 
