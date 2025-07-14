@@ -2,7 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { Input, CustomSelect, Button, MultipleFileUpload } from "../index";
+import {
+  Input,
+  CustomSelect,
+  Button,
+  MultipleFileUpload,
+  Toggle,
+} from "../index";
 import Service from "../../config/Service";
 import toast, { Toaster } from "react-hot-toast";
 import { showStaff } from "../../store/userSlice";
@@ -69,7 +75,6 @@ const AddRFQ = () => {
   return (
     <div className="flex justify-center w-full my-5 text-black bg-white rounded-lg shadow-md">
       <div className="w-full h-full py-3 px-3 overflow-y-auto ">
-        <Toaster />
         <form onSubmit={handleSubmit(CreateRFQ)} className="space-y-6">
           {/* Project Info */}
           <SectionTitle title="Project Information" />
@@ -91,7 +96,7 @@ const AddRFQ = () => {
 
             <div className="w-full my-3">
               <CustomSelect
-                label="Select Recipients:"
+                label="Select Point of Contact:"
                 placeholder="Select Recipients"
                 options={recipientOptions}
                 {...register("recipients", { required: true })}
@@ -127,6 +132,12 @@ const AddRFQ = () => {
               />
             </div>
           </div>
+            <SectionTitle title="Scope of Work" />
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Toggle label="Main Design" {...register("connectionDesign")} />
+              <Toggle label="Misc Design" {...register("miscDesign")} />
+              <Toggle label="Customer Design" {...register("customer")} />
+            </div>
 
           {/* File Upload */}
           <SectionTitle title="Attach File" />

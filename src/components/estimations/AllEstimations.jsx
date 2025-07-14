@@ -1,11 +1,14 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line react/prop-types
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTable, useSortBy } from "react-table";
+import GetEstimation from "./getEstimation/GetEstimation";
 
 const AllEstimations = ({ estimationData }) => {
   console.log("All Estimations Data:", estimationData);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEstimation, setSelectedEstimation] = useState(null);
   const columns = useMemo(
     () => [
       {
@@ -42,6 +45,16 @@ const AllEstimations = ({ estimationData }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data }, useSortBy);
 
+  const handleViewClick = (estID) => {
+    setSelectedEstimation(estID);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setSelectedEstimation(null);
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="overflow-x-auto mt-4 border rounded-lg">
       <table
@@ -50,7 +63,10 @@ const AllEstimations = ({ estimationData }) => {
       >
         <thead className="bg-gray-50">
           {headerGroups.map((headerGroup, headerGroupIdx) => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id || headerGroupIdx}>
+            <tr
+              {...headerGroup.getHeaderGroupProps()}
+              key={headerGroup.id || headerGroupIdx}
+            >
               {headerGroup.headers.map((column, colIdx) => (
                 <th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -79,7 +95,12 @@ const AllEstimations = ({ estimationData }) => {
             rows.map((row) => {
               prepareRow(row);
               return (
-                <tr {...row.getRowProps()} className="hover:bg-gray-50" key={row.id}>
+                <tr
+                  {...row.getRowProps()}
+                  className="hover:bg-gray-50"
+                  key={row.id}
+                  onClick={() => handleViewClick(row.original)}
+                >
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}
@@ -104,6 +125,12 @@ const AllEstimations = ({ estimationData }) => {
           )}
         </tbody>
       </table>
+      {selectedEstimation && (
+        <GetEstimation
+          estimation={selectedEstimation}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };

@@ -23,6 +23,7 @@ import DateFilter from "../../util/DateFilter";
 
 const GetEmployee = ({ employee, onClose }) => {
   const employeeID = employee;
+  console.log("Employee ID:", employeeID);
   const [selectedEditEmployee, setSelectedEditEmployee] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [employeeStatus, setEmployeeStatus] = useState(null);

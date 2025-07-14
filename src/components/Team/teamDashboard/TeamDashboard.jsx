@@ -363,6 +363,7 @@ const TeamDashboard = () => {
   const handleMemberClick = (memberId) => {
     setSelectedEmployee(memberId);
   };
+console.log("Selected Employee:", selectedEmployee);
 
   const handleCloseModal = () => {
     setSelectedEmployee(null);
@@ -496,18 +497,6 @@ const TeamDashboard = () => {
           >
             {value}%
           </span>
-        ),
-      },
-      {
-        Header: "Actions",
-        id: "actions",
-        Cell: ({ row }) => (
-          <button
-            onClick={() => handleMemberClick(row.original.id)}
-            className="text-blue-600 hover:text-blue-900 focus:outline-none focus:underline"
-          >
-            View Details
-          </button>
         ),
       },
     ],
@@ -853,8 +842,9 @@ const TeamDashboard = () => {
                               return (
                                 <tr
                                   {...row.getRowProps()}
-                                  className="hover:bg-gray-50"
+                                  className="hover:bg-gray-50 cursor-pointer"
                                   key={row.id}
+                                  onClick={() => handleMemberClick(row.original.id)}
                                 >
                                   {row.cells.map((cell) => (
                                     <td

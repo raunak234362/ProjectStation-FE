@@ -18,13 +18,12 @@ const GlobalFilter = ({ globalFilter, setGlobalFilter }) => (
 );
 
 const AllEmployees = () => {
-  const departments =
-    useSelector((state) => state?.userData?.departmentData) || [];
-  const staffData = useSelector((state) => state?.userData?.staffData) || [];
+  const departments = useSelector((state) => state?.userData?.departmentData) ;
+  const staffData = useSelector((state) => state?.userData?.staffData);
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+console.log("Selected Employee Data:", selectedEmployee);
   const data = useMemo(() => {
     return staffData.map((staff, index) => ({
       sno: index + 1,
@@ -70,6 +69,7 @@ const AllEmployees = () => {
   } = useTable({ columns, data }, useGlobalFilter, useSortBy);
 
   const handleViewClick = (employeeID) => {
+    console.log("Employee ID:", employeeID);
     setSelectedEmployee(employeeID);
     setIsModalOpen(true);
   };
@@ -122,7 +122,7 @@ const AllEmployees = () => {
                   <tr
                     {...row.getRowProps()}
                     className="hover:bg-blue-gray-100 border"
-                    onClick={() => handleViewClick(row.original)}
+                    onClick={() => handleViewClick(row.original.actions)}
                   >
                     {row.cells.map((cell) => (
                       <td

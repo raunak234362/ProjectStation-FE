@@ -41,13 +41,13 @@ const AddEstimation = () => {
   useEffect(() => {
     fetchInboxRFQ();
   }, []);
-  
+
   const onSubmit = async (data) => {
     console.log("Form Data:", data);
     const estData = {
       ...data,
       estimateDate: data.estimateDate ? new Date().toISOString() : null,
-    }
+    };
     try {
       const response = await Service.addEstimation(estData);
       console.log("Estimation added:", response);
@@ -59,38 +59,41 @@ const AddEstimation = () => {
   };
 
   return (
-    <div className="flex justify-center w-full h-[90vh] text-black bg-white rounded-lg shadow-md">
-      <div className="w-full h-full py-3 px-3 overflow-y-auto ">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <div className="flex justify-center w-full my-5 text-black bg-white rounded-lg shadow-md">
+      <div className="w-full h-[55vh] py-3 px-3 overflow-y-auto ">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <SectionTitle title="RFQ Details" />
-          <CustomSelect
-            label="RFQ"
-            placeholder="Select RFQ"
-            options={rfq?.map((rfqData) => ({
-              label: rfqData.subject,
-              value: rfqData.id,
-            }))}
-            {...register("rfqId", { required: "RFQ is required" })}
-            onChange={setValue}
-          />
-          <ErrorMsg msg={errors.rfqId?.message} />
+          <div className="px-1 my-2 md:px-2 space-y-3">
+            <CustomSelect
+              label="RFQ"
+              placeholder="Select RFQ"
+              options={rfq?.map((rfqData) => ({
+                label: rfqData.subject,
+                value: rfqData.id,
+              }))}
+              {...register("rfqId", { required: "RFQ is required" })}
+              onChange={setValue}
+            />
+            <ErrorMsg msg={errors.rfqId?.message} />
 
-          <Input
-            label="Estimation No."
-            {...register("estimationNumber", { required: true })}
-          />
-          {errors.name && <ErrorMsg msg={errors.name.message} />}
-          <CustomSelect
-            label="Select Exisiting Fabricator"
-            placeholder="Select Fabricator"
-            options={fabricatorData?.map((fab) => ({
-              label: fab.fabName,
-              value: fab.id,
-            }))}
-            {...register("fabricatorId")}
-            onChange={setValue}
-          />
+            <Input
+              label="Estimation No."
+              {...register("estimationNumber", { required: true })}
+            />
+            {errors.name && <ErrorMsg msg={errors.name.message} />}
+            <CustomSelect
+              label="Select Exisiting Fabricator"
+              placeholder="Select Fabricator"
+              options={fabricatorData?.map((fab) => ({
+                label: fab.fabName,
+                value: fab.id,
+              }))}
+              {...register("fabricatorId")}
+              onChange={setValue}
+            />
+          </div>
           <SectionTitle title="Project Details" />
+          <div className="px-1 my-2 md:px-2 space-y-3">
           <Input
             label="Project Name"
             {...register("projectName", { required: true })}
@@ -113,6 +116,7 @@ const AddEstimation = () => {
             {...register("tools")}
             onChange={setValue}
           />
+          </div>
           <Button
             type="submit"
             className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"

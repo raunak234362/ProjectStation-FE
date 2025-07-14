@@ -627,6 +627,23 @@ class Service {
     }
   }
 
+  // Fetch estimation by ID
+  static async getEstimationById(estimationId) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Estimation/getEstimation/${estimationId}`, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.log("Error fetching estimation by ID:", error);
+      throw error;
+    }
+  }
+
   //Add Estimation Task
   static async addEstimationTask(estimationId, taskData) {
     const token = sessionStorage.getItem("token");
