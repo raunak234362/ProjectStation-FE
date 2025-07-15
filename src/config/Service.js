@@ -649,7 +649,7 @@ class Service {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
-        `/api/Estimation/addEstimationTask/${estimationId}`,
+        `/api/EstimationTask/assignTask/${estimationId}/task`,
         taskData,
         {
           headers: {
