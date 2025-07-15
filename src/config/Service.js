@@ -666,11 +666,11 @@ class Service {
   }
 
   //Fetch all estimation tasks
-  static async allEstimationTasks(estimationId) {
+  static async allEstimationTasks() {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(
-        `/api/Estimation/getAllEstimationTasks/${estimationId}`,
+        `/api/EstimationTask/getAllTasks`,
         {
           headers: {
             "Content-Type": "Application/json",
