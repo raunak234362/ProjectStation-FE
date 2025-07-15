@@ -28,6 +28,8 @@ const AddEstimationTask = ({ estimationId }) => {
   const onSubmit = (data) => {
     const payload = {
       ...data,
+      endDate: new Date(data.endDate).toISOString(),
+      startDate: new Date(data.startDate).toISOString(),
       estimationId: estimationId,
     };
     try {
