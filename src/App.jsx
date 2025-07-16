@@ -107,9 +107,9 @@ const App = () => {
 
   return (
     <Provider store={store}>
+      <InstallPWAButton />
       <NotificationReceiver />
       <DashboardView />
-      <InstallPWAButton />
     </Provider>
   );
 };

@@ -506,6 +506,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 projectId={projectId}
                 onClose={onClose}
                 projectData={projectData}
+                fetchProjectByID={fetchProjectByID}
               />
             )}
             {activeTab === "overview" && (

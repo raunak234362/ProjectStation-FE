@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { AddFabricator, AddProject, AllProjects } from "../../components";
+import ClientAllProjects from "../../components/project/ClientAllProjects";
 
 
 const ProjectView = () => {
     const [activeTab, setActiveTab] = useState('allProject');
+    const userType = sessionStorage.getItem("userType");
     return (
         <div className="w-full overflow-y-hidden">
             <div className="flex flex-col w-full h-full">
@@ -43,6 +45,9 @@ const ProjectView = () => {
                     )}
                     {activeTab === 'allProject' && (
                         <div>
+                            {userType === "client" && (
+                                <ClientAllProjects />
+                            )}
                             <AllProjects />
                         </div>
                     )}

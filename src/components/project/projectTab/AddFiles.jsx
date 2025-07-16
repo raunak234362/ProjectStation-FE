@@ -9,7 +9,7 @@ import { updateFabricator } from "../../../store/fabricatorSlice";
 import MultipleFileUpload from "../../fields/MultipleFileUpload";
 import Button from "../../fields/Button";
 
-const AddFiles = ({ projectId }) => {
+const AddFiles = ({ projectId, onUpdate }) => {
   const [fileData, setFileData] = useState([]);
   const dispatch = useDispatch();
   const {
@@ -51,6 +51,7 @@ const AddFiles = ({ projectId }) => {
       try {
         const response = await Service.addProjectFile(formData, projectId);
         dispatch(updateFabricator(response));
+        onUpdate(); // Call the onUpdate function to refresh the project data
         toast.success("Files uploaded successfully");
         console.log("Files uploaded successfully:", response);
       } catch (error) {

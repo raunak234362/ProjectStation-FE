@@ -87,28 +87,14 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 };
 
 // Main Component
-const GetProject = ({ projectId, onClose }) => {
+const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
   const [activeTab, setActiveTab] = useState("details");
-  const [projectData, setProjectData] = useState(null);
+ 
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectStatus, setSelectedProjectStatus] = useState(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const fetchProjectByID = async () => {
-    try {
-      const response = await Service.fetchProjectByID(projectId);
-      setProjectData(response);
-      console.log("Project Data:", response);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching project data:", error);
-      return null;
-    }
-  };
-
-  useEffect(() => {
-   fetchProjectByID()
-  },[setProjectData])
+  
 
   const handleEditClick = () => {
     setIsModalOpen(true);

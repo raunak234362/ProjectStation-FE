@@ -21,8 +21,8 @@ import {
   Settings,
   ArrowRight,
 } from "lucide-react";
-import { Bar, Pie } from "react-chartjs-2";
 import "chart.js/auto";
+import { Bar, Pie } from "react-chartjs-2";
 import PropTypes from "prop-types";
 import Service from "../../config/Service";
 import ActionCenter from "./ActionCenter";
