@@ -32,8 +32,7 @@ const AddFiles = ({ projectId, onUpdate }) => {
   //     }));
   //   };
 
-  const onSubmit = async () => {
-    console.log(fileData, "udasdgasidsausdasuodaj");
+  const onSubmit = async () => {;
     const formData = new FormData();
 
     // Ensure data?.files is an array and has files
@@ -51,7 +50,7 @@ const AddFiles = ({ projectId, onUpdate }) => {
       try {
         const response = await Service.addProjectFile(formData, projectId);
         dispatch(updateFabricator(response));
-        onUpdate(); // Call the onUpdate function to refresh the project data
+        onUpdate();
         toast.success("Files uploaded successfully");
         console.log("Files uploaded successfully:", response);
       } catch (error) {

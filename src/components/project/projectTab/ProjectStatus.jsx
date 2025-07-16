@@ -9,6 +9,7 @@ import Team from "./TeamTab";
 import TimeLine from "./TimelineTab";
 import { RFI, Submittals } from "../../index";
 import Service from "../../../config/Service";
+import CO from "../../changeOrder/CO";
 
 const ProjectStatus = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("projectDetail");
@@ -547,9 +548,9 @@ const ProjectStatus = ({ projectId, onClose }) => {
             {activeTab === "Submittals" && (
               <Submittals projectData={projectData} />
             )}
-            {/* {activeTab === "CO" && (
-                            <ChangeOrders projectData={projectData} />
-                        )} */}
+            {activeTab === "CO" && (
+                            <CO projectData={projectData} />
+                        )}
           </>
         )}
       </div>
