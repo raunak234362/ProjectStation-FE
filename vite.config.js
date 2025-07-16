@@ -43,19 +43,6 @@ export default defineConfig({
   build: {
     sourcemap: false, // Avoid "can't resolve original location" errors
     chunkSizeWarningLimit: 1500, // Optional: Increase warning limit
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            return id
-              .toString()
-              .split("node_modules/")[1]
-              .split("/")[0]
-              .toString();
-          }
-        },
-      },
-    },
   },
   server: {
     proxy: {
