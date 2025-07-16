@@ -22,6 +22,7 @@ import { showTask } from "./store/taskSlice";
 import NotificationReceiver from "./util/NotificationReceiver";
 import DashboardView from "./pages/dashboard/DashboardView";
 import getUserType from "./util/getUserType";
+import InstallPWAButton from "./util/InstallPWAButton";
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -106,8 +107,9 @@ const App = () => {
 
   return (
     <Provider store={store}>
-     <NotificationReceiver />
+      <NotificationReceiver />
       <DashboardView />
+      <InstallPWAButton />
     </Provider>
   );
 };
