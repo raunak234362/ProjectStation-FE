@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Input, Button } from "../../../../../index";
-import Service from "../../../../../../config/Service";
+import { Input, Button } from "../../index";
+import Service from "../../../config/Service";
 
 const EditJobStudy = ({ jobStudy, onClose }) => {
   const { handleSubmit, control } = useForm({

@@ -1,12 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from 'vite-plugin-pwa';
+
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "robots.txt", "apple-touch-icon.png"],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024, // 12 MB
+      },
       manifest: {
         name: "My App",
         short_name: "App",
@@ -36,6 +40,23 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    sourcemap: false, // Avoid "can't resolve original location" errors
+    chunkSizeWarningLimit: 1500, // Optional: Increase warning limit
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            return id
+              .toString()
+              .split("node_modules/")[1]
+              .split("/")[0]
+              .toString();
+          }
+        },
+      },
+    },
+  },
   server: {
     proxy: {
       "/api": {

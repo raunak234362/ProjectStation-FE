@@ -2,11 +2,9 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { Calendar, Edit2, FileText, Globe, HardDrive, Plus, X, ChevronRight, BarChart2, Layers } from "lucide-react";
-import AddWB from "../../dashboard/staff/admin/Project/wb/AddWB";
-import AllWorkBreakdown from "../../dashboard/staff/admin/Project/wb/AllWorkBreakdown";
 import EditProject from "./EditProject";
-import { use } from "react";
 import Service from "../../../config/Service";
+import AddWB from "../wb/AddWB";
 
 // UI Components
 const Button = ({ children, variant = "primary", size = "md", className = "", onClick, ...props }) => {

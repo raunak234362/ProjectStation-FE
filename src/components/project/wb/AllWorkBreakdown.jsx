@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useSelector } from "react-redux";
-import { Input, Button } from "../../../../../index";
+import { Input, Button } from "../../index";
 import { useState } from "react";
 import AllJobStudy from "./AllJobStudy";
 

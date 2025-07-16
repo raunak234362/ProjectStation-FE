@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-"use client"
 
 import { useSelector } from "react-redux"
 import { Button, GetProject } from "../index"

@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { Input, CustomSelect, Button } from "../../../../../index";
+import { Input, CustomSelect, Button } from "../../index";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import Service from "../../../../../../config/Service";
+import Service from "../../../config/Service";
 import { Select } from "@material-tailwind/react";
 
 const JobStudy = ({ projectId }) => {

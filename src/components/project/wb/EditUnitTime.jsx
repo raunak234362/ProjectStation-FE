@@ -1,7 +1,9 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from "react";
-import { Input, Button } from "../../../../../index";
+import { Input, Button } from "../../index";
 import toast from "react-hot-toast";
-import Service from "../../../../../../config/Service";
+import Service from "../../../config/Service";
 
 const EditUnitTime = ({ subTask, onClose, onSave }) => {
   const [timeFormData, setTimeFormData] = useState({

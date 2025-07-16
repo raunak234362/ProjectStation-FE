@@ -5,13 +5,12 @@ import {
   Input,
   CustomSelect,
   Button,
-  JobStudy,
-  SelectedWBTask,
-} from "../../../../../index";
+} from "../../index";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
-import Service from "../../../../../../config/Service";
-
+import Service from "../../../config/Service";
+import JobStudy from "./JobStudy";
+import SelectedWBTask from "./SelectedWBTask";
 const AddWB = ({ projectId, projectData }) => {
   const [project, setProject] = useState({});
   const [selectedTaskData, setSelectedTaskData] = useState(null);

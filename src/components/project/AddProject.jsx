@@ -55,7 +55,6 @@ const AddProject = () => {
   return (
     <div className="flex justify-center w-full my-5 text-black bg-white rounded-lg shadow-md">
       <div className="w-full h-full py-3 px-3 overflow-y-auto ">
-        <Toaster />
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Fabricator Info */}
           <SectionTitle title="Fabricator Information" />

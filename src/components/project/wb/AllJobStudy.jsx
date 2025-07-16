@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Service from "../../../../../../config/Service";
-import { Button } from "../../../../../index";
+import Service from "../../../config/Service";
+import { Button } from "../../index";
 import EditJobStudy from "./EditJobStudy";
 /* eslint-disable react/prop-types */
 const AllJobStudy = ({ projectId }) => {

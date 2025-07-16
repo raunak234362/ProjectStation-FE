@@ -1,9 +1,9 @@
-/* eslint-disable no-unused-vars */
+
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { Bar, Pie, Line } from "react-chartjs-2";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
@@ -11,16 +11,13 @@ import "react-loading-skeleton/dist/skeleton.css";
 import "chart.js/auto";
 import {
   LayoutGrid,
-  Search,
   BarChart3,
   PieChart,
   LineChart,
   CheckCircle2,
   Download,
 } from "lucide-react";
-import { useSortBy, useTable } from "react-table";
 import Button from "../../../../fields/Button";
-import ProjectStatus from "../Project/ProjectStatus";
 import Service from "../../../../../config/Service";
 import AllProjects from "../../../../project/AllProjects";
 
@@ -28,15 +25,8 @@ const ProjectDashboard = () => {
   const userType = sessionStorage.getItem("userType");
   const projectData = useSelector((state) => state?.projectData?.projectData || []);
   const taskData = useSelector((state) => state.taskData.taskData || []);
-  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData || []);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sortOrder, setSortOrder] = useState({ key: "name", order: "asc" });
   const [activeChart, setActiveChart] = useState("line");
-  const [projectFilter, setProjectFilter] = useState([]);
   const [departmentTask, setDepartmentTask] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({ fabricator: "", status: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 

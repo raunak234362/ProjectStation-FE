@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import { Input, Button } from "../../../../../index";
+import { Input, Button } from "../../index";
 import { useForm, Controller } from "react-hook-form";
 import { useSelector } from "react-redux";
-import Service from "../../../../../../config/Service";
+import Service from "../../../config/Service";
 import toast from "react-hot-toast";
 import EditQuantityForm from "./EditQuantityForm";
 import AddMoreSubtask from "./AddMoreSubtask.jsx";

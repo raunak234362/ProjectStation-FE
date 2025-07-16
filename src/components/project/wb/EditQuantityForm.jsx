@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
-import { Input, Button } from "../../../../../index";
+import { Input, Button } from "../../index";
 import toast from "react-hot-toast";
-import Service from "../../../../../../config/Service";
+import Service from "../../../config/Service";
 
 const EditQuantityForm = ({ subTask, onClose, onSave }) => {
   const [quantityFormData, setQuantityFormData] = useState({

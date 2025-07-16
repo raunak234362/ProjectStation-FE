@@ -29,18 +29,15 @@ const Sidebar = () => {
   };
 
   const navItems = [
-    { label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
+    { label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />, roles: ["admin", "department-manager","project-manager", "client", "user", "estimator", "sales"] },
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin", "sales", "department-manager"] },
-    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin", "manager", "client", "user", "estimator", "sales"] },
+    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin", "department-manager","project-manager", "client", "user", "estimator", "sales"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin", "sales", "client", "department-manager"] },
-    // { label: "RFI", to: "rfi", icon: <FileChartColumnIncreasing />, roles: ["admin", "department-manager"] },
-    // { label: "Submittals", to: "submittals", icon: <FileInput />, roles: ["admin", "department-manager"] },
-    // { label: "Change Order", to: "change-order", icon: <ReplaceAll />, roles: ["admin", "department-manager"] },
-    { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin", "department-manager"] },
+    { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin"] },
     { label: "Estimations", to: "estimation", icon: <ChartCandlestick />, roles: ["admin", "department-manager"] },
-    { label: "Manage Team", to: "team", icon: <Database />, roles: ["admin", "department-manager", "human-resource"] },
-    { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "department-manager", "client", "project-manager", "user"] },
-    { label: "Profile", to: "profile", icon: <CgProfile />, roles: ["admin", "user", "client", "estimator", "sales", "department-manager", "human-resource"] },
+    { label: "Manage Team", to: "team", icon: <Database />, roles: ["admin", "department-manager", "project-manager", "human-resource"] },
+    { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "department-manager", "client", "project-manager", "user", "human-resource"] },
+    { label: "Profile", to: "profile", icon: <CgProfile />, roles: ["admin", "user", "client", "estimator", "sales", "project-manager", "department-manager", "human-resource"] },
   ];
 
   const canView = (roles) => roles.includes(userType);

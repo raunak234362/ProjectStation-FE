@@ -6,10 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  Search,
   Building2,
-  BarChart3,
-  PieChart,
   Calendar,
   CheckCircle2,
   AlertCircle,
