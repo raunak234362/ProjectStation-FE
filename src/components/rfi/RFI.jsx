@@ -7,7 +7,6 @@ import AllRFI from "./AllRFI";
 const RFI = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState('allRFI');
 
-
   return (
     <div className="w-full overflow-y-hidden">
       <div className="flex flex-col w-full h-full">

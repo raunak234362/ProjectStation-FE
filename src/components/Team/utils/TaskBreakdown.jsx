@@ -8,6 +8,11 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
     setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
+  // Sort tasks by created_on date in descending order (newest first)
+  const sortedTasks = [...tasks].sort((a, b) => {
+    return new Date(b.created_on) - new Date(a.created_on);
+  });
+
   return (
     <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
       <div className="flex items-center justify-between mb-4">
@@ -18,9 +23,9 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
       </div>
 
       <div className="overflow-y-auto max-h-96">
-        {tasks.length > 0 ? (
+        {sortedTasks.length > 0 ? (
           <ul className="divide-y divide-gray-200 px-5">
-            {tasks.map((task, index) => {
+            {sortedTasks.map((task, index) => {
               const isExpanded = expandedIndex === index;
               return (
                 <li
@@ -31,14 +36,14 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                   <div className="flex justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-800">
-                        {task.title || `Task ${index + 1}`}
+                        {task.name || `Task ${index + 1}`}
                       </p>
                       <p className="text-xs text-gray-500">
                         {task.description?.substring(0, 60) || "No description"}
                         {task.description?.length > 60 ? "..." : ""}
                       </p>
                       {task.created_on && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs font-bold text-gray-600 mt-1">
                           Created:{" "}
                           {new Date(task.created_on).toLocaleDateString()}
                         </p>
@@ -67,37 +72,54 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                           : 0}{" "}
                         hrs
                       </span>
-                      <span className="text-xs text-gray-500 mt-1">
-                        Total Working Hours:{" "}
-                        {task.workingHourTask
-                          ? task.workingHourTask
-                              .reduce(
-                                (total, hour) =>
-                                  total + (hour.duration / 60 || 0),
-                                0
-                              )
-                              .toFixed(2)
-                          : "0.00"}{" "}
-                        hrs
-                      </span>
+                      {(() => {
+                        const assignedMinutes = task.duration
+                          ? parseDurationToMinutes(task.duration)
+                          : 0;
+                        const workingMinutes = task.workingHourTask
+                          ? task.workingHourTask.reduce(
+                              (total, hour) =>
+                                total + (hour.duration || 0),
+                              0
+                            )
+                          : 0;
+                        const diffMinutes = workingMinutes - assignedMinutes;
+                        const workingHours = (workingMinutes / 60).toFixed(2);
+                        const isOverLimit = diffMinutes > 20;
+                        return (
+                          <span
+                            className={`text-xs mt-1 ${
+                              isOverLimit ? "text-red-600" : "text-gray-500"
+                            }`}
+                          >
+                            Total Working Hours: {workingHours} hrs
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
 
                   {/* Expandable Comments */}
-                  {isExpanded && task["taskcomment"]?.length > 0 && (
-                    <div className="mt-3 pl-4 pr-2 py-2 bg-gray-50 border-l-4 border-teal-400 rounded shadow-sm space-y-2 text-xs text-gray-700">
-                      {task["taskcomment"].map((comment, i) => (
-                        <div key={i}>
-                          <span className="font-semibold text-gray-800">
-                            {`${comment.user?.f_name || ""} ${
-                              comment.user?.m_name || ""
-                            } ${comment.user?.l_name || ""}`.trim()}
-                            :
-                          </span>{" "}
-                          {comment.data}
-                        </div>
-                      ))}
-                    </div>
+                  {isExpanded && (
+                    task["taskcomment"]?.length > 0 ? (
+                      <div className="mt-3 pl-4 pr-2 py-2 bg-gray-50 border-l-4 border-teal-400 rounded shadow-sm space-y-2 text-xs text-gray-700">
+                        {task["taskcomment"].map((comment, i) => (
+                          <div key={i}>
+                            <span className="font-semibold text-gray-800">
+                              {`${comment.user?.f_name || ""} ${
+                                comment.user?.m_name || ""
+                              } ${comment.user?.l_name || ""}`.trim()}
+                              :
+                            </span>{" "}
+                            {comment.data}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="mt-3 pl-4 pr-2 py-2 bg-gray-50 border-l-4 border-teal-400 rounded shadow-sm text-xs text-gray-700">
+                        No comments available for this task.
+                      </div>
+                    )
                   )}
                 </li>
               );
