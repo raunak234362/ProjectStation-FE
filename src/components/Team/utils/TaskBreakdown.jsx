@@ -91,7 +91,7 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                             className={`text-xs mt-1 ${
                               isOverLimit ? "text-red-600" : "text-gray-500"
                             }`}
-                          >
+                          >   
                             Total Working Hours: {workingHours} hrs
                           </span>
                         );

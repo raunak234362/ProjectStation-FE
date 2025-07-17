@@ -40,8 +40,8 @@ function AllRFQ() {
     });
   }, [rfq, searchTerm]);
 
-  const columns = useMemo(
-    () => [
+  const columns = useMemo(() => {
+    const baseColumns = [
       {
         Header: "S.No",
         accessor: (row, i) => i + 1,
@@ -54,8 +54,12 @@ function AllRFQ() {
       {
         Header: "Mail ID",
         accessor: (row) => {
-          // Assuming recipient email is stored in row.recipient or row.recipient_email
-          return row.recepients.email || row.recipient || "Null";
+          // Show recepients for client, otherwise show sender
+          if (userType === "client") {
+            return row.recepients?.email || row.sender || "Null";
+          } else {
+            return row.sender?.email || row.recepients || "Null";
+          }
         },
         id: "mailId",
       },
@@ -72,7 +76,7 @@ function AllRFQ() {
           const yy = String(date.getFullYear()).slice(-2);
           const hh = String(date.getHours()).padStart(2, "0");
           const min = String(date.getMinutes()).padStart(2, "0");
-          return `${mm}:${dd}:${yy} , ${hh}:${min}`;
+          return `${mm}/${dd}/${yy} , ${hh}:${min}`;
         },
         id: "createdAt",
       },
@@ -80,9 +84,17 @@ function AllRFQ() {
         Header: "Status",
         accessor: "status",
       },
-    ],
-    []
-  );
+    ];
+    if (userType !== "client") {
+      baseColumns.splice(3, 0, {
+        Header: "Fabricator",
+        accessor: (row) => row?.sender?.fabricator?.fabName || "",
+        id: "fabricator",
+        Cell: ({ value }) => (value ? value : null),
+      });
+    }
+    return baseColumns;
+  }, [userType]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: filteredRFQ }, useSortBy);
