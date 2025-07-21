@@ -53,9 +53,9 @@ const AddEstimationTask = ({ estimationId }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <SectionTitle title="Assignment Details:" />
           <CustomSelect
-            label="Manager"
+            label="Estimator"
             options={[
-              { label: "Select Manager", value: "" },
+              { label: "Select Estimator", value: "" },
               ...estimatorOptions,
             ]}
             {...register("assignedToId", { required: true })}
