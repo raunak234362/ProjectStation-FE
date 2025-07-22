@@ -23,9 +23,9 @@ import {
   Loader2,
   PauseCircle,
 } from "lucide-react";
-import ProjectStatus from "../Project/ProjectStatus";
+import ProjectStatus from "./projectTab/ProjectStatus";
 import { useSortBy, useTable } from "react-table";
-import Button from "../../../../fields/Button";
+import Button from "../fields/Button";
 
 const ProjectDashboard = () => {
   const userType = sessionStorage.getItem("userType");
@@ -783,7 +783,7 @@ const ProjectDashboard = () => {
         </div>
 
         {/* Table Section */}
-        <div className="overflow-x-auto rounded-md border max-h-[55vh]">
+        <div className="overflow-x-auto rounded-md border max-h-[65vh]">
           <table
             {...getTableProps()}
             className="min-w-[800px] w-full border-collapse text-sm text-center"

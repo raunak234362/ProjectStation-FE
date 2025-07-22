@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { AddFabricator, AddProject, AllProjects } from "../../components";
+import { AddProject, AllProjects } from "../../components";
 import ClientAllProjects from "../../components/project/ClientAllProjects";
+import ProjectDashboard from "../../components/project/ProjectDashboard";
 
 
 const ProjectView = () => {
@@ -35,7 +36,7 @@ const ProjectView = () => {
                 <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
                     {activeTab === 'ProjectDashboard' && (
                         <div>
-                            <AddFabricator />
+                            <ProjectDashboard />
                         </div>
                     )}
                     {activeTab === 'addProject' && (
