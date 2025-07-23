@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ClientDashboard,
   SalesDashboard,
@@ -8,10 +6,24 @@ import {
 } from "../../components";
 
 const HomeView = () => {
-  const userType = sessionStorage.getItem("userType");
+  const [userType, setUserType] = useState(() =>
+    sessionStorage.getItem("userType")
+  );
+
   useEffect(() => {
-    // Perform any side effects or data fetching here
-  }, [userType]);
+    // Immediately update userType when component mounts
+    setUserType(sessionStorage.getItem("userType"));
+
+    // Optional: Keep the focus event listener for real-time updates
+    const handleFocus = () => {
+      setUserType(sessionStorage.getItem("userType"));
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
   return (
     <div className="w-full">
       {userType === "client" && <ClientDashboard />}
