@@ -645,7 +645,7 @@ export default function ProjectDashboard() {
           <div className="lg:col-span-1 space-y-6">
             {/* Action Center */}
             <Card className="p-6">
-            <ActionCenter/>
+              <ActionCenter />
             </Card>
 
             {/* Quick Actions */}
