@@ -56,7 +56,7 @@ const App = () => {
       console.log("Department Tasks:", departmentTasks);
       console.log("Admin Tasks:", tasks);
     dispatch(
-      showTask(userType === "department-manager" ? departmentTasks : tasks)
+      showTask(userType === "department-manager" ? tasks : tasks)
     );
   };
 
