@@ -30,8 +30,7 @@ const App = () => {
   const navigate = useNavigate();
   const token = sessionStorage.getItem("token");
   const [userId, setUserId] = useState(null);
-  const userType = sessionStorage.getItem("userType");
-  const [tasks, setTasks] = useState([]);
+
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => !prev);
   }, []);
@@ -42,22 +41,8 @@ const App = () => {
   };
 
   const fetchAllTasks = async () => {
-    const tasks = await Service.getAllTask(token);
-    setTasks(tasks);
-    const departmentTasks =
-      tasks?.flatMap((task) =>
-        task?.tasks?.map((subTask) => ({
-          ...subTask,
-          project: task?.name,
-          project_id: task?.id,
-          manager: task?.manager, // Attach manager from parent task
-        }))
-      ) || [];
-      console.log("Department Tasks:", departmentTasks);
-      console.log("Admin Tasks:", tasks);
-    dispatch(
-      showTask(userType === "department-manager" ? tasks : tasks)
-    );
+    const taskData = await Service.getAllTask(token);
+    dispatch(showTask(taskData));
   };
 
   const fetchAllDepartments = async () => {

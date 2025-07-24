@@ -8,11 +8,27 @@ import { CheckCircle2, Loader2, PauseCircle, AlertCircle } from "lucide-react";
 import ProjectStatus from "./projectTab/ProjectStatus";
 
 const AllProjects = () => {
-  const projects = useSelector((state) => state?.projectData?.projectData);
-  const fabricators = useSelector(
-    (state) => state?.fabricatorData?.fabricatorData
-  );
-  const taskData = useSelector((state) => state.taskData.taskData);
+  const dispatch = useDispatch();
+  const projects = useSelector((state) => state?.projectData?.projectData || []);
+  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData || []);
+  const allTasks = useSelector((state) => state?.taskData?.taskData || []);
+  const userType = useMemo(() => sessionStorage.getItem("userType"), []);
+
+  const departmentTasks = useMemo(() => {
+    return (
+      allTasks?.flatMap((task) =>
+        task?.tasks?.map((subTask) => ({
+          ...subTask,
+          project: task?.name,
+          manager: task?.manager,
+        }))
+      ) || []
+    );
+  }, [allTasks]);
+
+  const taskData = useMemo(() => {
+    return userType === "department-manager" ? departmentTasks : allTasks;
+  }, [userType, departmentTasks, allTasks]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [projectFilter, setProjectFilter] = useState([]);
@@ -33,13 +49,6 @@ const AllProjects = () => {
         .filter((name) => name)
     );
     return [...managers].sort();
-  }, [projects]);
-
-  useEffect(() => {
-    if (projects) {
-      setProjectFilter(projects);
-      setLoading(false);
-    }
   }, [projects]);
 
   const handleSearch = useCallback((e) => setSearchQuery(e.target.value), []);
@@ -108,11 +117,12 @@ const AllProjects = () => {
     });
 
     setProjectFilter(filtered);
+    setLoading(false);
   }, [projects, searchQuery, filters, sortOrder]);
 
   useEffect(() => {
     filterAndSortData();
-  }, [searchQuery, filters, sortOrder, projects, filterAndSortData]);
+  }, [filterAndSortData]);
 
   const data = useMemo(() => projectFilter || [], [projectFilter]);
 
@@ -175,19 +185,19 @@ const AllProjects = () => {
         id: "tasks",
         Cell: ({ row }) => {
           const project = row.original;
-          const projectTasks = taskData.filter(
+          const projectTasks = taskData?.filter(
             (task) => task?.project_id === project.id
           );
-          const completedTasksCount = projectTasks.filter(
+          const completedTasksCount = projectTasks?.filter(
             (task) => task.status === "COMPLETE"
           ).length;
           return (
             <div>
               <div className="text-xs font-medium text-gray-700 sm:text-sm">
-                {projectTasks.length}
+                {projectTasks?.length || 0}
               </div>
               <div className="text-xs text-gray-500">
-                {completedTasksCount} completed
+                {completedTasksCount || 0} completed
               </div>
             </div>
           );

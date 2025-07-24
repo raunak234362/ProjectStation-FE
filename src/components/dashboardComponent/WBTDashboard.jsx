@@ -65,11 +65,10 @@ const WBTDashboard = () => {
   }, []);
   console.log("Dashboard Counts:", dashboardCounts);
 
-
-  const exportCsv=async()=>{
+  const exportCsv = async () => {
     const response = await Service.exportCSV();
     console.log("CSV Export Response:", response);
-  }
+  };
 
   // Prepare project data with tasks
   const projectsWithTasks = useMemo(
@@ -379,7 +378,10 @@ const WBTDashboard = () => {
             <h1 className="text-2xl font-bold text-gray-800">
               Project Dashboard
             </h1>
-            <Button onClick={exportCsv} className="flex items-center gap-2 bg-teal-500 text-white hover:bg-teal-600">
+            <Button
+              onClick={exportCsv}
+              className="flex items-center gap-2 bg-teal-500 text-white hover:bg-teal-600"
+            >
               <Download className="w-4 h-4" />
               Export CSV
             </Button>
@@ -444,17 +446,6 @@ const WBTDashboard = () => {
                   </div>
                 </div>
               </div>
-              {/* <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm font-medium text-gray-500">Completion Rate</p>
-                                        <h3 className="text-2xl font-bold text-gray-800">{taskStats.total ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%</h3>
-                                    </div>
-                                    <div className="p-3 bg-amber-50 rounded-full">
-                                        <PieChart className="w-6 h-6 text-amber-500" />
-                                    </div>
-                                </div>
-                            </div> */}
               <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between">
                   <div>
@@ -475,197 +466,196 @@ const WBTDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               {/* Chart Section */}
-              {userType !== "department-manager" &&
-                (isLoading ? (
-                  renderChartSkeleton()
-                ) : (
-                  <div className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm">
-                    <div className="border-b overflow-x-auto border-gray-200">
-                      <div className="flex">
-                        <button
-                          onClick={() => setActiveChart("bar")}
-                          className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                            activeChart === "bar"
-                              ? "text-blue-600 border-b-2 border-blue-600"
-                              : "text-gray-500 hover:text-gray-700"
-                          }`}
-                        >
-                          <BarChart3 className="w-4 h-4" />
-                          Project Task Overview
-                        </button>
-                        <button
-                          onClick={() => setActiveChart("pie")}
-                          className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                            activeChart === "pie"
-                              ? "text-blue-600 border-b-2 border-blue-600"
-                              : "text-gray-500 hover:text-gray-700"
-                          }`}
-                        >
-                          <PieChart className="w-4 h-4" />
-                          Task Distribution
-                        </button>
-                        <button
-                          onClick={() => setActiveChart("line")}
-                          className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                            activeChart === "line"
-                              ? "text-blue-600 border-b-2 border-blue-600"
-                              : "text-gray-500 hover:text-gray-700"
-                          }`}
-                        >
-                          <LineChart className="w-4 h-4" />
-                          Task Trends
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <div
-                        className="w-full"
-                        style={{
-                          height: activeChart === "bar" ? `400px` : "400px",
-                        }}
+              {isLoading ? (
+                renderChartSkeleton()
+              ) : (
+                <div className="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <div className="border-b overflow-x-auto border-gray-200">
+                    <div className="flex">
+                      <button
+                        onClick={() => setActiveChart("bar")}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
+                          activeChart === "bar"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
                       >
-                        {activeChart === "bar" && (
-                          <div className="max-h-[400px] overflow-y-auto">
-                            <div
-                              className="min-w-full"
-                              style={{
-                                height: `${
-                                  projectTaskData?.labels?.length * 40
-                                }px`,
-                              }}
-                            >
-                              <Bar
-                                data={projectTaskData}
-                                options={{
-                                  indexAxis: "y",
-                                  responsive: true,
-                                  maintainAspectRatio: false,
-                                  plugins: {
-                                    legend: {
-                                      position: "top",
-                                      labels: {
-                                        usePointStyle: true,
-                                        boxWidth: 6,
-                                        font: { size: 12 },
-                                      },
-                                    },
-                                    tooltip: {
-                                      backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                      padding: 12,
-                                      titleFont: { size: 14 },
-                                      bodyFont: { size: 13 },
-                                      cornerRadius: 8,
-                                    },
-                                  },
-                                  scales: {
-                                    x: {
-                                      beginAtZero: true,
-                                      grid: { color: "rgba(0, 0, 0, 0.05)" },
-                                      stacked: true,
-                                    },
-                                    y: {
-                                      grid: { display: false },
-                                      stacked: true,
-                                      ticks: {
-                                        callback: function (value) {
-                                          const label =
-                                            this.getLabelForValue(value);
-                                          const maxLength =
-                                            window.innerWidth < 500 ? 15 : 25;
-                                          return label.length > maxLength
-                                            ? label.substring(0, maxLength) +
-                                                "..."
-                                            : label;
-                                        },
-                                      },
-                                    },
-                                  },
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                        {activeChart === "pie" && (
-                          <Pie
-                            data={pieData}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              plugins: {
-                                legend: {
-                                  position:
-                                    window.innerWidth < 768
-                                      ? "bottom"
-                                      : "right",
-                                  labels: {
-                                    usePointStyle: true,
-                                    padding: 20,
-                                    font: { size: 12 },
-                                  },
-                                },
-                                tooltip: {
-                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                  padding: 12,
-                                  titleFont: { size: 14 },
-                                  bodyFont: { size: 13 },
-                                  cornerRadius: 8,
-                                },
-                              },
-                            }}
-                          />
-                        )}
-                        {activeChart === "line" && (
-                          <Line
-                            data={lineData}
-                            options={{
-                              responsive: true,
-                              maintainAspectRatio: false,
-                              plugins: {
-                                legend: {
-                                  position: "top",
-                                  labels: {
-                                    usePointStyle: true,
-                                    boxWidth: 6,
-                                    font: { size: 12 },
-                                  },
-                                },
-                                tooltip: {
-                                  backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                  padding: 12,
-                                  titleFont: { size: 14 },
-                                  bodyFont: { size: 13 },
-                                  cornerRadius: 8,
-                                },
-                              },
-                              scales: {
-                                x: {
-                                  grid: { display: false },
-                                  ticks: {
-                                    callback: function (value) {
-                                      const label =
-                                        this.getLabelForValue(value);
-                                      const maxLength =
-                                        window.innerWidth < 768 ? 8 : 15;
-                                      return label.length > maxLength
-                                        ? label.substring(0, maxLength) + "..."
-                                        : label;
-                                    },
-                                    maxRotation: 45,
-                                    minRotation: 45,
-                                  },
-                                },
-                                y: {
-                                  beginAtZero: true,
-                                  grid: { color: "rgba(0, 0, 0, 0.05)" },
-                                },
-                              },
-                            }}
-                          />
-                        )}
-                      </div>
+                        <BarChart3 className="w-4 h-4" />
+                        Project Task Overview
+                      </button>
+                      <button
+                        onClick={() => setActiveChart("pie")}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
+                          activeChart === "pie"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        <PieChart className="w-4 h-4" />
+                        Task Distribution
+                      </button>
+                      <button
+                        onClick={() => setActiveChart("line")}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
+                          activeChart === "line"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-500 hover:text-gray-700"
+                        }`}
+                      >
+                        <LineChart className="w-4 h-4" />
+                        Task Trends
+                      </button>
                     </div>
                   </div>
-                ))}
+                  <div className="p-6">
+                    <div
+                      className="w-full"
+                      style={{
+                        height: activeChart === "bar" ? `400px` : "400px",
+                      }}
+                    >
+                      {activeChart === "bar" && (
+                        <div className="max-h-[400px] overflow-y-auto">
+                          <div
+                            className="min-w-full"
+                            style={{
+                              height: `${
+                                projectTaskData?.labels?.length * 40
+                              }px`,
+                            }}
+                          >
+                            <Bar
+                              data={projectTaskData}
+                              options={{
+                                indexAxis: "y",
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                  legend: {
+                                    position: "top",
+                                    labels: {
+                                      usePointStyle: true,
+                                      boxWidth: 6,
+                                      font: { size: 12 },
+                                    },
+                                  },
+                                  tooltip: {
+                                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                    padding: 12,
+                                    titleFont: { size: 14 },
+                                    bodyFont: { size: 13 },
+                                    cornerRadius: 8,
+                                  },
+                                },
+                                scales: {
+                                  x: {
+                                    beginAtZero: true,
+                                    grid: { color: "rgba(0, 0, 0, 0.05)" },
+                                    stacked: true,
+                                  },
+                                  y: {
+                                    grid: { display: false },
+                                    stacked: true,
+                                    ticks: {
+                                      callback: function (value) {
+                                        const label =
+                                          this.getLabelForValue(value);
+                                        const maxLength =
+                                          window.innerWidth < 500 ? 15 : 25;
+                                        return label.length > maxLength
+                                          ? label.substring(0, maxLength) +
+                                              "..."
+                                          : label;
+                                      },
+                                    },
+                                  },
+                                },
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      {activeChart === "pie" && (
+                        <Pie
+                          data={pieData}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position:
+                                  window.innerWidth < 768
+                                    ? "bottom"
+                                    : "right",
+                                labels: {
+                                  usePointStyle: true,
+                                  padding: 20,
+                                  font: { size: 12 },
+                                },
+                              },
+                              tooltip: {
+                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                padding: 12,
+                                titleFont: { size: 14 },
+                                bodyFont: { size: 13 },
+                                cornerRadius: 8,
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                      {activeChart === "line" && (
+                        <Line
+                          data={lineData}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: "top",
+                                labels: {
+                                  usePointStyle: true,
+                                  boxWidth: 6,
+                                  font: { size: 12 },
+                                },
+                              },
+                              tooltip: {
+                                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                                padding: 12,
+                                titleFont: { size: 14 },
+                                bodyFont: { size: 13 },
+                                cornerRadius: 8,
+                              },
+                            },
+                            scales: {
+                              x: {
+                                grid: { display: false },
+                                ticks: {
+                                  callback: function (value) {
+                                    const label =
+                                      this.getLabelForValue(value);
+                                    const maxLength =
+                                      window.innerWidth < 768 ? 8 : 15;
+                                    return label.length > maxLength
+                                      ? label.substring(0, maxLength) + "..."
+                                      : label;
+                                  },
+                                  maxRotation: 45,
+                                  minRotation: 45,
+                                },
+                              },
+                              y: {
+                                beginAtZero: true,
+                                grid: { color: "rgba(0, 0, 0, 0.05)" },
+                              },
+                            },
+                          }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <ActionCenter />
