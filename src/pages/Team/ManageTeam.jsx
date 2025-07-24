@@ -40,8 +40,7 @@ const ManageTeam = () => {
             >
               All Employee
             </button>
-            {userType === "admin" ||
-              (userType === "human-resource" && (
+            {(userType === "admin" || userType === "human-resource") && (
                 <>
                   <button
                     onClick={() => setActiveTab("addDepartment")}
@@ -64,7 +63,7 @@ const ManageTeam = () => {
                     All Department
                   </button>
                 </>
-              ))}
+            )}
 
             <button
               onClick={() => setActiveTab("teamDashboard")}
