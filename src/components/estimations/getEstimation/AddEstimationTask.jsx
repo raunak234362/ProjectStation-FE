@@ -19,7 +19,6 @@ const AddEstimationTask = ({ estimationId }) => {
   } = useForm();
 
   const estimatorOptions = userData
-    ?.filter((user) => user.is_est)
     ?.map((user) => ({
       label: `${user?.f_name} ${user?.m_name} ${user?.l_name}`,
       value: user.id,

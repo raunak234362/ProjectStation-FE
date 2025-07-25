@@ -1,14 +1,15 @@
-/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-"use client"
+/* eslint-disable react/prop-types */
+"use client";
 
-import { useEffect, useState, useMemo } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { useEffect, useState, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   AlertCircle,
   ArrowUpDown,
   Building2,
   CheckCircle2,
+  ChevronDown,
   Clock,
   LayoutGrid,
   List,
@@ -17,279 +18,275 @@ import {
   PauseCircle,
   Search,
   Users,
-  Calendar,
-  DollarSign,
-  ChevronDown,
-  FileText,
-  Upload,
-  Edit3,
-  TrendingUp,
-  Target,
-  Zap,
-} from "lucide-react"
-import Service from "../../config/Service.js"
-import { showProjects } from "../../store/projectSlice.js"
+} from "lucide-react";
+import Service from "../../config/Service";
+import { showProjects } from "../../store/projectSlice";
+
+import { useTable, useSortBy } from "react-table";
+import ClientProjectStatus from "./clientProjectTab/ClientProjectStatus";
+
+// Format currency
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount || 0);
+};
+
+// Format date
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 
 const ClientAllProjects = () => {
-  const projects = useSelector((state) => state?.projectData?.projectData) || []
-  const [selectedProject, setSelectedProject] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [stageFilter, setStageFilter] = useState("all")
-  const [sortConfig, setSortConfig] = useState({
-    key: "name",
-    direction: "asc",
-  })
-  const [viewMode, setViewMode] = useState("grid")
-  const [isLoading, setIsLoading] = useState(true)
+  const projects =
+    useSelector((state) => state?.projectData?.projectData) || [];
+  const taskData = useSelector((state) => state?.taskData?.taskData) || [];
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [viewMode, setViewMode] = useState("grid");
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const token =
+    typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
+  const dispatch = useDispatch();
 
-  const token = sessionStorage.getItem("token")
-  const dispatch = useDispatch()
-
+  // Fetch projects
   const fetchProjects = async () => {
     try {
-      setIsLoading(true)
-      const response = await Service.allprojects(token)
-      dispatch(showProjects(response?.data))
+      setIsLoading(true);
+      const response = await Service.allprojects(token);
+      dispatch(showProjects(response?.data));
     } catch (error) {
-      console.error("Error fetching projects:", error)
+      console.error("Error fetching projects:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProjects()
-  }, [])
+    fetchProjects();
+    // eslint-disable-next-line
+  }, []);
 
   // Status configuration
   const statusConfig = {
     ACTIVE: {
-      color: "bg-blue-50 text-blue-700 border border-blue-200",
-      icon: <Loader2 className="w-3 h-3" />,
+      color: "bg-blue-100 text-blue-800",
+      icon: <Loader2 className="w-4 h-4 mr-1" />,
       label: "Active",
     },
     IN_PROGRESS: {
-      color: "bg-yellow-50 text-yellow-700 border border-yellow-200",
-      icon: <Clock className="w-3 h-3" />,
+      color: "bg-yellow-100 text-yellow-800",
+      icon: <Clock className="w-4 h-4 mr-1" />,
       label: "In Progress",
     },
     COMPLETE: {
-      color: "bg-green-50 text-green-700 border border-green-200",
-      icon: <CheckCircle2 className="w-3 h-3" />,
+      color: "bg-green-100 text-green-800",
+      icon: <CheckCircle2 className="w-4 h-4 mr-1" />,
       label: "Complete",
     },
     ASSIGNED: {
-      color: "bg-purple-50 text-purple-700 border border-purple-200",
-      icon: <Users className="w-3 h-3" />,
+      color: "bg-purple-100 text-purple-800",
+      icon: <Users className="w-4 h-4 mr-1" />,
       label: "Assigned",
     },
     IN_REVIEW: {
-      color: "bg-orange-50 text-orange-700 border border-orange-200",
-      icon: <AlertCircle className="w-3 h-3" />,
+      color: "bg-orange-100 text-orange-800",
+      icon: <AlertCircle className="w-4 h-4 mr-1" />,
       label: "In Review",
     },
     ON_HOLD: {
-      color: "bg-red-50 text-red-700 border border-red-200",
-      icon: <PauseCircle className="w-3 h-3" />,
+      color: "bg-red-100 text-red-800",
+      icon: <PauseCircle className="w-4 h-4 mr-1" />,
       label: "On Hold",
     },
-  }
-
-  // Project stage configuration
-  const stageConfig = {
-    PLANNING: {
-      color: "bg-gray-100 text-gray-700",
-      icon: <Target className="w-3 h-3" />,
-      label: "Planning",
-    },
-    DESIGN: {
-      color: "bg-indigo-100 text-indigo-700",
-      icon: <Edit3 className="w-3 h-3" />,
-      label: "Design",
-    },
-    PROCUREMENT: {
-      color: "bg-cyan-100 text-cyan-700",
-      icon: <Upload className="w-3 h-3" />,
-      label: "Procurement",
-    },
-    CONSTRUCTION: {
-      color: "bg-orange-100 text-orange-700",
-      icon: <Zap className="w-3 h-3" />,
-      label: "Construction",
-    },
-    TESTING: {
-      color: "bg-purple-100 text-purple-700",
-      icon: <AlertCircle className="w-3 h-3" />,
-      label: "Testing",
-    },
-    HANDOVER: {
-      color: "bg-green-100 text-green-700",
-      icon: <CheckCircle2 className="w-3 h-3" />,
-      label: "Handover",
-    },
-  }
+  };
 
   // Status badge component
   const StatusBadge = ({ status }) => {
-    const config = statusConfig[status] || statusConfig.ACTIVE
+    const config = statusConfig[status] || statusConfig.ACTIVE;
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${config.color}`}>
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+      >
         {config.icon}
         {config.label}
       </span>
-    )
-  }
+    );
+  };
 
-  // Stage badge component
-  const StageBadge = ({ stage }) => {
-    const config = stageConfig[stage] || stageConfig.PLANNING
-    return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium ${config.color}`}>
-        {config.icon}
-        {config.label}
-      </span>
-    )
-  }
-
-  // Completion progress component
-  const CompletionProgress = ({ completion }) => {
-    const percentage = Math.min(Math.max(completion || 0, 0), 100)
-    const getProgressColor = (percent) => {
-      if (percent >= 80) return "bg-green-500"
-      if (percent >= 60) return "bg-blue-500"
-      if (percent >= 40) return "bg-yellow-500"
-      return "bg-red-500"
+  // Calculate project progress consistently
+  const calculateProjectProgress = (project) => {
+    if (project?.tasks && Array.isArray(project.tasks)) {
+      const completedTasks = project.tasks.filter(
+        (task) => task?.status === "COMPLETE"
+      ).length;
+      const totalTasks = project.tasks.length;
+      return {
+        completedTasks,
+        totalTasks,
+        percentage:
+          totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+      };
     }
 
-    return (
-      <div className="flex items-center gap-2">
-        <div className="flex-1 bg-gray-200 rounded-full h-2 min-w-[60px]">
-          <div
-            className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(percentage)}`}
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
-        <span className="text-xs font-medium text-gray-600 min-w-[35px]">{percentage}%</span>
-      </div>
-    )
-  }
+    // Fallback to taskData from Redux store
+    const projectTasks = taskData.filter(
+      (task) => task.project_id === project.id
+    );
+    const completedTasks = projectTasks.filter(
+      (task) => task.status === "COMPLETE"
+    ).length;
+    const totalTasks = projectTasks.length;
 
-  // Notification badges component
-  const NotificationBadges = ({ notifications }) => {
-    const { rfi = 0, submittals = 0, changeOrders = 0 } = notifications || {}
-    const hasNotifications = rfi > 0 || submittals > 0 || changeOrders > 0
+    return {
+      completedTasks,
+      totalTasks,
+      percentage:
+        totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+    };
+  };
 
-    if (!hasNotifications) return null
+  // Enhanced projects with calculated progress
+  const enhancedProjects = useMemo(() => {
+    return projects.map((project) => ({
+      ...project,
+      progress: calculateProjectProgress(project),
+    }));
+  }, [projects, taskData]);
 
-    return (
-      <div className="flex flex-wrap gap-1">
-        {rfi > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">
-            <FileText className="w-3 h-3" />
-            RFI ({rfi})
-          </span>
-        )}
-        {submittals > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-            <Upload className="w-3 h-3" />
-            Submittals ({submittals})
-          </span>
-        )}
-        {changeOrders > 0 && (
-          <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md text-xs font-medium">
-            <Edit3 className="w-3 h-3" />
-            CO ({changeOrders})
-          </span>
-        )}
-      </div>
-    )
-  }
-
-  // Notification indicator for grid view
-  const NotificationIndicator = ({ notifications }) => {
-    const { rfi = 0, submittals = 0, changeOrders = 0 } = notifications || {}
-    const totalNotifications = rfi + submittals + changeOrders
-
-    if (totalNotifications === 0) return null
-
-    return (
-      <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-        {totalNotifications > 99 ? "99+" : totalNotifications}
-      </div>
-    )
-  }
-
-  // Filtering and sorting logic
+  // Filtering and sorting logic (used for react-table and grid)
   const filteredAndSortedProjects = useMemo(() => {
-    const filtered = projects.filter((project) => {
+    // Filter projects
+    const filtered = enhancedProjects.filter((project) => {
       const matchesSearch =
         project?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
-        project?.description?.toLowerCase()?.includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || project?.status === statusFilter
-      const matchesStage = stageFilter === "all" || project?.stage === stageFilter
-      return matchesSearch && matchesStatus && matchesStage
-    })
+        project?.description?.toLowerCase()?.includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || project?.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
 
-    // Sort projects
-    filtered.sort((a, b) => {
-      if (!sortConfig.key) return 0
+    // Sort projects manually for grid (react-table handles sorting in list)
+    // Here you might want to do a default sort on "name"
+    const sorted = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
 
-      let aValue = a[sortConfig.key]
-      let bValue = b[sortConfig.key]
+    return sorted;
+  }, [enhancedProjects, searchTerm, statusFilter]);
 
-      // Handle nested properties
-      if (sortConfig.key === "fabricator") {
-        aValue = a.fabricator?.fabName || ""
-        bValue = b.fabricator?.fabName || ""
-      }
+  // Progress bar component
+  const ProgressBar = ({ percentage, showLabel = true }) => {
+    const getProgressColor = (percent) => {
+      if (percent >= 80) return "bg-green-500";
+      if (percent >= 60) return "bg-blue-500";
+      if (percent >= 40) return "bg-yellow-500";
+      return "bg-red-500";
+    };
 
-      if (aValue < bValue) {
-        return sortConfig.direction === "asc" ? -1 : 1
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === "asc" ? 1 : -1
-      }
-      return 0
-    })
+    return (
+      <div className="flex items-center">
+        <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+          <div
+            className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(
+              percentage
+            )}`}
+            style={{ width: `${Math.min(Math.max(percentage, 0), 100)}%` }}
+          />
+        </div>
+        {showLabel && (
+          <span className="text-sm text-gray-500 min-w-[40px]">
+            {percentage}%
+          </span>
+        )}
+      </div>
+    );
+  };
 
-    return filtered
-  }, [projects, searchTerm, statusFilter, stageFilter, sortConfig])
+  // ----- REACT-TABLE -----
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Project Name",
+        accessor: "name",
+        Cell: ({ row }) => (
+          <div>
+            <div className="text-sm font-medium text-gray-900">
+              {row.original.name}
+            </div>
+            <div className="text-sm text-gray-500">{row.original.location}</div>
+          </div>
+        ),
+      },
+      {
+        Header: "Status",
+        accessor: "status",
+        Cell: ({ value }) => <StatusBadge status={value} />,
+      },
+      {
+        Header: "Contractor",
+        accessor: "fabricator", // shows as object, cell will fix display
+        Cell: ({ value }) => value?.fabName,
+        sortType: (a, b) => {
+          const aName = a.original.fabricator?.fabName || "";
+          const bName = b.original.fabricator?.fabName || "";
+          return aName.localeCompare(bName);
+        },
+      },
+      {
+        Header: "Progress",
+        accessor: (row) => row.progress?.percentage,
+        id: "progressPercentage",
+        Cell: ({ row }) => (
+          <ProgressBar percentage={row.original.progress?.percentage} />
+        ),
+        sortType: (a, b) =>
+          (a.original.progress?.percentage || 0) -
+          (b.original.progress?.percentage || 0),
+      },
+      {
+        Header: "Timeline",
+        accessor: "startDate",
+        disableSortBy: true,
+        Cell: ({ row }) =>
+          `${formatDate(row.original.startDate)} - ${formatDate(
+            row.original.endDate
+          )}`,
+      },
+      {
+        Header: "Budget",
+        accessor: "budget",
+        Cell: ({ value }) => formatCurrency(value),
+      },
+    ],
+    [formatDate, formatCurrency]
+  );
 
-  const handleSort = (key) => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }))
-  }
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable(
+      {
+        columns,
+        data: filteredAndSortedProjects,
+        initialState: {
+          sortBy: [{ id: "name", desc: false }],
+        },
+        disableSortRemove: true,
+      },
+      useSortBy
+    );
 
-  const handleViewClick = (projectId) => {
-    setSelectedProject(projectId)
-    setIsModalOpen(true)
-  }
-
-  const handleModalClose = () => {
-    setSelectedProject(null)
-    setIsModalOpen(false)
-  }
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    })
-  }
+  // NAVIGATION HANDLER
+  const handleRowClick = (projectId) => {
+    console.log("Selected Project ID:", projectId);
+    setSelectedProject(projectId);
+  };
 
   if (isLoading) {
     return (
@@ -297,300 +294,233 @@ const ClientAllProjects = () => {
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
         <span className="ml-2 text-gray-600">Loading projects...</span>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="w-full max-h-[80vh] overflow-y-auto max-w-7xl mx-auto p-4 space-y-6">
+    <div className="bg-white rounded-lg shadow h-screen overflow-y-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-          <p className="text-gray-600 mt-1">Manage and track your construction projects</p>
-        </div>
-
-        {/* View Mode Toggle */}
-        <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md transition-colors ${
-              viewMode === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md transition-colors ${
-              viewMode === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <List className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
+      <div className="p-6 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="mb-4 text-lg font-medium text-gray-900 sm:mb-0">
+            Projects
+          </h2>
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
             {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Search className="w-5 h-5 text-gray-400" />
+              </div>
               <input
                 type="text"
                 placeholder="Search projects..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Status Filter */}
-            <div className="relative w-full lg:w-48">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="all">All Statuses</option>
-                <option value="ACTIVE">Active</option>
-                <option value="IN_PROGRESS">In Progress</option>
-                <option value="COMPLETE">Complete</option>
-                <option value="ASSIGNED">Assigned</option>
-                <option value="IN_REVIEW">In Review</option>
-                <option value="ON_HOLD">On Hold</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            {/* Filters */}
+            <div className="flex space-x-2">
+              {/* Status Filter */}
+              <div className="relative">
+                <select
+                  className="py-2 pl-3 pr-10 border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="all">All Status</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="COMPLETE">Complete</option>
+                  <option value="ASSIGNED">Assigned</option>
+                  <option value="IN_REVIEW">In Review</option>
+                  <option value="ON_HOLD">On Hold</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
             </div>
 
-            {/* Stage Filter */}
-            <div className="relative w-full lg:w-48">
-              <select
-                value={stageFilter}
-                onChange={(e) => setStageFilter(e.target.value)}
-                className="w-full appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            {/* View Mode Toggle */}
+            <div className="flex space-x-2">
+              <button
+                className={`p-2 rounded-md ${
+                  viewMode === "grid"
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
+                onClick={() => setViewMode("grid")}
               >
-                <option value="all">All Stages</option>
-                <option value="PLANNING">Planning</option>
-                <option value="DESIGN">Design</option>
-                <option value="PROCUREMENT">Procurement</option>
-                <option value="CONSTRUCTION">Construction</option>
-                <option value="TESTING">Testing</option>
-                <option value="HANDOVER">Handover</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <LayoutGrid className="w-5 h-5" />
+              </button>
+              <button
+                className={`p-2 rounded-md ${
+                  viewMode === "list"
+                    ? "bg-blue-100 text-blue-600"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
+                onClick={() => setViewMode("list")}
+              >
+                <List className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600">
-          {filteredAndSortedProjects.length} project{filteredAndSortedProjects.length !== 1 ? "s" : ""} found
-        </p>
-      </div>
-
-      {/* Project Display */}
-      {filteredAndSortedProjects.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-12 text-center">
-            <div className="text-gray-400 mb-4">
-              <Building2 className="w-12 h-12 mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No projects found</h3>
-            <p className="text-gray-600">
-              {searchTerm || statusFilter !== "all" || stageFilter !== "all"
+      {/* Project List */}
+      <div className="p-6">
+        {filteredAndSortedProjects.length === 0 ? (
+          <div className="py-12 text-center">
+            <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No projects found
+            </h3>
+            <p className="text-gray-500">
+              {searchTerm || statusFilter !== "all"
                 ? "Try adjusting your search or filter criteria."
-                : "Get started by creating your first project."}
+                : "No projects found matching your criteria."}
             </p>
           </div>
-        </div>
-      ) : viewMode === "grid" ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredAndSortedProjects.map((project) => (
-            <div
-              key={project.id}
-              className="relative bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-200"
-            >
-              {/* Notification Indicator */}
-              <NotificationIndicator notifications={project.notifications} />
-
-              {/* Card Header */}
-              <div className="p-6 pb-3">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-semibold text-lg text-gray-900 line-clamp-2 flex-1 mr-3">{project.name}</h3>
-                  <StatusBadge status={project.status} />
-                </div>
-
-                {/* Stage */}
-                <div className="mb-3">
-                  <StageBadge stage={project.stage} />
-                </div>
-
-                {project.description && <p className="text-sm text-gray-600 line-clamp-2">{project.description}</p>}
-              </div>
-
-              {/* Card Content */}
-              <div className="px-6 pb-6 space-y-4">
-                {/* Completion Progress */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Completion</span>
-                    <TrendingUp className="w-4 h-4 text-gray-400" />
+        ) : viewMode === "grid" ? (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredAndSortedProjects.map((project) => (
+              <div
+                key={project.id}
+                onClick={() => handleRowClick(project.id)}
+                className="cursor-pointer overflow-hidden bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between">
+                    <h3 className="mb-1 text-lg font-medium text-gray-900">
+                      {project.name}
+                    </h3>
+                    <StatusBadge status={project.status} />
                   </div>
-                  <CompletionProgress completion={project.completion} />
+                  <p className="mb-4 text-sm text-gray-500">
+                    {project.description}
+                  </p>
+                  <div className="flex items-center mb-4 text-sm text-gray-500">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {project.location}
+                  </div>
+                  {/* Progress */}
+                  <div className="mb-4">
+                    <div className="flex justify-between mb-1 text-sm">
+                      <span className="font-medium">Progress</span>
+                      <span>{project.progress.percentage}%</span>
+                    </div>
+                    <ProgressBar
+                      percentage={project.progress.percentage}
+                      showLabel={false}
+                    />
+                  </div>
+                  <div className="flex justify-between mb-4 text-sm">
+                    <div>
+                      <span className="font-medium">Budget:</span>
+                      <span className="ml-1">
+                        {formatCurrency(project.budget)}
+                      </span>
+                    </div>
+                    {/* <div>
+                      <span className="font-medium">Tasks:</span>
+                      <span className="ml-1">
+                        {project.progress.completedTasks}/
+                        {project.progress.totalTasks}
+                      </span>
+                    </div> */}
+                  </div>
+                  <div>
+                    <span className="font-medium">Start:</span>
+                    <span className="ml-1">
+                      {formatDate(project.startDate)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Completion:</span>
+                    <span className="ml-1">{formatDate(project.endDate)}</span>
+                  </div>
                 </div>
-
-                {/* Location */}
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">{project.location}</span>
+                <div className="flex justify-between px-6 py-3 bg-gray-50">
+                  <div className="text-sm text-gray-500">
+                    <Building2 className="inline w-4 h-4 mr-1" />
+                    {project.fabricator?.fabName}
+                  </div>
                 </div>
-
-                {/* Contractor */}
-                <div className="flex items-center text-sm text-gray-600">
-                  <Building2 className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">{project.fabricator?.fabName}</span>
-                </div>
-
-                {/* Budget */}
-                <div className="flex items-center text-sm text-gray-600">
-                  <DollarSign className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="font-medium">{formatCurrency(project.budget)}</span>
-                </div>
-
-                {/* Timeline */}
-                <div className="flex items-center text-sm text-gray-600">
-                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="text-xs">
-                    {formatDate(project.startDate)} - {formatDate(project.endDate)}
-                  </span>
-                </div>
-
-                {/* Notifications */}
-                <NotificationBadges notifications={project.notifications} />
-
-                {/* Action Button */}
-                <button
-                  onClick={() => handleViewClick(project.id)}
-                  className="w-full mt-4 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  View Details
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            ))}
+          </div>
+        ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("name")}
-                  >
-                    <div className="flex items-center gap-1">
-                      Project Name
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status & Stage
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Completion
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("fabricator")}
-                  >
-                    <div className="flex items-center gap-1">
-                      Contractor
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Timeline
-                  </th>
-                  <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-                    onClick={() => handleSort("budget")}
-                  >
-                    <div className="flex items-center gap-1">
-                      Budget
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Notifications
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAndSortedProjects.map((project) => (
-                  <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                        <div className="text-sm text-gray-500 flex items-center mt-1">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {project.location}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-2">
-                        <StatusBadge status={project.status} />
-                        <StageBadge stage={project.stage} />
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <CompletionProgress completion={project.completion} />
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{project.fabricator?.fabName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="flex flex-col space-y-1">
-                        <span>Start: {formatDate(project.startDate)}</span>
-                        <span>End: {formatDate(project.endDate)}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{formatCurrency(project.budget)}</td>
-                    <td className="px-6 py-4">
-                      <NotificationBadges notifications={project.notifications} />
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleViewClick(project.id)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+            <table
+              className="min-w-full divide-y divide-gray-200"
+              {...getTableProps()}
+            >
+              <thead className="bg-gray-50">
+                {headerGroups.map((headerGroup, hgIdx) => (
+                  <tr key={hgIdx} {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map((column, colIdx) => (
+                      <th
+                        key={column.id || colIdx}
+                        {...column.getHeaderProps(
+                          column.getSortByToggleProps()
+                        )}
+                        className={`px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer hover:bg-gray-100`}
                       >
-                        View Details
-                      </button>
-                    </td>
+                        <div className="flex items-center">
+                          {column.render("Header")}
+                          {column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <ArrowUpDown className="w-4 h-4 ml-1 rotate-180" />
+                            ) : (
+                              <ArrowUpDown className="w-4 h-4 ml-1" />
+                            )
+                          ) : column.canSort ? (
+                            <ArrowUpDown className="w-4 h-4 ml-1 opacity-30" />
+                          ) : null}
+                        </div>
+                      </th>
+                    ))}
                   </tr>
                 ))}
+              </thead>
+              <tbody
+                className="bg-white divide-y divide-gray-200"
+                {...getTableBodyProps()}
+              >
+                {rows.map((row) => {
+                  prepareRow(row);
+                  return (
+                    <tr
+                      key={row.id || row.original.id}
+                      {...row.getRowProps()}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleRowClick(row.original.id)}
+                    >
+                      {row.cells.map((cell, cellIdx) => (
+                        <td
+                          key={cell.column.id || cellIdx}
+                          className="px-6 py-4 whitespace-nowrap"
+                          {...cell.getCellProps()}
+                        >
+                          {cell.render("Cell")}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </div>
+        )}
+      </div>
+      {selectedProject && (
+        <ClientProjectStatus projectId={selectedProject} />
       )}
-
-      {/* Modal would go here */}
-      {/* {isModalOpen && (
-        <ViewDetails 
-          data={selectedProject} 
-          onClose={handleModalClose} 
-          token={token} 
-        />
-      )} */}
     </div>
-  )
-}
+  );
+};
 
-export default ClientAllProjects
+export default ClientAllProjects;
