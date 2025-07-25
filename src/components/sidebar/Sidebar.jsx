@@ -33,7 +33,7 @@ const Sidebar = () => {
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin", "sales", "department-manager"] },
     { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin", "department-manager","project-manager", "client", "user", "estimator", "sales"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin", "sales", "client", "department-manager"] },
-    { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin"] },
+    // { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin"] },
     { label: "Estimations", to: "estimation", icon: <ChartCandlestick />, roles: ["admin", "department-manager","user"] },
     { label: "Manage Team", to: "team", icon: <Database />, roles: ["admin", "department-manager", "project-manager", "human-resource"] },
     { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin", "department-manager", "project-manager", "user", "human-resource"] },
