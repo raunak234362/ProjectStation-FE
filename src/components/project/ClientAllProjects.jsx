@@ -284,8 +284,11 @@ const ClientAllProjects = () => {
 
   // NAVIGATION HANDLER
   const handleRowClick = (projectId) => {
-    console.log("Selected Project ID:", projectId);
     setSelectedProject(projectId);
+  };
+
+  const handleClose = () => {
+    setSelectedProject(null);
   };
 
   if (isLoading) {
@@ -517,7 +520,7 @@ const ClientAllProjects = () => {
         )}
       </div>
       {selectedProject && (
-        <ClientProjectStatus projectId={selectedProject} />
+        <ClientProjectStatus projectId={selectedProject} onClose={handleClose} />
       )}
     </div>
   );
