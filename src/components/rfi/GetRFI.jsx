@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import RFIResponse from "./response/RFIResponse";
 import { X } from "lucide-react";
+import RFIDetail from "./RFIDetail";
 
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col">
@@ -90,61 +91,15 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="px-6 pb-6 overflow-y-auto h-full space-y-6">
-          {/* Client Details */}
-          {/* <div className="p-5 rounded-lg shadow bg-gray-100/50">
-            <h2 className="text-lg font-semibold flex items-center justify-between">
-              Client Details
-              <button
-                onClick={() => setShowClientDetails(!showClientDetails)}
-                className="text-sm text-blue-600 underline"
-              >
-                {showClientDetails ? "Hide" : "Show"} client details
-              </button>
-            </h2>
-
-            {showClientDetails && recepients && (
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InfoItem label="Client Name" value={recepients.f_name} />
-                <InfoItem label="Email" value={recepients.email} />
-                <InfoItem
-                  label="Fabricator"
-                  value={recepients?.fabricator?.fabName}
-                />
-                <InfoItem
-                  label="Branch Address"
-                  value={recepients?.fabricator?.headquaters?.address}
-                />
-                <InfoItem label="Country" value={recepients.country} />
-                <InfoItem label="State" value={recepients.state} />
-                <InfoItem label="City" value={recepients.city} />
-              </div>
-            )}
-          </div> */}
-
-          {/* RFI Details */}
-          <div className="p-5 rounded-lg shadow bg-gray-100/50">
-            <h2 className="mb-4 text-lg font-semibold">RFI Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem label="Subject" value={rfi.subject} />
-              <InfoItem label="Description" value={rfi.description} />
-              <InfoItem
-                label="Date"
-                value={new Date(rfi.date).toLocaleDateString()}
-              />
-              <InfoItem
-                label="Status"
-                value={rfi.status ? "No Reply" : "Replied"}
-              />
-              <InfoItem
-                label="Files"
-                value={<FileLinks files={rfi.files} rfiId={rfiID} />}
-              />
-            </div>
+        <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* RFI Details */}
+          <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfiID} />
+          <RFIResponse rfiResponse={rfiresponse} rfi={rfi} />
+            <div></div>
           </div>
 
           {/* RFI Response */}
-          <RFIResponse rfiResponse={rfiresponse} rfi={rfi} />
         </div>
       </div>
     </div>

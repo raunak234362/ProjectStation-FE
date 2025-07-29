@@ -1,64 +1,98 @@
-/* eslint-disable react/prop-types */
-const InfoItem = ({ label, value }) => (
-  <div className="flex flex-col">
-    <span className="font-medium text-gray-700">{label}:</span>
-    <span className="text-gray-600">{value || "Not available"}</span>
-  </div>
-);
+/* eslint-disable no-unused-vars */
+import { useState, useCallback } from "react";
+import PropTypes from "prop-types";
+import toast from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import MultipleFileUpload from "../../fields/MultipleFileUpload";
+import Input from "../../fields/Input";
+import Button from "../../fields/Button";
+import Service from "../../../config/Service";
 
-const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
-  if (!Array.isArray(files)) return "Not available";
+const ResponseRFI = ({ onClose, rfiID }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [files, setFiles] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BASE_URL;
- 
-  return files.map((file, index) => {
-    const fileUrl = isResponse
-      ? `${baseURL}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL}/api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
+  const {
+    handleSubmit,
+    reset,
+    register,
+    formState: { errors },
+  } = useForm();
 
-    return (
-      <a
-        key={index}
-        href={fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-teal-600 hover:underline"
-      >
-        {file.originalName || `File ${index + 1}`}
-      </a>
-    );
-  });
-};
-const RFIResponse = ({rfi}) => {
-    console.log("RFI Response Component Rendered with rfi:", rfi);
+  const handleModalClose = useCallback(() => {
+    onClose(false);
+    reset();
+    setIsSubmitting(false);
+    setFiles([]);
+  }, [onClose, reset]);
+
+  const onFilesChange = useCallback((updatedFiles) => {
+    setFiles(updatedFiles);
+  }, []);
+
+  const onSubmit = useCallback(
+    async (data) => {
+      const formData = new FormData();
+      files.forEach((file) => formData.append("files", file));
+      formData.append("description", data.description);
+
+      try {
+        await Service.respondRfq(rfiID, formData);
+        toast.success("RFQ response submitted successfully");
+      } catch (err) {
+        console.error("RFQ submission error:", err);
+        toast.error("Failed to submit RFQ. Please try again.");
+      }
+    },
+    [files, rfiID, handleModalClose]
+  );
+
   return (
-    <div className="p-5 rounded-lg shadow bg-gray-100/50">
-      <h2 className="mb-4 text-lg font-semibold">RFI Response</h2>
-      {rfi?.response ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InfoItem
-            label="Date"
-            value={new Date(rfi?.response?.createdAt).toLocaleDateString()}
+    <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
+      <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
+        <div className="text-lg font-semibold text-white">Response To RFI</div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <MultipleFileUpload
+          label="Upload Files"
+          onFilesChange={onFilesChange}
+          files={files}
+          accept="image/*,application/pdf,.doc,.docx,.pptx"
+        />
+        <div>
+          <Input
+            label="Description"
+            type="textarea"
+            rows={3}
+            className="w-full mt-1 rounded-md focus:ring-2 "
+            disabled={isSubmitting}
+            {...register("description", {
+              required: "Description is required",
+            })}
           />
-          <InfoItem label="Description" value={rfi?.response?.reason} />
-          <InfoItem label="Status" value={rfi?.response?.responseState} />
-          <InfoItem
-            label="Files"
-            value={
-              <FileLinks
-                files={rfi?.response?.files}
-                rfiId={rfi?.id}
-                isResponse
-                responseId={rfi?.response?.id}
-              />
-            }
-          />
+          {errors.description && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.description.message}
+            </p>
+          )}
         </div>
-      ) : (
-        <div className="text-gray-600 italic">No response available yet.</div>
-      )}
+
+        <Button
+          type="submit"
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </Button>
+      </form>
     </div>
   );
 };
 
-export default RFIResponse;
+ResponseRFI.propTypes = {
+  onClose: PropTypes.func.isRequired,
+  rfiID: PropTypes.string.isRequired,
+};
+
+export default ResponseRFI;

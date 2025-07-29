@@ -1092,6 +1092,27 @@ class Service {
     }
   }
 
+// respond RFI
+ static async respondRfi(rfiId, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.post(
+        `/api/RFI/addresponse/${rfiId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
   static async inboxRFI() {
     try {
       const token = sessionStorage.getItem("token");
