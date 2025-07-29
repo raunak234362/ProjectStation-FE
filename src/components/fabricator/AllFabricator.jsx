@@ -102,14 +102,6 @@ const AllFabricator = () => {
       accessor: (row) => row?.headquaters?.country,
       id: "country",
     },
-    {
-      Header: "Actions",
-      accessor: "id",
-      Cell: ({ value }) => (
-        <Button onClick={() => handleViewClick(value)}>View</Button>
-      ),
-      disableSortBy: true,
-    },
   ], []);
 
   const tableInstance = useTable(
@@ -205,7 +197,9 @@ const AllFabricator = () => {
                 rows.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-100">
+                    <tr {...row.getRowProps()}
+                    onClick={() => handleViewClick(row.original.id)}
+                    className="hover:bg-gray-100">
                       {row.cells.map((cell) => (
                         <td {...cell.getCellProps()} className="px-4 py-2 border">
                           {cell.render("Cell")}

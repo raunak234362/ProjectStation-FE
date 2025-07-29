@@ -71,7 +71,6 @@ const AddBranch = ({ fabricator, isBranch, onBranchClose }) => {
     );
   }, [state]);
 
-
   const fabData = useSelector(
     (state) => state.fabricatorData?.fabricatorData?.data
   );
@@ -232,7 +231,10 @@ const AddBranch = ({ fabricator, isBranch, onBranchClose }) => {
           </div>
 
           <div className="my-5 w-full">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            >
               Add Branch
             </Button>
           </div>

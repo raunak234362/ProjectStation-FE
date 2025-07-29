@@ -354,6 +354,23 @@ class Service {
     }
   }
 
+  //Fetch Client By ID -- updated
+  static async getClientById(clientId) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/client/Client/${clientId}`, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching client:", error);
+      throw error;
+    }
+  }
+
   // Add all Project File --updated
   static async addFabricatorFile(formData, id) {
     const token = sessionStorage.getItem("token");
@@ -594,15 +611,19 @@ class Service {
   }
 
   //Add Estimations
-  static async addEstimation(estData){
+  static async addEstimation(estData) {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.post(`/api/Estimation/addEstimation`, estData, {
-        headers: {
-          "Content-Type": "Application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.post(
+        `/api/Estimation/addEstimation`,
+        estData,
+        {
+          headers: {
+            "Content-Type": "Application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.log("Error fetching estimations:", error);
@@ -631,12 +652,15 @@ class Service {
   static async getEstimationById(estimationId) {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.get(`/api/Estimation/getEstimation/${estimationId}`, {
-        headers: {
-          "Content-Type": "Application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get(
+        `/api/Estimation/getEstimation/${estimationId}`,
+        {
+          headers: {
+            "Content-Type": "Application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data.data;
     } catch (error) {
       console.log("Error fetching estimation by ID:", error);
@@ -669,15 +693,12 @@ class Service {
   static async allEstimationTasks() {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.get(
-        `/api/EstimationTask/getAllTasks`,
-        {
-          headers: {
-            "Content-Type": "Application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.get(`/api/EstimationTask/getAllTasks`, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.log("Error fetching all estimation tasks:", error);
@@ -1243,7 +1264,7 @@ class Service {
   //Respond rfq
 
   static async respondClientRfq(rfqID, responseData) {
-    const data= new FormData();
+    const data = new FormData();
     // Append files
     for (let i = 0; i < responseData?.files?.length; i++) {
       data.append("files", responseData?.files[i]);
@@ -1255,23 +1276,18 @@ class Service {
 
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.post(
-        `/api/RFQ/addresponse/${rfqID}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const response = await api.post(`/api/RFQ/addresponse/${rfqID}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     } catch (error) {
       console.error("Error uploading files:", error);
       throw error;
     }
   }
-
 
   // Submittals
   static async addSubmittal(submittals) {
@@ -1324,7 +1340,7 @@ class Service {
     }
   }
 
-   static async getSubmittalByProjectId(projectId) {
+  static async getSubmittalByProjectId(projectId) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/Submittals/${projectId}`, {
@@ -1339,7 +1355,6 @@ class Service {
       throw error;
     }
   }
-
 
   //get sent rfi response
   static async getSentRFIResponse(rfiId) {
@@ -1497,11 +1512,7 @@ class Service {
     }
   }
   //Fetch workBreakdown Activity
-  static async fetchWorkBreakdownHours(
-    selectedTask,
-    projectId,
-    projectStage
-  ) {
+  static async fetchWorkBreakdownHours(selectedTask, projectId, projectStage) {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(
@@ -1518,10 +1529,7 @@ class Service {
       console.log("Error fetching work breakdown activity:", error);
     }
   }
-  static async fetchWorkBreakdownTotalHours(
-    projectId,
-    projectStage
-  ) {
+  static async fetchWorkBreakdownTotalHours(projectId, projectStage) {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(
@@ -1673,7 +1681,7 @@ class Service {
   }
 
   //Export CSV
-  static async exportCSV(){
+  static async exportCSV() {
     try {
       const response = await api.get(`/api/auth/exports/projects`, {
         headers: {
