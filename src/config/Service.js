@@ -1093,12 +1093,13 @@ class Service {
   }
 
 // respond RFI
- static async respondRfi(rfiId, formData) {
+ static async respondRfi(rfiId, responseData) {
+ 
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
-        `/api/RFI/addresponse/${rfiId}`,
-        formData,
+        `/api/RFI/rfi/addResponse/${rfiId}`,
+        responseData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1109,6 +1110,23 @@ class Service {
       return response.data;
     } catch (error) {
       console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
+  //fetch RFI response by ID
+  static async fetchRFIResponseById(id) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/RFI/getResponse/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching RFI response:", error);
       throw error;
     }
   }

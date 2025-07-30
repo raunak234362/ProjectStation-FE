@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useState, useCallback } from "react";
 import PropTypes from "prop-types";
@@ -8,10 +9,11 @@ import Input from "../../fields/Input";
 import Button from "../../fields/Button";
 import Service from "../../../config/Service";
 
-const ResponseRFI = ({ onClose, rfiID }) => {
+const ResponseRFI = ({ onClose, rfiResponse, rfi }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
-
+  console.log("ResponseRFI component rendered with rfiID:", rfi.id);
+  const rfiID = rfi.id;
   const {
     handleSubmit,
     reset,
@@ -32,19 +34,21 @@ const ResponseRFI = ({ onClose, rfiID }) => {
 
   const onSubmit = useCallback(
     async (data) => {
+      console.log("Submitting RFI response with data:", data);
+      setIsSubmitting(true);
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
-      formData.append("description", data.description);
+      formData.append("reason", data.reason);
 
       try {
-        await Service.respondRfq(rfiID, formData);
+        await Service.respondRfi(rfiID, formData);
         toast.success("RFQ response submitted successfully");
       } catch (err) {
         console.error("RFQ submission error:", err);
         toast.error("Failed to submit RFQ. Please try again.");
       }
     },
-    [files, rfiID, handleModalClose]
+    [files, rfiID]
   );
 
   return (
@@ -67,7 +71,7 @@ const ResponseRFI = ({ onClose, rfiID }) => {
             rows={3}
             className="w-full mt-1 rounded-md focus:ring-2 "
             disabled={isSubmitting}
-            {...register("description", {
+            {...register("reason", {
               required: "Description is required",
             })}
           />
@@ -81,9 +85,9 @@ const ResponseRFI = ({ onClose, rfiID }) => {
         <Button
           type="submit"
           className="w-full bg-teal-600 hover:bg-teal-700 text-white"
-          disabled={isSubmitting}
+          // disabled={isSubmitting}
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          Submit
         </Button>
       </form>
     </div>

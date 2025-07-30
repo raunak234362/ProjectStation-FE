@@ -5,13 +5,9 @@ import {
   Calendar,
   Edit2,
   FileText,
-  Globe,
-  HardDrive,
   Plus,
   X,
   ChevronRight,
-  BarChart2,
-  Layers,
 } from "lucide-react";
 
 // UI Components
@@ -332,8 +328,6 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
 
     </div>
   );
-
-
 
   const renderFiles = () => (
     <div className="space-y-4">
