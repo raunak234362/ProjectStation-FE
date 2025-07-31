@@ -12,7 +12,7 @@ import Service from "../../../config/Service";
 const ResponseRFI = ({ onClose, rfiResponse, rfi }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
-  console.log("ResponseRFI component rendered with rfiID:", rfi.id);
+  console.log("ResponseRFI component rendered with rfiID:", rfi);
   const rfiID = rfi.id;
   const {
     handleSubmit,
@@ -42,10 +42,10 @@ const ResponseRFI = ({ onClose, rfiResponse, rfi }) => {
 
       try {
         await Service.respondRfi(rfiID, formData);
-        toast.success("RFQ response submitted successfully");
+        toast.success("RFI response submitted successfully");
       } catch (err) {
-        console.error("RFQ submission error:", err);
-        toast.error("Failed to submit RFQ. Please try again.");
+        console.error("RFI submission error:", err);
+        toast.error("Failed to submit RFI. Please try again.");
       }
     },
     [files, rfiID]

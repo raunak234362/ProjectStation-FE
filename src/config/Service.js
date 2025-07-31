@@ -1118,7 +1118,7 @@ class Service {
   static async fetchRFIResponseById(id) {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.get(`/api/RFI/getResponse/${id}`, {
+      const response = await api.get(`/api/RFI/rfi/getResponse/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/form-data",
@@ -1134,7 +1134,7 @@ class Service {
   static async inboxRFI() {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.get(`/api/rfi/rfi/inbox`, {
+      const response = await api.get(`/api/RFI/rfi/inbox`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/form-data",
@@ -1176,6 +1176,34 @@ class Service {
       return response.data;
     } catch (error) {
       console.log("Error fetching RFI:", error);
+      throw error;
+    }
+  }
+
+  //Response of response of RFI
+    static async respondWBTRfi(rfiID, responseData) {
+      console.log("Response Data:", responseData);
+    const data = new FormData();
+    // Append files
+    for (let i = 0; i < responseData?.files?.length; i++) {
+      data.append("files", responseData?.files[i]);
+    }
+    // Append other fields
+    data.append("reason", responseData?.reason);
+    data.append("parentResponseId", responseData?.parentResponseId || null);
+    data.append("status", responseData?.status || null);
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.post(`/api/RFI/rfi/addresponse/${rfiID}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading files:", error);
       throw error;
     }
   }
