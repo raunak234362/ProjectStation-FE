@@ -8,11 +8,10 @@ import Service from "../../../config/Service";
 import { useEffect, useState } from "react";
 
 const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
-  const [fetchResponseDetails, setFetchResponseDetails] = useState(null);
+  const [fetchResponseDetails, setFetchResponseDetails] = useState();
   const fetchResponseData = async () => {
     try {
       const response = await Service.fetchRFIResponseById(responseData.id);
-      console.log("Fetched Response Data:", response.data);
       setFetchResponseDetails(response.data);
       return response;
     } catch (error) {
@@ -20,7 +19,11 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
       return null;
     }
   };
-
+  console.log(
+    "Fetched Response Data:",
+    fetchResponseDetails?.childResponses[0]
+  );
+  const childResponse = fetchResponseDetails?.childResponses[0];
   useEffect(() => {
     fetchResponseData();
   }, []);
@@ -33,9 +36,9 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
         <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
           <div className="text-lg text-white">
             <span className="font-bold">Recieved On:</span>{" "}
-            {responseData?.createdAt
+            {fetchResponseDetails?.createdAt
               ? (() => {
-                  const date = new Date(responseData.createdAt);
+                  const date = new Date(fetchResponseDetails.createdAt);
                   const mm = String(date.getMonth() + 1).padStart(2, "0");
                   const dd = String(date.getDate()).padStart(2, "0");
                   const yyyy = date.getFullYear();
@@ -54,14 +57,15 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
           </button>
         </div>
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <SelectedResponseDetail responseDetail={responseData} />
+          <SelectedResponseDetail responseDetail={responseData} /> {/* Parent Response */}
           {userType !== "client" ? (
             fetchResponseDetails?.childResponses &&
             fetchResponseDetails.childResponses.length > 0 ? (
               <div>
-                <ResponseFromClient
-                  responseDetail={fetchResponseDetails?.childResponses}
-                />
+                <h3 className="text-lg font-semibold mb-2">
+                  Responded Details
+                </h3>
+                <SelectedResponseDetail responseDetail={childResponse} /> {/* Parent Response ka Response(Child Response) */}
               </div>
             ) : (
               <div>
@@ -73,7 +77,19 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
             )
           ) : (
             <div>
-              <SelectedResponseDetail responseDetail={responseData} />
+              {childResponse ? (
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Response Details
+                  </h3>
+                  <SelectedResponseDetail responseDetail={childResponse} />
+                </div>
+              ) : (
+                <span className="text-gray-400 text-sm">
+                  No child response available
+                </span>
+              )}
+              {/* <SelectedResponseDetail responseDetail={responseData} /> */}
             </div>
           )}
           {/* <SelectedResponseSend
