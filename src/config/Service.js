@@ -1371,7 +1371,6 @@ class Service {
     data.append("recepient_id", submittals?.recepient_id);
     data.append("subject", submittals?.subject);
     data.append("description", submittals?.description);
-    data.append("Stage", submittals?.Stage);
 
     try {
       const token = sessionStorage.getItem("token");

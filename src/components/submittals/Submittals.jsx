@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
 
 import { useState } from "react";
 import AddSubmittals from "./AddSubmittals";
@@ -7,6 +6,7 @@ import AllSubmittals from "./AllSubmittals";
 
 const Submittals = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState('allSubmittals');
+
   return (
     <div className="w-full overflow-y-hidden">
       <div className="flex flex-col w-full h-full">
