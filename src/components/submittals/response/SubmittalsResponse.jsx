@@ -9,11 +9,11 @@ import Input from "../../fields/Input";
 import Button from "../../fields/Button";
 import Service from "../../../config/Service";
 
-const ResponseSubmittals = ({ onClose, rfiResponse, rfi }) => {
+const ResponseSubmittals = ({ onClose, submittalResponse, submittal }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
-  console.log("ResponseSubmittals component rendered with rfiID:", rfi);
-  const rfiID = rfi.id;
+  console.log("ResponseSubmittals component rendered with submittal ID:", submittal);
+  const submittalID = submittal.id;
   const {
     handleSubmit,
     reset,
@@ -34,27 +34,27 @@ const ResponseSubmittals = ({ onClose, rfiResponse, rfi }) => {
 
   const onSubmit = useCallback(
     async (data) => {
-      console.log("Submitting RFI response with data:", data);
+      console.log("Submitting Submittal response with data:", data);
       setIsSubmitting(true);
       const formData = new FormData();
       files.forEach((file) => formData.append("files", file));
-      formData.append("reason", data.reason);
+      formData.append("description", data.description);
 
       try {
-        await Service.respondRfi(rfiID, formData);
-        toast.success("RFI response submitted successfully");
+        await Service.respondSubmittals(submittalID, formData);
+        toast.success("Submittal response submitted successfully");
       } catch (err) {
-        console.error("RFI submission error:", err);
-        toast.error("Failed to submit RFI. Please try again.");
+        console.error("Submittal submission error:", err);
+        toast.error("Failed to submit Submittal. Please try again.");
       }
     },
-    [files, rfiID]
+    [files, submittalID]
   );
 
   return (
     <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
       <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
-        <div className="text-lg font-semibold text-white">Response To RFI</div>
+        <div className="text-lg font-semibold text-white">Response To Submittal</div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -71,7 +71,7 @@ const ResponseSubmittals = ({ onClose, rfiResponse, rfi }) => {
             rows={3}
             className="w-full mt-1 rounded-md focus:ring-2 "
             disabled={isSubmitting}
-            {...register("reason", {
+            {...register("description", {
               required: "Description is required",
             })}
           />

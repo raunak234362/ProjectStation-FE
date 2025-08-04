@@ -2,9 +2,10 @@
 /* eslint-disable react/prop-types */
 
 import { useState } from "react";
+import SendCO from "./SendCO";
 
 const CO = ({ projectData }) => {
-  const [activeTab, setActiveTab] = useState('allRFI');
+  const [activeTab, setActiveTab] = useState('sendCO');
 
 
   return (
@@ -33,12 +34,12 @@ const CO = ({ projectData }) => {
           </div>
         </div>
         <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
-          {/* {activeTab === 'sendCO' && (
+          {activeTab === 'sendCO' && (
             <div>
-              <AddRFI projectData={projectData} />
+              <SendCO projectData={projectData} />
             </div>
           )}
-          {activeTab === 'allCO' && (
+          {/* {activeTab === 'allCO' && (
             <div>
               <AllRFI projectData={projectData} />
             </div>

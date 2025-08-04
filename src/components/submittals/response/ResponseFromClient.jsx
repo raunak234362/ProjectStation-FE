@@ -22,9 +22,9 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
   };
   console.log(
     "Fetched Response Data:",
-    fetchResponseDetails?.childResponses[0]
+    fetchResponseDetails?.childResponses
   );
-  const childResponse = fetchResponseDetails?.childResponses[0];
+  const childResponse = fetchResponseDetails?.childResponses;
   useEffect(() => {
     fetchResponseData();
   }, []);
@@ -33,7 +33,7 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
   const userType = sessionStorage.getItem("userType");
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[80%] w-11/12 max-w-4xl rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white h-[70%] w-11/12 max-w-4xl rounded-lg shadow-lg overflow-hidden">
         <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
           <div className="text-lg text-white">
             <span className="font-bold">Recieved On:</span>{" "}
@@ -49,7 +49,7 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
                 })()
               : ""}
           </div>
-          <button
+          <button 
             className="p-2 text-gray-800 transition-colors bg-gray-200 rounded-full hover:bg-gray-300"
             onClick={handleViewModalClose}
             aria-label="Close"
@@ -59,14 +59,14 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
         </div>
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           <SelectedResponseDetail responseDetail={responseData} /> {/* Parent Response */}
-          {userType !== "client" ? (
+          {/* {userType !== "client" ? (
             fetchResponseDetails?.childResponses &&
             fetchResponseDetails.childResponses.length > 0 ? (
               <div>
                 <h3 className="text-lg font-semibold mb-2">
                   Responded Details
                 </h3>
-                <SelectedResponseDetail responseDetail={childResponse} /> {/* Parent Response ka Response(Child Response) */}
+                <SelectedResponseDetail responseDetail={childResponse} />
               </div>
             ) : (
               <div>
@@ -90,9 +90,9 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
                   No child response available
                 </span>
               )}
-              {/* <SelectedResponseDetail responseDetail={responseData} /> */}
+             
             </div>
-          )}
+          )} */}
           {/* <SelectedResponseSend
             rfqID={responseData.rfqID}
             responseId={responseData.id}

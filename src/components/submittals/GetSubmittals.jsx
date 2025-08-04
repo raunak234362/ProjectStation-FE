@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
-import RFIResponse from "./response/SubmittalsResponse";
 import { X } from "lucide-react";
-import RFIDetail from "./RFISubmittals";
+import RFIDetail from "./SubmittalDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
+import ResponseSubmittals from "./response/SubmittalsResponse";
 
 const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -134,10 +134,18 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
     [userType, handleViewModalOpen]
   );
 
-  const tableData = useMemo(
-    () => submittal?.submittalsResponse || [],
-    [submittal?.submittalsResponse]
-  );
+  console.log("Submittal Responses:", submittal);
+
+  const tableData = useMemo(() => {
+    if (Array.isArray(submittal?.submittalsResponse)) {
+      return submittal.submittalsResponse;
+    }
+    console.warn(
+      "❗ Expected array for submittalsResponse, got:",
+      submittal?.submittalsResponse
+    );
+    return [];
+  }, [submittal?.submittalsResponse]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: tableData }, useSortBy);
@@ -149,7 +157,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
     }
   }, [submittalId, isOpen, fetchSubmittals, fetchSubmittalResponses]);
   if (!isOpen) return null;
-  
+
   console.log("Submittal Responses:", submittal);
   if (loading || !submittal) {
     return (
@@ -168,7 +176,8 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
       <div className="bg-white h-[90%] w-11/12 max-w-5xl rounded-lg shadow-lg overflow-hidden">
         <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
-            <span className="font-bold">Subject:</span> {"N/A"}
+            <span className="font-bold">Subject:</span>{" "}
+            {submittal?.subject || "N/A"}
           </div>
           <button
             className="p-2 text-gray-800 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
@@ -180,7 +189,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         </div>
 
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          {/* <div
+          <div
             className={`grid gap-4 ${
               userType === "client"
                 ? "grid-cols-1 md:grid-cols-2"
@@ -193,17 +202,17 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
               submittalId={submittalID}
             />
             {userType === "client" && (
-              <RFIResponse
+              <ResponseSubmittals
                 submittalResponse={submittalResponse}
                 submittal={submittal}
                 onClose={onClose}
               />
             )}
-          </div> */}
+          </div>
 
           <section>
             <h3 className="px-3 py-2 mt-3 font-bold text-white bg-teal-400 rounded-lg shadow-md md:text-2xl">
-              RFI Responses
+              Submittals Responses
             </h3>
             <div className="p-5 bg-gray-50 rounded-lg shadow-inner min-h-[100px] overflow-x-auto">
               <table
@@ -211,7 +220,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
                 className="min-w-full text-sm text-center text-gray-700 border-collapse rounded-xl"
               >
                 <thead>
-                  {headerGroups.map((headerGroup) => (
+                  {headerGroups?.map((headerGroup) => (
                     <tr
                       {...headerGroup.getHeaderGroupProps()}
                       className="bg-teal-200/90"

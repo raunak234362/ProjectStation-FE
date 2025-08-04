@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
+import  { useEffect, useState } from "react";
 import {
   Input,
-  CustomSelect,
   Button,
-  MultipleFileUpload,
-} from "../../../../index";
+} from "../index";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
-import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
-import Service from "../../../../../config/Service";
+import Service from "../../config/Service";
 
 const SendCoTable = ({ data, onClose }) => {
   const id = data

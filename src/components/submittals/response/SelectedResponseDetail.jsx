@@ -5,17 +5,9 @@ const SelectedResponseDetail = ({ responseDetail }) => {
     <div className="bg-gray-100 rounded-md p-4">
       <h3 className="text-lg font-semibold">Description</h3>
       <p className=" text-gray-600">
-        {responseDetail?.reason || "No description available."}
+        {responseDetail?.description || "No description available."}
       </p>
-      <h4 className="text-md font-semibold">Status</h4>
-      <p className=" text-gray-600">
-        {responseDetail?.wbtStatus || "No status available."}
-      </p>
-      <h4 className="text-md font-semibold">Received At</h4>
-      <p className=" text-gray-600">
-        {responseDetail?.createdAt || "No creation date available."}
-      </p>
-      <h4 className="text-md font-semibold">Files</h4>
+        <h4 className="text-md font-semibold">Files</h4>
       <ul className=" list-disc list-inside">
         {responseDetail?.files?.length ? (
           responseDetail.files.map((file) => (
@@ -35,6 +27,15 @@ const SelectedResponseDetail = ({ responseDetail }) => {
           <span className="text-gray-400 text-sm">No files attached</span>
         )}
       </ul>
+      <h4 className="text-md font-semibold">Status</h4>
+      <p className=" text-gray-600">
+        {responseDetail?.wbtStatus || "No status available."}
+      </p>
+      <h4 className="text-md font-semibold">Received At</h4>
+      <p className=" text-gray-600">
+        {responseDetail?.createdAt || "No creation date available."}
+      </p>
+    
     </div>
   );
 };

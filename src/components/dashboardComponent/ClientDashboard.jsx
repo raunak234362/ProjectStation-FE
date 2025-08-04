@@ -655,7 +655,7 @@ export default function ProjectDashboard() {
               </h2>
               <div className="space-y-3">
                 <Button
-                  onClick={() => navigate("../rfq/add-rfq")}
+                  onClick={() => navigate("rfq")}
                   className="w-full justify-center py-3"
                   variant="primary"
                 >

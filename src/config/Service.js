@@ -906,7 +906,7 @@ class Service {
     }
     // Append other fields
     // data.append("fabricator_id", coData?.fabricator_id);
-    data.append("changeOrder", parseInt(coData?.changeOrder));
+    data.append("changeOrderNumber", parseInt(coData?.changeOrderNumber));
     data.append("project", coData?.project_id);
     data.append("recipients", coData?.recipient_id);
     data.append("remarks", coData?.remark);

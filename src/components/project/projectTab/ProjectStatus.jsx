@@ -548,9 +548,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
             {activeTab === "Submittals" && (
               <Submittals projectData={projectData} />
             )}
-            {activeTab === "CO" && (
-                            <CO projectData={projectData} />
-                        )}
+            {activeTab === "CO" && <CO projectData={projectData} />}
           </>
         )}
       </div>

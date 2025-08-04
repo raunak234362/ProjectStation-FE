@@ -69,10 +69,10 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
               </div>
             ) : (
               <div>
-                <SelectedResponseSend
+                {/* <SelectedResponseSend
                   rfiID={fetchResponseDetails?.rfiId}
                   responseId={fetchResponseDetails?.id}
-                />
+                /> */}
               </div>
             )
           ) : (
