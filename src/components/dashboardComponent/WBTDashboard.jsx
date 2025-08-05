@@ -66,8 +66,23 @@ const WBTDashboard = () => {
   console.log("Dashboard Counts:", dashboardCounts);
 
   const exportCsv = async () => {
-    const response = await Service.exportCSV();
-    console.log("CSV Export Response:", response);
+    try {
+      const response = await Service.exportCSV(); // already a valid CSV string
+      console.log("CSV Export Response:", response);
+
+      const blob = new Blob([response], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Project.csv"); // set filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("CSV Export Error:", error);
+      alert("Failed to export CSV.");
+    }
   };
 
   // Prepare project data with tasks
@@ -584,9 +599,7 @@ const WBTDashboard = () => {
                             plugins: {
                               legend: {
                                 position:
-                                  window.innerWidth < 768
-                                    ? "bottom"
-                                    : "right",
+                                  window.innerWidth < 768 ? "bottom" : "right",
                                 labels: {
                                   usePointStyle: true,
                                   padding: 20,
@@ -632,8 +645,7 @@ const WBTDashboard = () => {
                                 grid: { display: false },
                                 ticks: {
                                   callback: function (value) {
-                                    const label =
-                                      this.getLabelForValue(value);
+                                    const label = this.getLabelForValue(value);
                                     const maxLength =
                                       window.innerWidth < 768 ? 8 : 15;
                                     return label.length > maxLength

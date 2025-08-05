@@ -25,7 +25,7 @@ const StatsOverview = ({ stats }) => {
                   stats?.totalWorkedHours && stats.totalAssignedHours
                     ? Math.min(
                         100,
-                        (stats.totalWorkedHours / stats.totalAssignedHours) * 100
+                        (stats.totalAssignedHours / stats.totalWorkedHours) * 100
                       )
                     : 0
                 }%`,
@@ -79,7 +79,7 @@ const StatsOverview = ({ stats }) => {
           <p className="text-2xl font-bold text-gray-800">
             {stats?.totalAssignedHours && stats.totalAssignedHours > 0
               ? Math.round(
-                  (stats.totalWorkedHours / stats.totalAssignedHours) * 100
+                  (stats.totalAssignedHours / stats.totalWorkedHours) * 100
                 )
               : 0}
             %
