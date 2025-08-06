@@ -2,27 +2,25 @@
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Input, CustomSelect, Button, Toggle } from "../index";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
-import { addProject } from "../../store/projectSlice";
-import Service from "../../config/Service";
 
 const AddProject = () => {
   const dispatch = useDispatch();
   const {
     register,
     setValue,
-    watch,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
 
+  const departmentData = useSelector((state) => state.userData?.departmentData);
   const fabricatorData = useSelector(
     (state) => state.fabricatorData?.fabricatorData
   );
-  const departmentData = useSelector((state) => state.userData?.departmentData);
   const userData = useSelector((state) => state.userData?.staffData);
   const teams = useSelector((state) => state?.userData?.teamData);
 
@@ -33,17 +31,21 @@ const AddProject = () => {
       value: user.id,
     }));
 
-  const onSubmit = async (data) => {
-    const payload = {
-      ...data,
-      approvalDate: data.approvalDate
-        ? new Date(data.approvalDate).toISOString()
-        : null,
-    };
+  // Get selected fabricator id from form state
+  const selectedFabricatorId = watch?.("fabricator");
+  const selectedFabricator = fabricatorData?.find(
+    (fab) => fab.id === selectedFabricatorId
+  );
 
+  console.log("Selected Fabricator:", selectedFabricator);
+  // Assuming the users inside fabricator look like [{ id, f_name, l_name }]
+  const clientOptions =
+    selectedFabricator?.userss?.map((user) => ({
+      label: `${user.f_name} ${user.l_name}`,
+      value: user.id,
+    })) || [];
+  const onSubmit = async (data) => {
     try {
-      const response = await Service.addProject(payload);
-      dispatch(addProject(response?.project));
       toast.success("Project Added Successfully");
       reset();
     } catch (error) {
@@ -70,7 +72,15 @@ const AddProject = () => {
           />
           <ErrorMsg msg={errors.fabricator?.message} />
 
-          {/* Project Info */}
+          <CustomSelect
+            label="Point of Contact"
+            placeholder="Select Point of Contact"
+            options={clientOptions}
+            {...register("clientId", {
+              required: "Point of Contact is required",
+            })}
+            onChange={setValue}
+          />
           <SectionTitle title="Project Information" />
           <Input
             label="Project Name"

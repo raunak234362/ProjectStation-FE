@@ -98,7 +98,6 @@ const SendCO = () => {
       };
       const response = await Service.addCO(coData);
       toast.success("CO created successfully");
-      console.log("CO created successfully:", response);
       // Move to step 2
       setDataCO(response.data);
       setStep(2);

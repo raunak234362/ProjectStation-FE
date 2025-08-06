@@ -184,7 +184,7 @@ const ActionCenter = () => {
             onChange={setItemType}
             className="mb-4"
           />
-          <div className="space-y-3 h-64 overflow-y-auto">
+          <div className="space-y-3 h-[40vh] overflow-y-auto">
             {pendingItems[itemType]?.length
               ? pendingItems[itemType].map((item) =>
                   renderItemCard(item, itemType)
