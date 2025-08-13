@@ -1,29 +1,15 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
-import {
-  Input,
-  CustomSelect,
-  Button,
-  MultipleFileUpload,
-} from "../index";
+import { Input, CustomSelect, Button, MultipleFileUpload } from "../index";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import SendCoTable from "./SendCoTable";
 
-const SendCO = () => {
-  const [step, setStep] = useState(1);
-  const [files, setFiles] = useState([]);
-
-  // Redux state
-  const projectData = useSelector((state) => state.projectData.projectData);
-  const fabricatorData = useSelector(
-    (state) => state?.fabricatorData?.fabricatorData
-  );
-  const clientData = useSelector((state) => state?.fabricatorData?.clientData);
-
+const SendCO = ({ projectData }) => {
   // Step 1 form
   const {
     register,
@@ -35,45 +21,31 @@ const SendCO = () => {
     formState: { errors },
   } = useForm();
 
-  // Fabricator selection handling
-  const fabricatorID = watch("fabricator_id");
-  const recipientID = watch("recipient_id");
+  //states
+  const [step, setStep] = useState(1);
+  const [files, setFiles] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [click, setClick] = useState(false);
+  
+  //projectDetails
+  const project = projectData || {};
+  const fabricatorID = project.fabricatorID;
+  const projectID = project.id;
+  console.log(fabricatorID);
+  
+  const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
-  const selectedFabricator = fabricatorData?.find(
-    (fabricator) => fabricator.id === fabricatorID
+  const clientName = clientData?.find((client) => client.id === fabricatorID)?.name;
+  console.log("Client Name:", clientName);
+
+  const filteredClients = clientData?.filter(
+    (client) => client.fabricatorId === fabricatorID
   );
-
-  const clientName = selectedFabricator
-    ? clientData?.find((client) => client.id === selectedFabricator.clientID)
-        ?.name
-    : "";
-
-  // Options for dropdowns
-  const fabricatorOptions =
-    fabricatorData?.map((fabricator) => ({
-      label: fabricator.fabName,
-      value: fabricator.id,
-    })) || [];
-
-  const filteredClients =
-    clientData?.filter((client) => client.fabricatorId === fabricatorID) || [];
-
-  const clientOptions =
-    filteredClients?.map((client) => ({
-      label: `${client.f_name} ${client.l_name}`,
-      value: client.id,
-    })) || [];
-
-  const filteredProjects =
-    projectData?.filter((project) => project.fabricatorID === fabricatorID) ||
-    [];
-
-  const projectOptions =
-    filteredProjects?.map((project) => ({
-      label: project.name,
-      value: project.id,
-    })) || [];
-
+  console.log("Filtered Clients:", filteredClients);
+  const clientOptions = filteredClients?.map((client) => ({
+    label: `${client.f_name} ${client.l_name}`,
+    value: client.id,
+  }));
   // File upload handler
   const onFilesChange = (updatedFiles) => {
     setFiles(updatedFiles);
@@ -93,8 +65,9 @@ const SendCO = () => {
       const coData = {
         ...data,
         files,
+        project_id: projectID,
         recepient_id: data.recipient_id,
-        fabricator_id: data.fabricator_id,
+        fabricator_id: fabricatorID,
       };
       const response = await Service.addCO(coData);
       toast.success("CO created successfully");
@@ -109,8 +82,6 @@ const SendCO = () => {
     }
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [click, setClick] = useState(false);
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -119,9 +90,7 @@ const SendCO = () => {
   return (
     <>
       <div>
-        <div
-          className="overflow-x-auto overflow-y-auto h-fit"
-        >
+        <div className="overflow-x-auto overflow-y-auto h-fit">
           <div className="container w-full py-6 mx-auto ">
             <form
               onSubmit={handleSubmit(onSubmit)}
@@ -133,42 +102,6 @@ const SendCO = () => {
               </div>
 
               <div className="space-y-4">
-                <div className="w-full">
-                  <CustomSelect
-                    label="Fabricator Name:"
-                    color="blue"
-                    size="lg"
-                    name="fabricator"
-                    options={[
-                      { label: "Select Fabricator", value: "" },
-                      ...fabricatorOptions,
-                    ]}
-                    {...register("fabricator_id", { required: true })}
-                    onChange={setValue}
-                  />
-                  {errors.fabricator_id && (
-                    <div className="text-red-500">This field is required</div>
-                  )}
-                </div>
-
-                <div className="w-full">
-                  <CustomSelect
-                    label="Project Name:"
-                    color="blue"
-                    size="lg"
-                    name="project"
-                    options={[
-                      { label: "Select Project", value: "" },
-                      ...projectOptions,
-                    ]}
-                    {...register("project_id", { required: true })}
-                    onChange={setValue}
-                  />
-                  {errors.project_id && (
-                    <div className="text-red-500">This field is required</div>
-                  )}
-                </div>
-
                 <div className="w-full">
                   <CustomSelect
                     label="Select Recipients:"
@@ -240,18 +173,9 @@ const SendCO = () => {
               <div className="mt-6">
                 <Button
                   type="submit"
-                  // onClick={handleSave}
-                  className="w-full text-white bg-blue-500"
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
                 >
-                  Save
-                </Button>
-              </div>
-              <div className="mt-6">
-                <Button
-                  // onClick={handleNext}
-                  className="w-full text-white bg-blue-500"
-                >
-                  Next
+                  Save & Continue
                 </Button>
               </div>
             </form>

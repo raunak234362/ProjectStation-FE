@@ -9,8 +9,8 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 
-const SendCoTable = ({ data, onClose }) => {
-  const id = data
+const SendCoTable = ({ coData }) => {
+  const id = coData.id
   // console.log(id)
   const {
     register,
@@ -73,10 +73,6 @@ const SendCoTable = ({ data, onClose }) => {
       console.error("Error creating CO:", error);
     }
     reset();
-  };
-
-  const handleClose = () => {
-    onClose();
   };
 
   const rows = watch("rows") || [];
@@ -314,13 +310,6 @@ const SendCoTable = ({ data, onClose }) => {
 
           {/* Navigation Buttons */}
           <div className="flex justify-between mt-6">
-            <Button
-              //   onClick={() => setStep(1)}
-              className="text-white bg-gray-500"
-              type="button"
-            >
-              Back to Details
-            </Button>
 
             <Button type="submit" className="text-white bg-green-500">
               Submit Change Order

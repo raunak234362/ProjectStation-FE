@@ -56,7 +56,7 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
           <div className="flex overflow-x-auto">
             {[
               { key: "projectDetail", label: "Project Details" },
-              { key: "overview", label: "Overview" },
+              // { key: "overview", label: "Overview" },
               { key: "RFI", label: "RFI" },
               { key: "Submittals", label: "Submittals" },
               { key: "CO", label: "CO#" },

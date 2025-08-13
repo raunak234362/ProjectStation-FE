@@ -54,7 +54,7 @@ const StatsOverview = ({ stats }) => {
           <p className="text-xs text-gray-500">Assigned projects</p>
         </div>
       </div>
-
+              
       {/* Tasks */}
       <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
         <div className="flex items-center">

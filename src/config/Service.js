@@ -945,6 +945,23 @@ class Service {
       throw error;
     }
   }
+
+  static async getListOfAllCOByProjectId(projectID){
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/co/${projectID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching all COs:", error);
+      throw error;
+    }
+  }
+
   //submitting co
   static async submitStatusOfCO(coId, formData) {
     try {

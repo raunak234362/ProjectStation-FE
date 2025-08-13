@@ -215,7 +215,7 @@ const StatCard = ({ title, value, subtitle, icon, trend, color, progress }) => (
             <p className="text-2xl font-bold text-gray-900">{value}</p>
           </div>
         </div>
-        {subtitle && <p className="text-sm text-gray-500 mt-2">{subtitle}</p>}
+        {subtitle && <p className="text-md text-gray-500 mt-2">{subtitle}</p>}
         {trend && (
           <div className="flex items-center mt-2">
             <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
@@ -526,7 +526,7 @@ export default function ProjectDashboard() {
             }
           />
           <StatCard
-            title="Completed Tasks"
+            title="On Hold Projects"
             value={taskStats.completed}
             subtitle={`${taskStats.total} total tasks`}
             icon={<CheckCircle2 className="w-6 h-6 text-green-600" />}

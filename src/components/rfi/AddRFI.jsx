@@ -23,7 +23,6 @@ const AddRFI = ({ projectData }) => {
     const fabricatorData = useSelector(
         (state) => state?.fabricatorData?.fabricatorData
     );
-
     const clientData = useSelector((state) => state?.fabricatorData?.clientData);
     console.log(clientData);
     const dispatch = useDispatch();
@@ -42,6 +41,7 @@ const AddRFI = ({ projectData }) => {
     const selectedFabricator = fabricatorData?.find(
         (fabricator) => fabricator.id === fabricatorID
     );
+    
     const clientName = selectedFabricator
         ? clientData?.find((client) => client.id === selectedFabricator.clientID)
             ?.name
