@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 const InstallPWAButton = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
+  const [showInstallButton, setShowInstallButton] = useState(true);
 
   useEffect(() => {
     const handler = (e) => {

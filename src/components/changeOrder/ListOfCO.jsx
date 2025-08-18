@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useSortBy, useTable } from "react-table";
+import CoDetail from "./details/CoDetail";
 
 const ListOfCO = ({ coData }) => {
   const [selectedCO, setSelectedCO] = useState(null);
@@ -97,10 +98,7 @@ const ListOfCO = ({ coData }) => {
       </table>
       {
         selectedCO && (
-          <div>
-            <h2>Selected CO Details</h2>
-            <pre>{JSON.stringify(selectedCO, null, 2)}</pre>
-          </div>
+         <CoDetail/>
         )
       }
     </div>
