@@ -181,7 +181,7 @@ const SendCO = ({ projectData }) => {
             </form>
             {/* {isModalOpen && <SendCoTable data={dataCO.id} onClose={handleModalClose} />} */}
             {click && save && (
-              <SendCoTable data={dataCO?.id} onClose={handleModalClose} />
+              <SendCoTable data={dataCO} />
             )}
           </div>
         </div>

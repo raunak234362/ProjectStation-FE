@@ -8,7 +8,7 @@ import SendCoTable from "./SendCoTable";
 import ListOfCO from "./ListOfCO";
 
 const CO = ({ projectData }) => {
-  const [activeTab, setActiveTab] = useState("sendCO");
+  const [activeTab, setActiveTab] = useState("allCO");
   const [coData, setCoData] = useState([]);
 
   const projectID = projectData.id;

@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useSortBy, useTable } from "react-table";
-import CoDetail from "./details/CoDetail";
+import GetCo from "./GetCo";
 
 const ListOfCO = ({ coData }) => {
   const [selectedCO, setSelectedCO] = useState(null);
@@ -28,10 +28,9 @@ const ListOfCO = ({ coData }) => {
     setSelectedCO(co);
     // setIsModalOpen(true);
   }, []);
-//   const handleModalClose = useCallback(() => {
-//     setSelectedRFI(null);
-//     setIsModalOpen(false);
-//   }, []);
+  const handleModalClose = useCallback(() => {
+    setSelectedCO(null);
+  }, []);
 
   return (
     <div>
@@ -98,7 +97,7 @@ const ListOfCO = ({ coData }) => {
       </table>
       {
         selectedCO && (
-         <CoDetail/>
+         <GetCo selectedCO={selectedCO} onClose={handleModalClose}/>
         )
       }
     </div>

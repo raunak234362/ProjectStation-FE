@@ -1,23 +1,21 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import  { useEffect, useState } from "react";
-import {
-  Input,
-  Button,
-} from "../index";
+import { useEffect, useState } from "react";
+import { Input, Button } from "../index";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 
-const SendCoTable = ({ coData }) => {
-  const id = coData.id
-  // console.log(id)
+const SendCoTable = ({ data }) => {
+  const id = data.id;
+  console.log(data);
   const {
     register,
     setValue,
     handleSubmit,
     control,
-    watch,reset,
+    watch,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -46,11 +44,11 @@ const SendCoTable = ({ coData }) => {
       remarks: "",
     });
   };
-    const { fields, append } = useFieldArray({
-      control,
-      name: "rows",
-    });
-  const [coRow, setCoRow] = useState([])
+  const { fields, append } = useFieldArray({
+    control,
+    name: "rows",
+  });
+  const [coRow, setCoRow] = useState([]);
   const onSubmit = async (coData) => {
     const rows = coData.rows?.map((job) => ({
       ...job,
@@ -60,7 +58,7 @@ const SendCoTable = ({ coData }) => {
       QtyNo: Number(job.qty),
       hours: Number(job.hours),
       cost: Number(job.cost),
-      remarks:job.remarks
+      remarks: job.remarks,
     }));
     console.log("Step 2 data:", rows);
     try {
@@ -90,8 +88,6 @@ const SendCoTable = ({ coData }) => {
     setTotalHours(hoursSum);
     setTotalCost(costSum);
   }, [rows]);
-    
-    
 
   return (
     <>
@@ -113,18 +109,22 @@ const SendCoTable = ({ coData }) => {
 
           {/* Make the table scrollable */}
           <div className="w-full my-4 overflow-x-auto overflow-y-auto max-h-96">
-            <table className="w-full text-sm text-center border border-collapse border-gray-300">
+            <table className="w-full text-xs text-center border border-collapse border-gray-300">
               <thead className="bg-gray-200">
                 <tr>
-                  <th className="px-2 py-1 border border-gray-300">Sl.No</th>
+                  <th className="px-1 py-1 border border-gray-300">Sl.No</th>
                   <th className="px-2 py-1 border border-gray-300">
                     Description of Changes
                   </th>
                   <th className="px-2 py-1 border border-gray-300">
                     Reference Drawings/Documents
                   </th>
-                  <th className="px-2 py-1 border border-gray-300">Elements</th>
-                  <th className="px-2 py-1 border border-gray-300">Qty</th>
+                  <th className="px-2 py-1 border border-gray-300">
+                    Elements Name
+                  </th>
+                  <th className="px-2 py-1 border border-gray-300">
+                    Element Qty
+                  </th>
                   <th className="px-2 py-1 border border-gray-300">Hours</th>
                   <th className="px-2 py-1 border border-gray-300">Cost ($)</th>
                   <th className="px-2 py-1 border border-gray-300">Remarks</th>
@@ -147,7 +147,7 @@ const SendCoTable = ({ coData }) => {
                             {...field}
                             type="textarea"
                             placeholder="Change Description"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(
@@ -160,7 +160,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.reference`}
                         control={control}
@@ -169,7 +169,7 @@ const SendCoTable = ({ coData }) => {
                             {...field}
                             type="text"
                             placeholder="Reference"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(
@@ -182,7 +182,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.element`}
                         control={control}
@@ -191,7 +191,7 @@ const SendCoTable = ({ coData }) => {
                             {...field}
                             type="text"
                             placeholder="Element Name"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(`rows.${index}.element`, e.target.value);
@@ -201,7 +201,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.qty`}
                         control={control}
@@ -211,7 +211,7 @@ const SendCoTable = ({ coData }) => {
                             type="number"
                             min="0"
                             placeholder="Qty"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(`rows.${index}.qty`, e.target.value);
@@ -221,7 +221,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.hours`}
                         control={control}
@@ -231,7 +231,7 @@ const SendCoTable = ({ coData }) => {
                             type="number"
                             min="0"
                             placeholder="Hours"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(`rows.${index}.hours`, e.target.value);
@@ -241,7 +241,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.cost`}
                         control={control}
@@ -251,7 +251,7 @@ const SendCoTable = ({ coData }) => {
                             type="number"
                             min="0"
                             placeholder="Cost"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(`rows.${index}.cost`, e.target.value);
@@ -261,7 +261,7 @@ const SendCoTable = ({ coData }) => {
                       />
                     </td>
 
-                    <td className="px-2 py-1 border border-gray-600">
+                    <td className="px-1 py-1 border border-gray-600">
                       <Controller
                         name={`rows.${index}.remarks`}
                         control={control}
@@ -270,7 +270,7 @@ const SendCoTable = ({ coData }) => {
                             {...field}
                             type="textarea"
                             placeholder="Remarks"
-                            size="md"
+                            size="xs"
                             onChange={(e) => {
                               field.onChange(e);
                               setValue(`rows.${index}.remarks`, e.target.value);
@@ -308,17 +308,18 @@ const SendCoTable = ({ coData }) => {
             Add Row
           </Button>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-6">
-
-            <Button type="submit" className="text-white bg-green-500">
-              Submit Change Order
+          <div className="text-center">
+            <Button
+              type="submit"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            >
+              Submit
             </Button>
           </div>
         </form>
       </div>
     </>
   );
-}
+};
 
-export default SendCoTable
+export default SendCoTable;
