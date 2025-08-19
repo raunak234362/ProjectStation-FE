@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import SendCoTable from "./SendCoTable";
 
-const SendCO = ({ projectData }) => {
+const SendCO = ({ projectData, fetchCO }) => {
   // Step 1 form
   const {
     register,
@@ -31,7 +31,7 @@ const SendCO = ({ projectData }) => {
   const project = projectData || {};
   const fabricatorID = project.fabricatorID;
   const projectID = project.id;
-  console.log(fabricatorID);
+  console.log(projectData);
   
   const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
@@ -51,7 +51,8 @@ const SendCO = ({ projectData }) => {
     setFiles(updatedFiles);
   };
   const [dataCO, setDataCO] = useState();
-  // Step 1 form submission handler
+  console.log(dataCO)
+  // Step 1 form  submission handler
   const onSubmit = async (data) => {
     console.log(data);
     try {
@@ -70,6 +71,7 @@ const SendCO = ({ projectData }) => {
         fabricator_id: fabricatorID,
       };
       const response = await Service.addCO(coData);
+      console.log("CO created successfully:", response);
       toast.success("CO created successfully");
       // Move to step 2
       setDataCO(response.data);
@@ -140,7 +142,7 @@ const SendCO = ({ projectData }) => {
                   )}
                 </div>
 
-                <div className="w-full">
+                {/* <div className="w-full">
                   <Input
                     type="number"
                     label="Change Order No. CO#"
@@ -149,14 +151,13 @@ const SendCO = ({ projectData }) => {
                     color="blue"
                     min="0"
                     {...register("changeOrderNumber", {
-                      required: true,
                       valueAsNumber: true,
                     })}
                   />
                   {errors.changeOrder && (
                     <div className="text-red-500">This field is required</div>
                   )}
-                </div>
+                </div> */}
 
                 <div className="w-full">
                   <Input

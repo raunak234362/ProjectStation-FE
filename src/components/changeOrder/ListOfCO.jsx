@@ -4,8 +4,9 @@ import { useCallback, useMemo, useState } from "react";
 import { useSortBy, useTable } from "react-table";
 import GetCo from "./GetCo";
 
-const ListOfCO = ({ coData }) => {
+const ListOfCO = ({ coData, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(null);
+  
   const data = useMemo(() => coData, [coData]);
 
   const columns = useMemo(
@@ -17,7 +18,7 @@ const ListOfCO = ({ coData }) => {
          },
         { Header: "Status", accessor: "status" }
     ],
-    []
+    [fetchCO]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -97,7 +98,7 @@ const ListOfCO = ({ coData }) => {
       </table>
       {
         selectedCO && (
-         <GetCo selectedCO={selectedCO} onClose={handleModalClose}/>
+         <GetCo initialSelectedCO={selectedCO} fetchCO={fetchCO} onClose={handleModalClose}/>
         )
       }
     </div>

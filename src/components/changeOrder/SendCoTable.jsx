@@ -6,8 +6,9 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 
-const SendCoTable = ({ data }) => {
-  const id = data.id;
+const SendCoTable = ({ data, fetchCO }) => {
+
+  const id = data?.id;
   console.log(data);
   const {
     register,
@@ -63,6 +64,7 @@ const SendCoTable = ({ data }) => {
     console.log("Step 2 data:", rows);
     try {
       const response = await Service.addCOTable(rows, id);
+      fetchCO();
       console.log("Row added:", response);
       toast.success("CO created successfully");
       console.log("CO created successfully!");

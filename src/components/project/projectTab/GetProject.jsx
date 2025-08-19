@@ -204,13 +204,17 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
                 <h4 className="text-sm font-medium text-gray-500 mb-1">Tools</h4>
                 <p className="text-gray-800 font-semibold">{projectData?.tools || "Not available"}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">Start Date</h4>
                   <p className="text-gray-800 font-semibold">{formatDate(projectData?.startDate)}</p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">End Date</h4>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Approval Date</h4>
+                  <p className="text-gray-800 font-semibold">{formatDate(projectData?.approvalDate)}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">Submission Date</h4>
                   <p className="text-gray-800 font-semibold">{formatDate(projectData?.endDate)}</p>
                 </div>
               </div>

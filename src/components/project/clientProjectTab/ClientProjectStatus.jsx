@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import ClientProjectDetail from "./ClientProjectDetail";
 import RFI from "../../rfi/RFI";
 import Submittals from "../../submittals/Submittals";
+import CO from "../../changeOrder/CO";
 
 const ClientProjectStatus = ({ projectId, onClose }) => {
   const [projectData, setProjectData] = useState(null);
@@ -83,6 +84,9 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
         )}
         {activeTab === "Submittals" && (
           <Submittals projectData={projectData} />
+        )}
+        {activeTab === "CO" && (
+          <CO projectData={projectData} />
         )}
       </div>
     </div>

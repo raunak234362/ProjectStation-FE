@@ -906,7 +906,7 @@ class Service {
     }
     // Append other fields
     // data.append("fabricator_id", coData?.fabricator_id);
-    data.append("changeOrderNumber", parseInt(coData?.changeOrderNumber));
+    // data.append("changeOrderNumber", parseInt(coData?.changeOrderNumber));
     data.append("project", coData?.project_id);
     data.append("recipients", coData?.recipient_id);
     data.append("remarks", coData?.remark);
@@ -975,6 +975,40 @@ class Service {
       return response.data;
     } catch (error) {
       console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
+  //Update Co Detail
+  static async updateCO(coId, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(`api/co/changeorder/${coId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating CO:", error);
+      throw error;
+    }
+  }
+
+  //Update CO Table
+  static async updateCOTable(coId, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(`api/co/changeordertable/${coId}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating CO Table:", error);
       throw error;
     }
   }

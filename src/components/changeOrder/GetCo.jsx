@@ -1,11 +1,30 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import CoDetail from "./details/CoDetail";
 import CoListTable from "./details/CoListTable";
 import SendCoTable from "./SendCoTable";
 
-const GetCo = ({ selectedCO, onClose }) => {
+const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
+  const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
+
+  // When initialSelectedCO changes, sync state
+  useEffect(() => {
+    setSelectedCO(initialSelectedCO);
+  }, [initialSelectedCO]);
+
+  // Function to refresh selectedCO from backend after editing
+  const refreshSelectedCO = async () => {
+    try {
+      const freshData = await fetchCO(); // fetchCO returns updated list or item
+      console.log("Refreshed CO Data:", freshData);
+      const updatedCO = freshData?.find((co) => co.id === selectedCO.id);
+      if (updatedCO) setSelectedCO(updatedCO);
+    } catch (error) {
+      console.error("Failed to refresh selected CO:", error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white h-[90vh] overflow-y-auto p-2 md:p-1 rounded-lg shadow-lg w-11/12 md:w-10/12">
@@ -23,14 +42,20 @@ const GetCo = ({ selectedCO, onClose }) => {
           </button>
         </div>
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <CoDetail selectedCO={selectedCO} />
-          {selectedCO.CoRefersTo <1 ?(
+          <CoDetail
+            selectedCO={selectedCO}
+            fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
+          />
+          {Array.isArray(selectedCO?.CoRefersTo) &&
+          selectedCO.CoRefersTo.length > 0 ? (
             <div>
-              <h3 className="text-lg font-semibold mb-2">Related Change Orders</h3>
-              <CoListTable selectedCO={selectedCO} />
+              <h3 className="text-lg font-semibold mb-2">
+                Related Change Orders
+              </h3>
+              <CoListTable selectedCO={selectedCO} fetchCO={refreshSelectedCO} />
             </div>
-          ):(
-            <SendCoTable data={selectedCO} />
+          ) : (
+            <SendCoTable data={selectedCO} fetchCO={fetchCO} />
           )}
         </div>
       </div>
