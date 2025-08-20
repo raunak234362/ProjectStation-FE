@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import CoDetail from "./details/CoDetail";
 import CoListTable from "./details/CoListTable";
 import SendCoTable from "./SendCoTable";
+import Button from "../fields/Button";
 
 const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
@@ -46,13 +47,19 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
             selectedCO={selectedCO}
             fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
           />
+          <div className="border-t pt-4">
+            <Button>Approve & Procceed</Button>
+          </div>
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (
             <div>
               <h3 className="text-lg font-semibold mb-2">
                 Related Change Orders
               </h3>
-              <CoListTable selectedCO={selectedCO} fetchCO={refreshSelectedCO} />
+              <CoListTable
+                selectedCO={selectedCO}
+                fetchCO={refreshSelectedCO}
+              />
             </div>
           ) : (
             <SendCoTable data={selectedCO} fetchCO={fetchCO} />

@@ -15,6 +15,7 @@ const CO = ({ projectData }) => {
     try {
       const response = await Service.getListOfAllCOByProjectId(projectID);
       setCoData(response.data);
+
       console.log("Fetched CO Data:", response.data);
     } catch (error) {
       console.error("Error fetching CO data:", error);
@@ -63,7 +64,14 @@ const CO = ({ projectData }) => {
           {activeTab === "allCO" && (
             // Adding key forces remount on data length change which ensures re-render
             <div key={coData.length}>
-              <ListOfCO coData={coData} fetchCO={fetchCO} />
+              <ListOfCO
+                coData={
+                  userType === "client"
+                    ? coData.filter((co) => co.isAproovedByAdmin === true)
+                    : coData
+                }
+                fetchCO={fetchCO}
+              />
             </div>
           )}
         </div>
