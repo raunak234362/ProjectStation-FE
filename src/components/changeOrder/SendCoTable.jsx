@@ -65,8 +65,8 @@ const SendCoTable = ({ data, fetchCO }) => {
     try {
       const response = await Service.addCOTable(rows, id);
       fetchCO();
-      console.log("Row added:", response);
       toast.success("CO created successfully");
+      console.log("Row added:", response);
       console.log("CO created successfully!");
     } catch (error) {
       toast.error("Error creating CO");

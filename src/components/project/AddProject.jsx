@@ -5,6 +5,7 @@ import { Input, CustomSelect, Button, Toggle } from "../index";
 import toast from "react-hot-toast";
 import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
+import Service from "../../config/Service";
 
 const AddProject = () => {
   const dispatch = useDispatch();
@@ -25,11 +26,13 @@ const AddProject = () => {
   const teams = useSelector((state) => state?.userData?.teamData);
 
   const managerOption = userData
-    ?.filter((user) => user.is_manager)
+    ?.filter((user) => user.is_manager && !user.is_disabled)
     ?.map((user) => ({
       label: `${user.f_name} ${user.l_name}`,
       value: user.id,
     }));
+
+    
 
   // Get selected fabricator id from form state
   const selectedFabricatorId = watch?.("fabricator");
@@ -46,6 +49,8 @@ const AddProject = () => {
     })) || [];
   const onSubmit = async (data) => {
     try {
+      const response = await Service.addProject(data);
+      console.log("Project Added:", response);
       toast.success("Project Added Successfully");
       reset();
     } catch (error) {

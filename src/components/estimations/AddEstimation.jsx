@@ -71,7 +71,7 @@ const AddEstimation = () => {
                 label: rfqData.subject,
                 value: rfqData.id,
               }))}
-              {...register("rfqId", { required: "RFQ is required" })}
+              {...register("rfqId")}
               onChange={setValue}
             />
             <ErrorMsg msg={errors.rfqId?.message} />

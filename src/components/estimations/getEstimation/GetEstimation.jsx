@@ -1,13 +1,32 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../fields/Button";
 import EstimationDetail from "./EstimationDetail";
 import AddEstimationTask from "./AddEstimationTask";
 import EstimationTaskList from "./EstimationTaskList";
+import Service from "../../../config/Service";
 
 const GetEstimation = ({ estimation, onClose }) => {
+  const [estimationTaskData, setEstimationTaskData] = useState(null);
+  const estimationTask = estimationTaskData 
+  console.log("Selected Estimation:", estimationTaskData);
+  const getEstimation = async () => {
+    try {
+      const data = await Service.getEstimationById(estimation.id);
+      setEstimationTaskData(data);
+    } catch (error) {
+      console.error("Error fetching estimation:", error);
+    }
+  };
+  useEffect(() => {
+    getEstimation();
+  }, [estimation]);
+
+  console.log("Estimation Detail-=-=-=-=-:", estimation);
+  console.log("Estimation Detail Data:", estimationTaskData);
+
   const [activeTab, setActiveTab] = useState("estimationDetail");
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -36,10 +55,15 @@ const GetEstimation = ({ estimation, onClose }) => {
             <Button onClick={onClose}>Close</Button>
           </div>
         </div>
-        {activeTab === "estimationDetail" && (<EstimationDetail estimationId={estimation.id} />)}
-        {activeTab === "addEstimationTask" && (<AddEstimationTask estimationId={estimation.id} />)}
-        {activeTab === "estimationTaskList" && (<EstimationTaskList estimationId={estimation.id} />)}
-
+        {activeTab === "estimationDetail" && (
+          <EstimationDetail estimationFetch={getEstimation} estimationId={estimation.id} />
+        )}
+        {activeTab === "addEstimationTask" && (
+          <AddEstimationTask estimationFetch={getEstimation} estimationId={estimation.id} />
+        )}
+        {activeTab === "estimationTaskList" && (
+          <EstimationTaskList estimationFetch={getEstimation} estimation={estimationTask} />
+        )}
       </div>
     </div>
   );

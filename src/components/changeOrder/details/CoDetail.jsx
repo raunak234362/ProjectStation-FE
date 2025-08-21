@@ -40,6 +40,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
         />
         <InfoItem label="Sent Date" value={selectedCO?.sentOn} />
         <InfoItem label="Status" value={selectedCO?.status} />
+        <InfoItem label="Approved" value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"} />
       </div>
       {editTab && (
         <EditCoDetail

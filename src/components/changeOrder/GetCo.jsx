@@ -5,10 +5,12 @@ import CoDetail from "./details/CoDetail";
 import CoListTable from "./details/CoListTable";
 import SendCoTable from "./SendCoTable";
 import Button from "../fields/Button";
+import Service from "../../config/Service";
+import toast from "react-hot-toast";
 
 const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
-
+  const userType = sessionStorage.getItem("userType");
   // When initialSelectedCO changes, sync state
   useEffect(() => {
     setSelectedCO(initialSelectedCO);
@@ -23,6 +25,18 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
       if (updatedCO) setSelectedCO(updatedCO);
     } catch (error) {
       console.error("Failed to refresh selected CO:", error);
+    }
+  };
+
+  const handleApprove = async () => {
+    try {
+      const response= await Service.updateCO(selectedCO.id, { isAproovedByAdmin: true });
+      console.log("CO approved:", response);
+      toast.success("CO approved & sent to Client successfully");
+      refreshSelectedCO();
+    } catch (error) {
+      toast.error("Error approving CO");
+      console.error("Error approving CO:", error);
     }
   };
 
@@ -47,9 +61,11 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
             selectedCO={selectedCO}
             fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
           />
-          <div className="border-t pt-4">
-            <Button>Approve & Procceed</Button>
-          </div>
+          {userType === "admin" && (
+            <div className="border-t pt-4">
+              <Button onClick={handleApprove}>Approve & Procceed</Button>
+            </div>
+          )}
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (
             <div>

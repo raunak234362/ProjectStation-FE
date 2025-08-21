@@ -1,9 +1,12 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useMemo, useState } from "react";
 import Service from "../../../config/Service";
 import { useTable, useSortBy } from "react-table";
 
-const EstimationTaskList = () => {
+const EstimationTaskList = ({estimation}) => {
+  const estimationTask = estimation.tasks ;
+  console.log("Estimation Tasks:", estimationTask);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEstimation, setSelectedEstimation] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -11,9 +14,8 @@ const EstimationTaskList = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "Estimation Number",
-        accessor: (row) => row.estimation?.estimationNumber || "",
-        id: "estimationNumber",
+        Header: "Estimation Notes",
+        accessor: "notes",
       },
       {
         Header: "Assigned To",
@@ -33,8 +35,14 @@ const EstimationTaskList = () => {
         id: "projectName",
       },
       {
+        Header: "Start Date",
+        accessor: "startDate",
+        id: "startDate",
+        Cell: ({ value }) => new Date(value).toLocaleDateString(),
+      },
+      {
         Header: "Estimate Date",
-        accessor: (row) => row.estimation?.estimateDate || "",
+        accessor: "endDate",
         id: "estimateDate",
         Cell: ({ value }) => new Date(value).toLocaleDateString(),
       },
@@ -51,24 +59,11 @@ const EstimationTaskList = () => {
     []
   );
 
-  const data = useMemo(() => tasks || [], [tasks]);
+  const data = useMemo(() => estimationTask || [], [estimationTask]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data }, useSortBy);
 
-  const fetchEstimationTasks = async () => {
-    try {
-      const response = await Service.allEstimationTasks();
-      console.log("Estimation Tasks:", response.data);
-      setTasks(response.data);
-    } catch (error) {
-      console.error("Error fetching estimation tasks:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchEstimationTasks();
-  }, []);
 
   const handleViewClick = (estID) => {
     setSelectedEstimation(estID);
