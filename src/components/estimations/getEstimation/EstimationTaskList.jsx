@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Service from "../../../config/Service";
 import { useTable, useSortBy } from "react-table";
+import EstimationTaskDetail from "./EstimationTaskDetail";
 
 const EstimationTaskList = ({estimation}) => {
   const estimationTask = estimation.tasks ;
@@ -48,11 +49,6 @@ const EstimationTaskList = ({estimation}) => {
       },
       {
         Header: "Tools",
-        accessor: (row) => row.estimation?.tools || "",
-        id: "tools",
-      },
-      {
-        Header: "Tools",
         accessor: "status",
       },
     ],
@@ -66,6 +62,7 @@ const EstimationTaskList = ({estimation}) => {
 
 
   const handleViewClick = (estID) => {
+    console.log("Viewing Estimation:", estID);
     setSelectedEstimation(estID);
     setIsModalOpen(true);
   };
@@ -145,6 +142,9 @@ const EstimationTaskList = ({estimation}) => {
           )}
         </tbody>
       </table>
+      {setSelectedEstimation && (
+       <EstimationTaskDetail/>
+      )}
     </div>
   );
 };
