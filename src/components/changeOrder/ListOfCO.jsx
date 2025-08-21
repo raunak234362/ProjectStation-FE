@@ -6,17 +6,20 @@ import GetCo from "./GetCo";
 
 const ListOfCO = ({ coData, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(null);
-  
+
   const data = useMemo(() => coData, [coData]);
 
   const columns = useMemo(
-    () => [{ Header: "CO No.", accessor: "changeOrder" },
-        { Header: "Subject", accessor: "remarks" },
-        { Header: "Description", accessor: "description" },
-        { Header: "Date", accessor: "sentOn",
-            Cell: ({ value }) => new Date(value).toLocaleString(),
-         },
-        { Header: "Status", accessor: "status" }
+    () => [
+      { Header: "CO No.", accessor: "changeOrder" },
+      { Header: "Subject", accessor: "remarks" },
+      { Header: "Description", accessor: "description" },
+      {
+        Header: "Date",
+        accessor: "sentOn",
+        Cell: ({ value }) => new Date(value).toLocaleString(),
+      },
+      { Header: "Status", accessor: "status" },
     ],
     [fetchCO]
   );
@@ -96,11 +99,13 @@ const ListOfCO = ({ coData, fetchCO }) => {
           )}
         </tbody>
       </table>
-      {
-        selectedCO && (
-         <GetCo initialSelectedCO={selectedCO} fetchCO={fetchCO} onClose={handleModalClose}/>
-        )
-      }
+      {selectedCO && (
+        <GetCo
+          initialSelectedCO={selectedCO}
+          fetchCO={fetchCO}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };

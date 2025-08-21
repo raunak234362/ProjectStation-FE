@@ -76,9 +76,7 @@ const AddProject = () => {
             label="Point of Contact"
             placeholder="Select Point of Contact"
             options={clientOptions}
-            {...register("clientId", {
-              required: "Point of Contact is required",
-            })}
+            {...register("clientId")}
             onChange={setValue}
           />
           <SectionTitle title="Project Information" />
