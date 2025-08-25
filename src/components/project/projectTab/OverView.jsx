@@ -169,7 +169,6 @@ const ProgressBar = ({ value, max, className = "" }) => {
 
 // Main Component
 const Overview = ({ projectData, projectTasks, userContributions, dateFilter, filterStage }) => {
-    console.log(projectData, "-=-=-=-=-=-=-")
     const [workBreakdownHours, setWorkBreakdownHours] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -181,9 +180,11 @@ const Overview = ({ projectData, projectTasks, userContributions, dateFilter, fi
             setError(null);
             try {
                 const hours = {};
-                for (const type of TASK_TYPES) {
-                    const data = await Service.fetchWorkBreakdownHours(type, projectData?.id, filterStage);
-                    hours[type] = data;
+                if (filterStage && filterStage !== "all") {
+                    for (const type of TASK_TYPES) {
+                        const data = await Service.fetchWorkBreakdownHours(type, projectData?.id, filterStage);
+                        hours[type] = data;
+                    }
                 }
                 setWorkBreakdownHours(hours);
             } catch (err) {
@@ -215,6 +216,7 @@ const Overview = ({ projectData, projectTasks, userContributions, dateFilter, fi
         return filterTasksByDate(tasks, dateFilter);
     }, [projectTasks, filterStage, dateFilter]);
 
+
     // Calculate hours by task type
     const taskTypes = useMemo(() => {
         const types = {};
@@ -236,7 +238,6 @@ const Overview = ({ projectData, projectTasks, userContributions, dateFilter, fi
         return types;
     }, [filteredTasks]);
 
-    // Calculate total hours
     const totalAssignedHours = projectData?.estimatedHours || 0;
     const totalTakenHours = Object.values(taskTypes).reduce((sum, type) => sum + type.taken, 0);
     const assignedHour = Object.values(taskTypes).reduce((sum, type) => sum + type.assigned, 0);

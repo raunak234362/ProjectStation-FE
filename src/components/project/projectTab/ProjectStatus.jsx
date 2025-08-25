@@ -65,14 +65,17 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const filteredTaskData = useMemo(() => {
     if (userType === "department-manager") {
       return taskData
-        .filter((task) => task.project_id === projectId)
-        .map((task) => ({
-          ...task,
+      .filter((task) => task?.id === projectId) // <-- actual condition
+      .flatMap((task) =>
+        (task.tasks || []).map((subTask) => ({
+          ...subTask,
           projectId,
-        }));
+        }))
+      );
     }
     return taskData;
   }, [taskData, userType, projectId]);
+  console.log(filteredTaskData);
 
   // Compute project tasks
   const projectTasks = useMemo(() => {
