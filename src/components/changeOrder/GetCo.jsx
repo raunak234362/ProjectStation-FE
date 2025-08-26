@@ -7,6 +7,7 @@ import SendCoTable from "./SendCoTable";
 import Button from "../fields/Button";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
+import ClientResponse from "./details/ClientResponse";
 
 const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
@@ -30,7 +31,9 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
 
   const handleApprove = async () => {
     try {
-      const response= await Service.updateCO(selectedCO.id, { isAproovedByAdmin: true });
+      const response = await Service.updateCO(selectedCO.id, {
+        isAproovedByAdmin: true,
+      });
       console.log("CO approved:", response);
       toast.success("CO approved & sent to Client successfully");
       refreshSelectedCO();
@@ -57,15 +60,26 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
           </button>
         </div>
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <CoDetail
-            selectedCO={selectedCO}
-            fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
-          />
-          {userType === "admin" && (
-            <div className="border-t pt-4">
-              <Button onClick={handleApprove}>Approve & Procceed</Button>
-            </div>
-          )}
+          <div
+            className={`grid gap-4 ${
+              userType === "client"
+                ? "grid-cols-1 md:grid-cols-2"
+                : "grid-cols-1"
+            }`}
+          >
+            <CoDetail
+              selectedCO={selectedCO}
+              fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
+            />
+            {userType === "admin" && (
+              <div className="border-t pt-4">
+                <Button onClick={handleApprove}>Approve & Procceed</Button>
+              </div>
+            )}
+            {userType === "client" && (
+              <ClientResponse coId={selectedCO.id} responseId={selectedCO.id} />
+            )}
+          </div>
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (
             <div>

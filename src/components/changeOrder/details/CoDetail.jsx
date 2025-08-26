@@ -12,6 +12,7 @@ const InfoItem = ({ label, value }) => (
 
 const CoDetail = ({ selectedCO, fetchCO }) => {
   const [editTab, setEditTab] = useState(false);
+  const userType = sessionStorage.getItem("userType");
 
   const handleEdit = useCallback(() => {
     setEditTab(true);
@@ -28,7 +29,9 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
         <h3 className="text-lg font-semibold text-white">
           Change Order Request Details
         </h3>
-        <Button onClick={handleEdit}>Edit</Button>
+        {userType !== "client" && (
+          <Button onClick={handleEdit}>Edit</Button>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-3">
         <InfoItem label="Subject" value={selectedCO?.remarks} />
@@ -42,7 +45,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
         <InfoItem label="Status" value={selectedCO?.status} />
         <InfoItem label="Approved" value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"} />
       </div>
-      {editTab && (
+      {userType !== "client" && editTab && (
         <EditCoDetail
           selectedCO={selectedCO}
           fetchCO={fetchCO}

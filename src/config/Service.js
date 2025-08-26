@@ -1050,6 +1050,30 @@ class Service {
     }
   }
 
+  //response of CO from client end-
+  static async respondCO(coId, responseData) {
+    const data = new FormData();
+
+
+    // Append other fields
+    data.append("status", responseData?.status);
+    data.append("description", responseData?.reason);
+
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.post(`/api/co/addResponse/${coId}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error responding to CO:", error);
+      throw error;
+    }
+  }
+
   //view in admin
   // static async allSentCO() {
   //   try {

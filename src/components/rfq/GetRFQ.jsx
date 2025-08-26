@@ -42,15 +42,9 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
       {
         Header: "Status",
         accessor: (row) => {
-          if (userType === "client") {
-            return row.status;
-          } else if (
-            userType === "admin" ||
-            userType === "project-manager" ||
-            userType === "department-manager"
-          ) {
-            return row.wbtStatus;
-          }
+          return userType === "client"
+            ? row.status
+            : row.wbtStatus || "N/A";
         },
         id: "status",
       },
