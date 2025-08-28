@@ -18,6 +18,8 @@ import ProjectView from "../pages/project/ProjectView.jsx";
 import HomeView from "../pages/homeView/HomeView.jsx";
 import RFQ from "../pages/rfq/RFQ.jsx";
 import EstimationView from "../pages/estimation/EstimationView.jsx";
+import CoListTable from "../components/changeOrder/details/CoListTable.jsx";
+import CoListTablePage from "../pages/coListTable/CoListTablePage.jsx";
 
 //For Sales-Admin
 // import {Dashboard as SalesDashboard} from './components/dashboard/staff/sales/dashboard/Dashboard.jsx'
@@ -75,6 +77,10 @@ const routes = [
       },
       
     ],
+  },
+  {
+    path:"/co-table",
+    element:<CoListTablePage />
   },
 
   { path: "*", element: <ErrorBoundary /> },

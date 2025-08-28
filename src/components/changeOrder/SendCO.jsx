@@ -26,16 +26,18 @@ const SendCO = ({ projectData, fetchCO }) => {
   const [files, setFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [click, setClick] = useState(false);
-  
+
   //projectDetails
   const project = projectData || {};
   const fabricatorID = project.fabricatorID;
   const projectID = project.id;
   console.log(projectData);
-  
+
   const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
-  const clientName = clientData?.find((client) => client.id === fabricatorID)?.name;
+  const clientName = clientData?.find(
+    (client) => client.id === fabricatorID
+  )?.name;
   console.log("Client Name:", clientName);
 
   const filteredClients = clientData?.filter(
@@ -51,7 +53,7 @@ const SendCO = ({ projectData, fetchCO }) => {
     setFiles(updatedFiles);
   };
   const [dataCO, setDataCO] = useState();
-  console.log(dataCO)
+  console.log(dataCO);
   // Step 1 form  submission handler
   const onSubmit = async (data) => {
     console.log(data);
@@ -170,6 +172,18 @@ const SendCO = ({ projectData, fetchCO }) => {
                   />
                 </div>
               </div>
+              <div className="px-2 py-2 font-bold text-white rounded-lg bg-teal-500/50">
+                Attach Files:
+              </div>
+              <div className="px-1 my-2 md:px-2">
+                <MultipleFileUpload
+                  label="Select Files"
+                  onFilesChange={onFilesChange}
+                  files={files}
+                  accept="image/*,application/pdf,.doc,.docx"
+                  {...register("files")}
+                />
+              </div>
 
               <div className="mt-6">
                 <Button
@@ -181,9 +195,7 @@ const SendCO = ({ projectData, fetchCO }) => {
               </div>
             </form>
             {/* {isModalOpen && <SendCoTable data={dataCO.id} onClose={handleModalClose} />} */}
-            {click && save && (
-              <SendCoTable data={dataCO} />
-            )}
+            {click && save && <SendCoTable data={dataCO} />}
           </div>
         </div>
       </div>

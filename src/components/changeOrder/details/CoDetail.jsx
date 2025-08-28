@@ -2,6 +2,7 @@
 import { useCallback, useState } from "react";
 import Button from "../../fields/Button";
 import EditCoDetail from "./EditCoDetail";
+import { openCoListTableInNewTab } from "../../../util/coTableUtils";
 
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col">
@@ -29,9 +30,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
         <h3 className="text-lg font-semibold text-white">
           Change Order Request Details
         </h3>
-        {userType !== "client" && (
-          <Button onClick={handleEdit}>Edit</Button>
-        )}
+        {userType !== "client" && <Button onClick={handleEdit}>Edit</Button>}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-3">
         <InfoItem label="Subject" value={selectedCO?.remarks} />
@@ -43,8 +42,43 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
         />
         <InfoItem label="Sent Date" value={selectedCO?.sentOn} />
         <InfoItem label="Status" value={selectedCO?.status} />
-        <InfoItem label="Approved" value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"} />
+        <InfoItem
+          label="Approved"
+          value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"}
+        />
+        <div className="flex justify-between">
+          <span className="font-medium text-sm text-gray-700">Files:</span>
+          <div className="flex flex-wrap justify-end gap-2 max-w-[60%]">
+            {selectedCO?.files?.length ? (
+              selectedCO.files.map((file) => (
+                <ul key={file.id}>
+                  <a
+                    href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
+                      selectedCO.id
+                    }/${file.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 underline hover:text-blue-800"
+                  >
+                    {file.originalName || "Unnamed File"}
+                  </a>
+                </ul>
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm">No files attached</span>
+            )}
+          </div>
+        </div>
+        <div>
+          <button
+            onClick={() => openCoListTableInNewTab(selectedCO)}
+            className="text-teal-500 hover:underline text-lg"
+          >
+            Click to view Change Order Reference List
+          </button>
+        </div>
       </div>
+
       {userType !== "client" && editTab && (
         <EditCoDetail
           selectedCO={selectedCO}

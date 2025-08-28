@@ -2,12 +2,14 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import CoDetail from "./details/CoDetail";
-import CoListTable from "./details/CoListTable";
-import SendCoTable from "./SendCoTable";
+// import CoListTable from "./details/CoListTable";
+// import SendCoTable from "./SendCoTable";
+// import { openCoListTableInNewTab } from "../../util/coTableUtils";
 import Button from "../fields/Button";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
 import ClientResponse from "./details/ClientResponse";
+import ResponseCard from "./details/ResponseCard";
 
 const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
@@ -16,6 +18,8 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   useEffect(() => {
     setSelectedCO(initialSelectedCO);
   }, [initialSelectedCO]);
+
+  console.log(selectedCO);
 
   // Function to refresh selectedCO from backend after editing
   const refreshSelectedCO = async () => {
@@ -69,9 +73,9 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
           >
             <CoDetail
               selectedCO={selectedCO}
-              fetchCO={refreshSelectedCO} // Pass refresh to CoDetail
+              fetchCO={refreshSelectedCO} // Paimport React from 'react'ss refresh to CoDetail
             />
-            {userType === "admin" && (
+            {userType === "admin" && !selectedCO?.isAproovedByAdmin && (
               <div className="border-t pt-4">
                 <Button onClick={handleApprove}>Approve & Procceed</Button>
               </div>
@@ -82,17 +86,32 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
           </div>
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (
+            // <div>
+            //   <div className="flex justify-between items-center mb-2">
+            //     <h3 className="text-lg font-semibold">
+            //       Related Change Orders
+            //     </h3>
+            //     <Button
+            //       onClick={() => openCoListTableInNewTab(selectedCO)}
+            //       className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 flex items-center gap-2"
+            //     >
+            //       <span>🔗</span>
+            //       Open in New Tab
+            //     </Button>
+            //   </div>
+            //   <CoListTable
+            //     selectedCO={selectedCO}
+            //     fetchCO={refreshSelectedCO}
+            //   />
+            // </div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">
-                Related Change Orders
-              </h3>
-              <CoListTable
-                selectedCO={selectedCO}
-                fetchCO={refreshSelectedCO}
-              />
+              <ResponseCard co={selectedCO} />
             </div>
           ) : (
-            <SendCoTable data={selectedCO} fetchCO={fetchCO} />
+            // <SendCoTable data={selectedCO} fetchCO={fetchCO} />
+            <span className="text-gray-400 text-sm">
+              No related Change Order Reference List available
+            </span>
           )}
         </div>
       </div>

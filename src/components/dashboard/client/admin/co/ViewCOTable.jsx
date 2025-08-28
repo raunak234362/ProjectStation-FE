@@ -10,6 +10,7 @@ import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import {useForm} from "react-hook-form"
 import {toast} from 'react-toastify'
+import { openCoListTableInNewTab } from '../../../../../util/coTableUtils'
 
 function Table({ columns, data }) {
     const { getTableProps,
@@ -275,9 +276,27 @@ const ViewCOTable = ({ onClose, COdata, coId }) => {
                 <h1>Display Table CO</h1>
                 <div>{COdata?.date}</div>
               </div>
-              <Button className="h-10 hover:bg-red-600" onClick={onClose}>
-                Close
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button 
+                  className="h-10 bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1"
+                  onClick={() => {
+                    // Create a CO object with the table data for the new tab
+                    const coDataForNewTab = {
+                      id: coId,
+                      remarks: "Display Table CO",
+                      changeOrder: COdata?.changeOrder || 'N/A',
+                      date: COdata?.date,
+                      CoRefersTo: coTable
+                    };
+                    openCoListTableInNewTab(coDataForNewTab);
+                  }}
+                >
+                  🔗 Open in New Tab
+                </Button>
+                <Button className="h-10 hover:bg-red-600" onClick={onClose}>
+                  Close
+                </Button>
+              </div>
             </div>
             <div className="p-1 m-2 border border-b-teal-500"></div>
             <div>

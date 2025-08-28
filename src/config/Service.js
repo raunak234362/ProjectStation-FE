@@ -966,7 +966,7 @@ class Service {
     }
   }
 
-  static async getListOfAllCOByProjectId(projectID){
+  static async getListOfAllCOByProjectId(projectID) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.get(`/api/co/${projectID}`, {
@@ -1020,12 +1020,16 @@ class Service {
   static async updateCOTable(coId, formData) {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.put(`api/co/changeordertable/${coId}`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await api.put(
+        `api/co/changeordertable/${coId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating CO Table:", error);
@@ -1052,21 +1056,18 @@ class Service {
 
   //response of CO from client end-
   static async respondCO(coId, responseData) {
-    const data = new FormData();
-
-
-    // Append other fields
-    data.append("status", responseData?.status);
-    data.append("description", responseData?.reason);
-
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.post(`/api/co/addResponse/${coId}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await api.post(
+        `/api/co/addResponse/${coId}`,
+        responseData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.log("Error responding to CO:", error);
@@ -1187,9 +1188,8 @@ class Service {
     }
   }
 
-// respond RFI
- static async respondRfi(rfiId, responseData) {
- 
+  // respond RFI
+  static async respondRfi(rfiId, responseData) {
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(
@@ -1276,8 +1276,8 @@ class Service {
   }
 
   //Response of response of RFI
-    static async respondWBTRfi(rfiID, responseData) {
-      console.log("Response Data:", responseData);
+  static async respondWBTRfi(rfiID, responseData) {
+    console.log("Response Data:", responseData);
     const data = new FormData();
     // Append files
     for (let i = 0; i < responseData?.files?.length; i++) {
@@ -1290,12 +1290,16 @@ class Service {
 
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.post(`/api/RFI/rfi/addresponse/${rfiID}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await api.post(
+        `/api/RFI/rfi/addresponse/${rfiID}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error uploading files:", error);

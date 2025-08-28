@@ -24,13 +24,19 @@ const ClientResponse = ({ coId, responseId }) => {
 
   const onSubmitWithFiles = async (data) => {
     console.log("Form data:", files);
-    const responseData = {
-      ...data,
-      parentResponseId: responseId,
-    };
-    console.log("RFI Response Data:", responseData);
+    const formData = new FormData();
+    formData.append("status", data.status);
+    formData.append("description", data.reason);
+    // formData.append("parentResponseId", responseId);
+    files.forEach((file) => formData.append("files", file));
+    // const responseData = {
+    //   ...data,
+    //   files: formData,
+    //   parentResponseId: responseId,
+    // };
+    console.log("RFI Response Data:", formData);
     try {
-      await Service.respondCO(coId, responseData);
+      await Service.respondCO(coId, formData);
       toast.success("RFQ response submitted successfully");
     } catch (err) {
       console.error("RFQ submission error:", err);
@@ -42,7 +48,9 @@ const ClientResponse = ({ coId, responseId }) => {
     <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
       <Toaster />
       <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
-        <div className="text-lg font-semibold text-white">Response To Change Order</div>
+        <div className="text-lg font-semibold text-white">
+          Response To Change Order
+        </div>
       </div>
       <form onSubmit={handleSubmit(onSubmitWithFiles)} className="w-full">
         <div>
@@ -62,16 +70,13 @@ const ClientResponse = ({ coId, responseId }) => {
               {...register("status", { required: true })}
               onChange={setValue}
             />
-            {/* <label className="block mt-2 text-sm font-medium text-gray-700"></label>
+            <label className="block mt-2 text-sm font-medium text-gray-700"></label>
             <MultipleFileUpload
               label="Select Files"
               onFilesChange={onFilesChange}
               files={files}
               accept="image/*,application/pdf,.pdf,.pptx,.txt,.doc,.docx,.webp,.csv,.xlsx,.xls"
             />
-            {errors.files && (
-              <div className="text-red-500">This field is required</div>
-            )} */}
             <label className="block mt-2 text-sm font-medium text-gray-700">
               Description
             </label>
