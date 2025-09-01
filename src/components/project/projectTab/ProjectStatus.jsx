@@ -10,6 +10,7 @@ import TimeLine from "./TimelineTab";
 import { RFI, Submittals } from "../../index";
 import Service from "../../../config/Service";
 import CO from "../../changeOrder/CO";
+import Notes from "../../notes/Notes";
 
 const ProjectStatus = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("projectDetail");
@@ -75,7 +76,6 @@ const ProjectStatus = ({ projectId, onClose }) => {
     }
     return taskData;
   }, [taskData, userType, projectId]);
-  console.log(filteredTaskData);
 
   // Compute project tasks
   const projectTasks = useMemo(() => {
@@ -489,6 +489,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                   { key: "RFI", label: "RFI" },
                   { key: "Submittals", label: "Submittals" },
                   { key: "CO", label: "CO#" },
+                  { key: "Notes", label: "Notes" },
                 ].map(({ key, label }) => (
                   <button
                     key={key}
@@ -552,6 +553,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
               <Submittals projectData={projectData} />
             )}
             {activeTab === "CO" && <CO projectData={projectData} />}
+            {activeTab === "Notes" && <Notes projectData={projectData} projectId={projectId}/>}
           </>
         )}
       </div>

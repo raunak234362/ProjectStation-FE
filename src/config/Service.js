@@ -1063,7 +1063,7 @@ class Service {
         responseData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorizatiwwwwwwwwwon: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -1857,6 +1857,44 @@ class Service {
       return response.data;
     } catch (error) {
       console.log("Error in exporting CSV: ", error);
+      throw error;
+    }
+  }
+
+  //Notes
+  static async addNotes(noteData, projectID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(
+        `/api/Note/addNote/${projectID}`,
+        noteData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in adding Notes: ", error);
+      throw error;
+    }
+  }
+
+  //list of notes by project ID
+  static async getNotesByProjectId(projectID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Note/notes/${projectID}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in getting Notes: ", error);
       throw error;
     }
   }
