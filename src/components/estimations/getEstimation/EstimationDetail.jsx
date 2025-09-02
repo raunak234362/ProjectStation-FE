@@ -32,6 +32,7 @@ const EstimationDetail = ({ estimationId }) => {
     tools,
     status,
     estimateDate,
+    description,
     finalHours,
     finalPrice,
     finalWeeks,
@@ -75,7 +76,14 @@ const EstimationDetail = ({ estimationId }) => {
             <strong>Final Weeks:</strong> {finalWeeks}
           </div>
         )}
-      </div>
+      </div >
+        <div className="flex">
+          <strong>Estimation Detail:</strong>{" "}
+          <div
+            className="w-full  whitespace-normal text-right sm:text-left"
+            dangerouslySetInnerHTML={{ __html: description || "N/A" }}
+          />
+        </div>
 
       <div className="mt-4">
         <h3 className="font-semibold text-lg mb-2">Fabricator</h3>

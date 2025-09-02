@@ -1,5 +1,10 @@
+import { useEffect, useState } from "react";
+import Service from "../../config/Service";
+
 const Estimations = () => {
-  // Sample data for demonstration
+
+  const [estimationData, setEstimationData] = useState(null);
+
   const dashboardData = {
     pendingRFQs: 12,
     estimatedRFQs: 45,
@@ -16,7 +21,20 @@ const Estimations = () => {
     totalEstimatedTime: "120 hours",
   };
 
+  const fetchEstimation = async()=>{
+    try {
+      const response = await Service.allEstimations();
+      setEstimationData(response);
+      // Process and update the dashboardData with the fetched data
+    } catch (error) {
+      console.error("Error fetching estimation data:", error);
+    }
+  }
   
+  console.log("Fetched Estimation Data:", estimationData);
+  useEffect(() => {
+    fetchEstimation();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-6 ">

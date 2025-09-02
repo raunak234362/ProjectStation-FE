@@ -612,6 +612,19 @@ class Service {
 
   //Add Estimations
   static async addEstimation(estData) {
+    console.log("-=-=-=-=-",estData)
+      const data = new FormData();
+      for (let i = 0; i < estData.files.length; i++) {
+        data.append("files", estData.files[i]);
+      }
+      // data.append("files", estData.files);
+      data.append("rfqId", estData.rfqId);
+      data.append("description", estData.description);
+      data.append("projectName", estData.projectName);
+      data.append("fabricatorId", estData.fabricatorId);
+      data.append("estimateDate", estData.estimateDate);
+      data.append("tools", estData.tools);
+
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
@@ -619,7 +632,7 @@ class Service {
         estData,
         {
           headers: {
-            "Content-Type": "Application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -1376,6 +1389,7 @@ class Service {
   //Add RFQ
 
   static async addRFQ(RFQData) {
+    console.log(RFQData)
     const data = new FormData();
 
     // Append files
@@ -1387,16 +1401,18 @@ class Service {
     // Append other fields
 
     data.append("projectName", RFQData?.projectName);
+    data.append("projectNumber", RFQData?.projectNumber);
     data.append("recepient_id", RFQData?.recipient_id);
     data.append("subject", RFQData?.subject);
     data.append("description", RFQData?.description);
     data.append("salesPersonId", RFQData?.salesPersonId);
+    data.append("estimationDate", RFQData?.estimationDate);
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(`/api/RFQ/rfq/addrfq`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/form-data",
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;

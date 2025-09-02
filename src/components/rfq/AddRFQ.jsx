@@ -13,11 +13,10 @@ import Service from "../../config/Service";
 import toast, { Toaster } from "react-hot-toast";
 import { showStaff } from "../../store/userSlice";
 import SectionTitle from "../../util/SectionTitle";
+import JoditEditor from "jodit-react";
 
 const AddRFQ = () => {
-  const dispatch = useDispatch();
-  const [files, setFiles] = useState([]);
-
+  // Use form hook initialization
   const {
     control,
     register,
@@ -25,7 +24,36 @@ const AddRFQ = () => {
     setValue,
     watch,
     formState: { errors },
+    clearErrors,
   } = useForm();
+
+  // Dispatch variable for redux
+  const dispatch = useDispatch();
+
+  // managing the states
+  const [joditContent, setJoditContent] = useState(""); // Local state for JoditEditor
+  const [files, setFiles] = useState([]);
+  // Text editor
+  const joditConfig = {
+    height: 100,
+    width: "100%",
+    placeholder: "Enter notes with rich formatting...",
+    enter: "p", // Use paragraph as default block element
+    processPasteHTML: true,
+    askBeforePasteHTML: false,
+    defaultActionOnPaste: "custom",
+    link: {
+      processPastedLink: true,
+      openInNewTabCheckbox: true,
+      noFollowCheckbox: true,
+    },
+    defaultValue: "", // Start with empty content
+    removeEmptyBlocks: true, // Prevent empty <p><br></p>
+    cleanHTML: {
+      removeEmptyElements: true, // Additional cleanup for empty elements
+    },
+  };
+
   // Fetch staff data only once and store in Redux
   useEffect(() => {
     const fetchStaff = async () => {
@@ -48,18 +76,38 @@ const AddRFQ = () => {
       value: rec.id,
     }));
 
+  const tools = watch("tools");
+  const otherTool = watch("otherTool");
+
+  // Effect to clear "otherTool" if tools is NOT "OTHER"
+  useEffect(() => {
+    if (tools !== "OTHER" && otherTool) {
+      setValue("otherTool", "");
+      clearErrors("otherTool");
+    }
+  }, [tools, otherTool, setValue, clearErrors]);
+
+  // Effect to enforce "otherTool" required validation only when "OTHER" is chosen
+  useEffect(() => {
+    if (tools === "OTHER" && (!otherTool || otherTool.trim() === "")) {
+      setValue("otherTool", "", { shouldValidate: true });
+    }
+  }, [tools, otherTool, setValue]);
+
   const onFilesChange = (updatedFiles) => {
     setFiles(updatedFiles);
   };
   console.log(recipientOptions);
 
   const CreateRFQ = async (data) => {
+    console.log("Form Data:", JSON.stringify(data, null, 2));
     const RFQData = {
       ...data,
       files,
       recipient_id: data.recipients,
       salesPersonId: data.recipients,
       status: "RECEIVED",
+      estimationDate: data.estimationDate ? new Date().toISOString() : null,
     };
 
     try {
@@ -88,6 +136,18 @@ const AddRFQ = () => {
                 {...register("projectName", {
                   required: "Project name is required",
                 })}
+              />
+              {errors.projectName && (
+                <div className="text-red-600">{errors.projectName.message}</div>
+              )}
+            </div>
+            <div className="w-full mt-3">
+              <Input
+                label="Project Order No.:"
+                placeholder="Project Order No.:"
+                size="lg"
+                color="blue"
+                {...register("projectNumber")}
               />
               {errors.projectName && (
                 <div className="text-red-600">{errors.projectName.message}</div>
@@ -122,22 +182,66 @@ const AddRFQ = () => {
               />
             </div>
             <div className="w-full my-3">
+              <JoditEditor
+                value={joditContent}
+                config={joditConfig}
+                onBlur={(newContent) => {
+                  setJoditContent(newContent);
+                  setValue("description", newContent, { shouldValidate: true });
+                }}
+                className="w-full border border-gray-300 rounded-md"
+              />
+            </div>
+            {tools === "OTHER" ? (
+              <div className="w-full my-3">
+                <Input
+                  label="Other Tool:"
+                  placeholder="Other Tools"
+                  size="lg"
+                  color="blue"
+                  {...register("otherTool", {
+                    required:
+                      tools === "OTHER" ? "Please specify the tool" : false,
+                    validate: (value) =>
+                      tools !== "OTHER" ||
+                      (value && value.trim() !== "") ||
+                      "Please specify the tool",
+                  })}
+                />
+                {errors.otherTool && (
+                  <div className="text-red-600">{errors.otherTool.message}</div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full my-3">
+                <CustomSelect
+                  label="Tools"
+                  options={["TEKLA", "SDS2", "PEMB", "OTHER"].map((tool) => ({
+                    label: tool,
+                    value: tool,
+                  }))}
+                  {...register("tools")}
+                  onChange={setValue}
+                />
+                {errors.tools && (
+                  <div className="text-red-600">{errors.tools.message}</div>
+                )}
+              </div>
+            )}
+            <div className="w-full my-3">
               <Input
-                type="textarea"
-                label="Description:"
-                placeholder="Description"
-                size="lg"
-                color="blue"
-                {...register("description")}
+                label="Due Date"
+                type="date"
+                {...register("estimationDate", { required: true })}
               />
             </div>
           </div>
-            <SectionTitle title="Scope of Work" />
-            <div className="grid md:grid-cols-3 gap-4 mt-4">
-              <Toggle label="Main Design" {...register("connectionDesign")} />
-              <Toggle label="Misc Design" {...register("miscDesign")} />
-              <Toggle label="Customer Design" {...register("customer")} />
-            </div>
+          <SectionTitle title="Scope of Work" />
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <Toggle label="Main Design" {...register("connectionDesign")} />
+            <Toggle label="Misc Design" {...register("miscDesign")} />
+            <Toggle label="Customer Design" {...register("customer")} />
+          </div>
 
           {/* File Upload */}
           <SectionTitle title="Attach File" />
