@@ -71,6 +71,7 @@ const AddEstimation = () => {
     }
   }, [rfqData, setValue]);
 
+  //fetching RFQ
   useEffect(() => {
     const fetchInboxRFQ = async () => {
       try {
@@ -89,11 +90,16 @@ const AddEstimation = () => {
   }, [userType]);
 
   const onSubmit = async (data) => {
-    
+    const formData = new FormData();
+    files?.map((file) => {
+      formData.append("files", file);
+      console.log("File:", formData?.append);
+    });
+
     const estData = {
       ...data,
       files,
-      rfqId: rfqData?.id,
+      rfqId: rfqData?.id || "",
       estimateDate: data.estimateDate
         ? new Date(data.estimateDate).toISOString()
         : null,

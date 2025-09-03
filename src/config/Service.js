@@ -612,7 +612,6 @@ class Service {
 
   //Add Estimations
   static async addEstimation(estData) {
-    console.log("-=-=-=-=-",estData)
       const data = new FormData();
       for (let i = 0; i < estData.files.length; i++) {
         data.append("files", estData.files[i]);
@@ -623,13 +622,14 @@ class Service {
       data.append("projectName", estData.projectName);
       data.append("fabricatorId", estData.fabricatorId);
       data.append("estimateDate", estData.estimateDate);
+      data.append("estimationNumber", estData.estimationNumber);
       data.append("tools", estData.tools);
 
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
         `/api/Estimation/addEstimation`,
-        estData,
+        data,
         {
           headers: {
             "Content-Type": "multipart/form-data",

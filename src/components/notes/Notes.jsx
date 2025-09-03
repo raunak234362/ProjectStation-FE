@@ -20,7 +20,7 @@ const Notes = ({ projectId, toggleForm }) => {
       stage: "",
     },
   });
-const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [joditContent, setJoditContent] = useState(""); // Local state for JoditEditor
 
   const joditConfig = {
@@ -52,18 +52,18 @@ const [notes, setNotes] = useState([]);
 
   const fetchNotes = async () => {
     const response = await Service.getNotesByProjectId(projectId);
-    console.log("Fetched Notes:", response);
+    console.log("Fetched Notes:", response.data);
     setNotes(response.data);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchNotes();
-  },[])
+  }, []);
 
   return (
     <div>
       <div className="max-w-full mx-auto p-6 bg-white rounded-md shadow-md">
-        <div className="flex flex-row justify-around items-center mb-4 gap-5">
+        <div className="flex flex-row justify-around items-start mb-4 gap-5">
           <div className="bg-white w-full h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="mb-4">
@@ -94,7 +94,7 @@ const [notes, setNotes] = useState([]);
                   Stage:
                 </label>
                 <select
-                  {...register("stage", { required: "Stage is required" })}
+                  {...register("stage")}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select Stage</option>
@@ -132,19 +132,28 @@ const [notes, setNotes] = useState([]);
               </div>
             </form>
           </div>
-          <div className="bg-white w-full h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">Notes:
+          <div className="bg-white w-full h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">
+           <span className="font-bold text-gray-700">Notes:</span>
             <div>
-              {notes.length === 0 ? (
+              {notes?.length === 0 ? (
                 <p>No notes available for this project.</p>
               ) : (
-                <ul>
-                  {notes?.map((note) => (
-                    <li key={note.id} className="border-b py-2">
-                      <h3 className="font-semibold">{note.title}</h3>
-                      <p>{note.content}</p>
-                    </li>
+                <div className="space-y-6 max-h-[400px] overflow-y-auto">
+                  {notes.map((note) => (
+                    <div key={note.id} className="border-b bg-gray-50 p-3 rounded-lg shadow-md pb-3">
+                      <div className="text-sm font-semibold text-gray-700 mb-1">
+                        Stage: {note.stage}
+                      </div>
+                      <div
+                        className="prose max-w-none"
+                        dangerouslySetInnerHTML={{ __html: note.content }}
+                      />
+                      <div className="text-xs text-gray-800 mt-1">
+                        Created: {new Date(note.createdAt).toLocaleString()}
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
