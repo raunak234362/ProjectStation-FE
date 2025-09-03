@@ -35,7 +35,14 @@ const Notes = ({ projectId, toggleForm }) => {
     },
   };
 
-  const onSubmit = async (data) => {
+ 
+  const fetchNotes = async () => {
+    const response = await Service.getNotesByProjectId(projectId);
+    console.log("Fetched Notes:", response.data);
+    setNotes(response.data);
+  };
+
+ const onSubmit = async (data) => {
     try {
       console.log("Form Data:", JSON.stringify(data, null, 2));
       const response = await Service.addNotes(data, projectId);
@@ -43,6 +50,7 @@ const Notes = ({ projectId, toggleForm }) => {
       setJoditContent(""); // Reset JoditEditor
       setValue("content", ""); // Reset form field
       setValue("stage", ""); // Reset form field
+      fetchNotes();
       toggleForm(); // Close form
     } catch (error) {
       console.error("Error adding notes:", error);
@@ -50,11 +58,6 @@ const Notes = ({ projectId, toggleForm }) => {
     }
   };
 
-  const fetchNotes = async () => {
-    const response = await Service.getNotesByProjectId(projectId);
-    console.log("Fetched Notes:", response.data);
-    setNotes(response.data);
-  };
 
   useEffect(() => {
     fetchNotes();
@@ -94,7 +97,7 @@ const Notes = ({ projectId, toggleForm }) => {
                   Stage:
                 </label>
                 <select
-                  {...register("stage")}
+                  {...register("stage", {required: "Stage is required" })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select Stage</option>
