@@ -97,7 +97,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white h-[93%] md:p-5 rounded-lg shadow-lg w-full md:w-6/12 ">
+      <div className="bg-white h-[93%] overflow-y-auto md:p-5 rounded-lg shadow-lg w-full md:w-6/12 ">
         <div className="flex justify-between my-5 bg-teal-200/50 p-2 rounded-lg">
           <h2 className="text-2xl font-bold">Edit Project</h2>
           <button

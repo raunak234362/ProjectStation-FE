@@ -29,7 +29,14 @@ const AddRFQ = () => {
 
   // Dispatch variable for redux
   const dispatch = useDispatch();
-
+  const fabricatorData = useSelector(
+    (state) => state.fabricatorData?.fabricatorData
+  );
+  const ClientData = useSelector((state) => state.fabricatorData?.clientData);
+  const userData = useSelector((state) => state.userData?.staffData);
+  console.log("fabricator ID:" , userData.fabricatorId);
+  const userType = sessionStorage.getItem("userType");
+  console.log("Client Data:", ClientData);
   // managing the states
   const [joditContent, setJoditContent] = useState(""); // Local state for JoditEditor
   const [files, setFiles] = useState([]);
@@ -100,15 +107,17 @@ const AddRFQ = () => {
   console.log(recipientOptions);
 
   const CreateRFQ = async (data) => {
-    console.log("Form Data:", JSON.stringify(data, null, 2));
     const RFQData = {
       ...data,
       files,
+      fabricatorId: data.fabricatorId || userData.fabricatorId,
       recipient_id: data.recipients,
       salesPersonId: data.recipients,
       status: "RECEIVED",
+      sender_id: data.sender_id,
       estimationDate: data.estimationDate ? new Date().toISOString() : null,
     };
+    console.log("Form Data:", RFQData);
 
     try {
       const response = await Service.addRFQ(RFQData);
@@ -127,6 +136,53 @@ const AddRFQ = () => {
           {/* Project Info */}
           <SectionTitle title="Project Information" />
           <div className="px-1 my-2 md:px-2">
+            {userType === "client" ? null : (
+              <div>
+                <CustomSelect
+                  label="Fabricator"
+                  placeholder="Select Fabricator"
+                  options={fabricatorData?.map((fab) => ({
+                    label: fab.fabName,
+                    value: fab.id,
+                  }))}
+                  {...register("fabricatorId")}
+                  onChange={setValue}
+                />
+
+                <div className="w-full my-3">
+                  <CustomSelect
+                    label="Select Fabricator Point of Contact:"
+                    placeholder="Select Fabricator Point of Contact:"
+                    options={ClientData?.map((fab) => ({
+                      label: `${fab.f_name} ${fab.m_name || ""} ${fab.l_name}`,
+                      value: fab.id,
+                    }))}
+                    {...register("sender_id")}
+                    onChange={setValue}
+                  />
+
+                  {errors.recipients && (
+                    <div className="text-red-600">
+                      {errors.recipients.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            <div className="w-full my-3">
+              <CustomSelect
+                label="Select WBT Point of Contact:"
+                placeholder="Select WBT Point of Contact:"
+                options={recipientOptions}
+                {...register("recipients", { required: true })}
+                onChange={setValue}
+              />
+
+              {errors.recipients && (
+                <div className="text-red-600">{errors.recipients.message}</div>
+              )}
+            </div>
+
             <div className="w-full mt-3">
               <Input
                 label="Project Name:"
@@ -151,20 +207,6 @@ const AddRFQ = () => {
               />
               {errors.projectName && (
                 <div className="text-red-600">{errors.projectName.message}</div>
-              )}
-            </div>
-
-            <div className="w-full my-3">
-              <CustomSelect
-                label="Select Point of Contact:"
-                placeholder="Select Recipients"
-                options={recipientOptions}
-                {...register("recipients", { required: true })}
-                onChange={setValue}
-              />
-
-              {errors.recipients && (
-                <div className="text-red-600">{errors.recipients.message}</div>
               )}
             </div>
           </div>
@@ -192,31 +234,11 @@ const AddRFQ = () => {
                 className="w-full border border-gray-300 rounded-md"
               />
             </div>
-            {tools === "OTHER" ? (
-              <div className="w-full my-3">
-                <Input
-                  label="Other Tool:"
-                  placeholder="Other Tools"
-                  size="lg"
-                  color="blue"
-                  {...register("otherTool", {
-                    required:
-                      tools === "OTHER" ? "Please specify the tool" : false,
-                    validate: (value) =>
-                      tools !== "OTHER" ||
-                      (value && value.trim() !== "") ||
-                      "Please specify the tool",
-                  })}
-                />
-                {errors.otherTool && (
-                  <div className="text-red-600">{errors.otherTool.message}</div>
-                )}
-              </div>
-            ) : (
+            
               <div className="w-full my-3">
                 <CustomSelect
                   label="Tools"
-                  options={["TEKLA", "SDS2", "PEMB", "OTHER"].map((tool) => ({
+                  options={["TEKLA", "SDS2", "BOTH", "NO_PREFERENCE"].map((tool) => ({
                     label: tool,
                     value: tool,
                   }))}
@@ -227,7 +249,13 @@ const AddRFQ = () => {
                   <div className="text-red-600">{errors.tools.message}</div>
                 )}
               </div>
-            )}
+            <div className="w-full my-3">
+              <Input
+                label="BID Amount (in USD):"
+                type="float"
+                {...register("bidPrice")}
+              />
+            </div>
             <div className="w-full my-3">
               <Input
                 label="Due Date"
@@ -236,11 +264,16 @@ const AddRFQ = () => {
               />
             </div>
           </div>
-          <SectionTitle title="Scope of Work" />
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
+          <SectionTitle title="Connection Design Scope" />
+          <div className="grid md:grid-cols-3 gap-4 mx-3 mt-4">
             <Toggle label="Main Design" {...register("connectionDesign")} />
             <Toggle label="Misc Design" {...register("miscDesign")} />
-            <Toggle label="Customer Design" {...register("customer")} />
+            <Toggle label="Custom Design" {...register("customer")} />
+          </div>
+          <SectionTitle title="Detailing Scope" />
+          <div className="grid md:grid-cols-3 gap-4 mt-4  mx-3">
+            <Toggle label="Main Steel" {...register("detailingMain")} />
+            <Toggle label="Miscellaneous Steel" {...register("detailingMisc")} />
           </div>
 
           {/* File Upload */}

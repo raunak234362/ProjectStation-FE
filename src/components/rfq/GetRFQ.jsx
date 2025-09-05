@@ -42,9 +42,10 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
       {
         Header: "Status",
         accessor: (row) => {
-          return userType === "client"
-            ? row.status
-            : row.wbtStatus || "N/A";
+          let status = userType === "client" ? row.status : row.wbtStatus;
+          if (status === "RE_APPROVAL") return "Revised";
+          if (status === "CLOSE") return "Rejected";
+          return status || "N/A";
         },
         id: "status",
       },
@@ -95,12 +96,16 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
           className={`mb-8 gap-4 ${
             userType === "client"
               ? "flex flex-col w-full"
-              : "flex flex-row justify-between w-full"
+              : "grid md:grid-cols-2 grid-cols-1 justify-between w-full"
           }`}
         >
-          <RFQDetail data={data} />
+          <div>
+            <RFQDetail data={data} />
+          </div>
           {userType !== "client" && (
-            <ResponseRFQ onClose={handleModalClose} rfqID={data.id} />
+            <div>
+              <ResponseRFQ onClose={handleModalClose} rfqID={data.id} />
+            </div>
           )}
         </section>
 

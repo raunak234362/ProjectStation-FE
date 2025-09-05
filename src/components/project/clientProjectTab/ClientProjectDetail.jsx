@@ -190,9 +190,10 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Description
                 </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.description || "Not available"}
-                </p>
+                <div
+            className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
+            dangerouslySetInnerHTML={{ __html: projectData?.description || "N/A" }}
+          />
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">

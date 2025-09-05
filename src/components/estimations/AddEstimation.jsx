@@ -25,7 +25,7 @@ const AddEstimation = () => {
   );
   const [joditContent, setJoditContent] = useState("");
   const [rfq, setRfq] = useState([]);
-  const [files, setFiles] = useState();
+  const [files, setFiles] = useState([]);
 
   const joditConfig = {
     height: 100,
