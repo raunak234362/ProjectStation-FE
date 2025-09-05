@@ -142,8 +142,8 @@ const EstimationTaskList = ({estimation}) => {
           )}
         </tbody>
       </table>
-      {setSelectedEstimation && (
-       <EstimationTaskDetail/>
+      {selectedEstimation && (
+       <EstimationTaskDetail estimation={selectedEstimation} />
       )}
     </div>
   );

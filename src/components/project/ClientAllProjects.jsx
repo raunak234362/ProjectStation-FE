@@ -402,13 +402,7 @@ const ClientAllProjects = () => {
                     </h3>
                     <StatusBadge status={project.status} />
                   </div>
-                  <p className="mb-4 text-sm text-gray-500">
-                    {project.description}
-                  </p>
-                  <div className="flex items-center mb-4 text-sm text-gray-500">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {project.location}
-                  </div>
+                  
                   {/* Progress */}
                   <div className="mb-4">
                     <div className="flex justify-between mb-1 text-sm">
@@ -442,7 +436,7 @@ const ClientAllProjects = () => {
                     </span>
                   </div>
                   <div>
-                    <span className="font-medium">Completion:</span>
+                    <span className="font-medium">Estimated Completion:</span>
                     <span className="ml-1">{formatDate(project.endDate)}</span>
                   </div>
                 </div>
@@ -520,7 +514,10 @@ const ClientAllProjects = () => {
         )}
       </div>
       {selectedProject && (
-        <ClientProjectStatus projectId={selectedProject} onClose={handleClose} />
+        <ClientProjectStatus
+          projectId={selectedProject}
+          onClose={handleClose}
+        />
       )}
     </div>
   );

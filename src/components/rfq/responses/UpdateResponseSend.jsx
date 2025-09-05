@@ -56,8 +56,8 @@ const UpdateResponseSend = ({ rfqID, responseId }) => {
               options={[
                 // { label: "Select Status", value: ""},
                 { label: "Approved", value: "APPROVED" },
-                { label: "Re-Approval", value: "RE_APPROVAL" },
-                { label: "Close", value: "CLOSE" },
+                { label: "Revised", value: "RE_APPROVAL" },
+                { label: "Rejected", value: "CLOSE" },
               ]}
               {...register("status", { required: true })}
               onChange={setValue}

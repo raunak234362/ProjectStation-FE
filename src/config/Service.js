@@ -612,14 +612,27 @@ class Service {
 
   //Add Estimations
   static async addEstimation(estData) {
+      const data = new FormData();
+      for (let i = 0; i < estData.files.length; i++) {
+        data.append("files", estData.files[i]);
+      }
+      // data.append("files", estData.files);
+      data.append("rfqId", estData.rfqId);
+      data.append("description", estData.description);
+      data.append("projectName", estData.projectName);
+      data.append("fabricatorId", estData.fabricatorId);
+      data.append("estimateDate", estData.estimateDate);
+      data.append("estimationNumber", estData.estimationNumber);
+      data.append("tools", estData.tools);
+
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.post(
         `/api/Estimation/addEstimation`,
-        estData,
+        data,
         {
           headers: {
-            "Content-Type": "Application/json",
+            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
         }
@@ -1376,27 +1389,41 @@ class Service {
   //Add RFQ
 
   static async addRFQ(RFQData) {
+    console.log(RFQData)
     const data = new FormData();
 
     // Append files
-    for (let i = 0; i < RFQData?.files.length; i++) {
+    for (let i = 0; i < RFQData?.files?.length; i++) {
       data.append("files", RFQData?.files[i]);
     }
 
-    // Append other fields
-    // Append other fields
+    data.append("fabricatorId", RFQData?.fabricatorId || "" );
+    data.append("projectName", RFQData?.projectName || "");
+    data.append("projectNumber", RFQData?.projectNumber || "");
+    data.append("detailingMain", typeof RFQData?.detailingMain === "boolean" ? RFQData?.detailingMain : !!RFQData?.detailingMain || false);
+    data.append("detailingMisc", typeof RFQData?.detailingMisc === "boolean" ? RFQData?.detailingMisc : !!RFQData?.detailingMisc || false);
+    data.append("connectionDesign", typeof RFQData?.connectionDesign === "boolean" ? RFQData?.connectionDesign : !!RFQData?.connectionDesign || false);
+    data.append("miscDesign", typeof RFQData?.miscDesign === "boolean" ? RFQData?.miscDesign : !!RFQData?.miscDesign || false);
+    data.append("customer", typeof RFQData?.customer === "boolean" ? RFQData?.customer : !!RFQData?.customer || false);
+    data.append("recepient_id", RFQData?.recipient_id || "");
+    data.append("subject", RFQData?.subject || "");
+    data.append("description", RFQData?.description || "");
+    data.append("bidPrice", RFQData?.bidPrice || "");
+    data.append("salesPersonId", RFQData?.salesPersonId || "");
+    data.append("sender_id", RFQData?.sender_id || "");
+    data.append("estimationDate", RFQData?.estimationDate || "");
 
-    data.append("projectName", RFQData?.projectName);
-    data.append("recepient_id", RFQData?.recipient_id);
-    data.append("subject", RFQData?.subject);
-    data.append("description", RFQData?.description);
-    data.append("salesPersonId", RFQData?.salesPersonId);
+    console.log("Form Data Entries:");
+    for (let [key, value] of data.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+
     try {
       const token = sessionStorage.getItem("token");
       const response = await api.post(`/api/RFQ/rfq/addrfq`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/form-data",
+          "Content-Type": "multipart/form-data",
         },
       });
       return response.data;
@@ -1841,6 +1868,23 @@ class Service {
       return response.data.data;
     } catch (error) {
       console.log("Error in getting all chats: ", error);
+      throw error;
+    }
+  }
+
+  //Delete member by ID
+  static async deleteMemberById(memberId, groupId) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.delete(`/api/chat/removeMember/${groupId}/${memberId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in deleting member: ", error);
       throw error;
     }
   }

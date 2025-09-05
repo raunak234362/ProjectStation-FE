@@ -1,14 +1,33 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import { Calendar, Edit2, FileText, Globe, HardDrive, Plus, X, ChevronRight, BarChart2, Layers } from "lucide-react";
+import {
+  Calendar,
+  Edit2,
+  FileText,
+  Globe,
+  HardDrive,
+  Plus,
+  X,
+  ChevronRight,
+  BarChart2,
+  Layers,
+} from "lucide-react";
 import EditProject from "./EditProject";
 import Service from "../../../config/Service";
 import AddWB from "../wb/AddWB";
 
 // UI Components
-const Button = ({ children, variant = "primary", size = "md", className = "", onClick, ...props }) => {
-  const baseStyles = "font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2";
+const Button = ({
+  children,
+  variant = "primary",
+  size = "md",
+  className = "",
+  onClick,
+  ...props
+}) => {
+  const baseStyles =
+    "font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2";
   const variants = {
     primary: "bg-teal-500 hover:bg-teal-600 text-white shadow-sm",
     secondary: "bg-gray-100 hover:bg-gray-200 text-gray-700",
@@ -22,7 +41,11 @@ const Button = ({ children, variant = "primary", size = "md", className = "", on
     lg: "text-base px-5 py-2.5",
   };
   return (
-    <button className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`} onClick={onClick} {...props}>
+    <button
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      onClick={onClick}
+      {...props}
+    >
       {children}
     </button>
   );
@@ -37,12 +60,20 @@ const Badge = ({ children, variant = "default" }) => {
     info: "bg-blue-100 text-blue-800",
     primary: "bg-teal-100 text-teal-800",
   };
-  return <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${variants[variant]}`}>{children}</span>;
+  return (
+    <span
+      className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${variants[variant]}`}
+    >
+      {children}
+    </span>
+  );
 };
 
 const Card = ({ children, className = "" }) => {
   return (
-    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}>
+    <div
+      className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}
+    >
       {children}
     </div>
   );
@@ -87,14 +118,13 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 };
 
 // Main Component
-const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
+const GetProject = ({ projectId, projectData, fetchProjectByID, onClose }) => {
   const [activeTab, setActiveTab] = useState("details");
- 
+
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectStatus, setSelectedProjectStatus] = useState(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -150,7 +180,12 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
           title="Project Details"
           icon={<Calendar size={18} />}
           action={
-            <Button variant="outline" className="bg-teal-500 text-white font-semibold" size="sm" onClick={handleEditClick}>
+            <Button
+              variant="outline"
+              className="bg-teal-500 text-white font-semibold"
+              size="sm"
+              onClick={handleEditClick}
+            >
               <Edit2 size={16} />
               Edit
             </Button>
@@ -160,80 +195,147 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Description</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.description || "Not available"}</p>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Description
+                </h4>
+                <div
+                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
+                  dangerouslySetInnerHTML={{
+                    __html: projectData?.description || "N/A",
+                  }}
+                />
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Status</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Status
+                </h4>
                 <div className="flex items-center gap-2">
-                  <Badge variant={getStatusVariant(projectData?.status)}>{projectData?.status || "Not available"}</Badge>
-                  <Button size="sm" variant="ghost" onClick={() => handleStatusView(projectId)}>
+                  <Badge variant={getStatusVariant(projectData?.status)}>
+                    {projectData?.status || "Not available"}
+                  </Badge>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleStatusView(projectId)}
+                  >
                     View Details
                   </Button>
                 </div>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Department</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.department?.name || "Not available"}</p>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Department
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.department?.name || "Not available"}
+                </p>
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.team?.name || "Not available"}</p>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.team?.name || "Not available"}
+                </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Project Manager</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Project Manager
+                </h4>
                 <p className="text-gray-800 font-semibold">
-                  {projectData?.manager?.f_name || projectData?.manager?.m_name || projectData?.manager?.l_name
-                    ? `${projectData?.manager?.f_name || ""} ${projectData?.manager?.m_name || ""} ${
-                        projectData?.manager?.l_name || ""
-                      }`.trim()
+                  {projectData?.manager?.f_name ||
+                  projectData?.manager?.m_name ||
+                  projectData?.manager?.l_name
+                    ? `${projectData?.manager?.f_name || ""} ${
+                        projectData?.manager?.m_name || ""
+                      } ${projectData?.manager?.l_name || ""}`.trim()
                     : "Not available"}
                 </p>
               </div>
             </div>
             <div className="space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Estimated Hours</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.estimatedHours || "Not available"}</p>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Estimated Hours
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.estimatedHours || "Not available"}
+                </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Stage</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.stage || "Not available"}</p>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Stage
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.stage || "Not available"}
+                </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Tools</h4>
-                <p className="text-gray-800 font-semibold">{projectData?.tools || "Not available"}</p>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Tools
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.tools || "Not available"}
+                </p>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Start Date</h4>
-                  <p className="text-gray-800 font-semibold">{formatDate(projectData?.startDate)}</p>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Start Date
+                  </h4>
+                  <p className="text-gray-800 font-semibold">
+                    {formatDate(projectData?.startDate)}
+                  </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Approval Date</h4>
-                  <p className="text-gray-800 font-semibold">{formatDate(projectData?.approvalDate)}</p>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Approval Date
+                  </h4>
+                  <p className="text-gray-800 font-semibold">
+                    {formatDate(projectData?.approvalDate)}
+                  </p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Submission Date</h4>
-                  <p className="text-gray-800 font-semibold">{formatDate(projectData?.endDate)}</p>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Submission Date
+                  </h4>
+                  <p className="text-gray-800 font-semibold">
+                    {formatDate(projectData?.endDate)}
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Main Design</h4>
-                  <Badge variant={projectData?.connectionDesign ? "success" : "default"}>
-                    {projectData?.connectionDesign ? "Required" : "Not required"}
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Main Design
+                  </h4>
+                  <Badge
+                    variant={
+                      projectData?.connectionDesign ? "success" : "default"
+                    }
+                  >
+                    {projectData?.connectionDesign
+                      ? "Required"
+                      : "Not required"}
                   </Badge>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Misc Design</h4>
-                  <Badge variant={projectData?.miscDesign ? "success" : "default"}>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Misc Design
+                  </h4>
+                  <Badge
+                    variant={projectData?.miscDesign ? "success" : "default"}
+                  >
                     {projectData?.miscDesign ? "Required" : "Not required"}
                   </Badge>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">Connection Design</h4>
-                  <Badge variant={projectData?.customerDesign ? "success" : "default"}>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Connection Design
+                  </h4>
+                  <Badge
+                    variant={
+                      projectData?.customerDesign ? "success" : "default"
+                    }
+                  >
                     {projectData?.customerDesign ? "Required" : "Not required"}
                   </Badge>
                 </div>
@@ -249,12 +351,18 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
         <CardContent>
           <div className="space-y-6">
             <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Fabricator Name</h4>
-              <p className="text-gray-800 font-medium">{projectData?.fabricator?.fabName || "Not available"}</p>
+              <h4 className="text-sm font-medium text-gray-500 mb-1">
+                Fabricator Name
+              </h4>
+              <p className="text-gray-800 font-medium">
+                {projectData?.fabricator?.fabName || "Not available"}
+              </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Website</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Website
+                </h4>
                 {projectData?.fabricator?.website ? (
                   <a
                     href={projectData?.fabricator?.website}
@@ -270,7 +378,9 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
                 )}
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Drive</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Drive
+                </h4>
                 {projectData?.fabricator?.drive ? (
                   <a
                     href={projectData?.fabricator.drive}
@@ -288,19 +398,29 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-500 mb-1">Files</h4>
-              {Array.isArray(projectData?.fabricator?.files) && projectData?.fabricator?.files.length > 0 ? (
+              {Array.isArray(projectData?.fabricator?.files) &&
+              projectData?.fabricator?.files.length > 0 ? (
                 <div className="grid grid-cols-1 gap-2 mt-2">
                   {projectData?.fabricator?.files?.map((file, index) => (
                     <a
                       key={index}
-                      href={`${import.meta.env.VITE_BASE_URL}/fabricator/fabricator/viewfile/${projectData?.fabricatorID}/${file.id}`}
+                      href={`${
+                        import.meta.env.VITE_BASE_URL
+                      }/fabricator/fabricator/viewfile/${
+                        projectData?.fabricatorID
+                      }/${file.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
                     >
                       <FileText size={16} className="text-teal-500" />
-                      <span className="text-gray-700 text-sm">{file.originalName || `File ${index + 1}`}</span>
-                      <ChevronRight size={16} className="text-gray-400 ml-auto" />
+                      <span className="text-gray-700 text-sm">
+                        {file.originalName || `File ${index + 1}`}
+                      </span>
+                      <ChevronRight
+                        size={16}
+                        className="text-gray-400 ml-auto"
+                      />
                     </a>
                   ))}
                 </div>
@@ -336,15 +456,21 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
           {projectData?.files?.map((file, index) => (
             <a
               key={index}
-              href={`${import.meta.env.VITE_BASE_URL}/api/project/projects/viewfile/${projectId}/${file.id}`}
+              href={`${
+                import.meta.env.VITE_BASE_URL
+              }/api/project/projects/viewfile/${projectId}/${file.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
             >
               <FileText size={18} className="text-teal-500" />
               <div>
-                <p className="text-gray-800 text-sm font-medium">{file.originalName || `File ${index + 1}`}</p>
-                <p className="text-xs text-gray-500">Added on {new Date().toLocaleDateString()}</p>
+                <p className="text-gray-800 text-sm font-medium">
+                  {file.originalName || `File ${index + 1}`}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Added on {new Date().toLocaleDateString()}
+                </p>
               </div>
               <ChevronRight size={16} className="text-gray-400 ml-auto" />
             </a>
@@ -383,7 +509,13 @@ const GetProject = ({ projectId,projectData, fetchProjectByID,onClose }) => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
 
-      {selectedEditProject && <EditProject project={selectedEditProject} onUpdate={fetchProjectByID} onClose={handleModalClose} />}
+      {selectedEditProject && (
+        <EditProject
+          project={selectedEditProject}
+          onUpdate={fetchProjectByID}
+          onClose={handleModalClose}
+        />
+      )}
       {/* Note: ProjectStatus modal not implemented here as it requires additional context */}
     </>
   );

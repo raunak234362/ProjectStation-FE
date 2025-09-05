@@ -26,73 +26,88 @@ const EstimationDetail = ({ estimationId }) => {
 
   if (!estimation) return <div>Loading estimation...</div>;
 
-  const {
-    estimationNumber,
-    projectName,
-    tools,
-    status,
-    estimateDate,
-    finalHours,
-    finalPrice,
-    finalWeeks,
-    fabricators,
-    createdBy,
-  } = estimation;
-
   return (
     <div className="p-4 h-[80vh] overflow-y-auto bg-white rounded-lg shadow-md space-y-4">
       <h2 className="text-2xl font-bold text-teal-700">Estimation Detail</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div>
-          <strong>Estimation Number:</strong> {estimationNumber}
+          <strong>Estimation Number:</strong> {estimation.estimationNumber}
         </div>
         <div>
-          <strong>Project Name:</strong> {projectName}
+          <strong>Project Name:</strong> {estimation.projectName}
         </div>
         <div>
-          <strong>Tools Used:</strong> {tools}
+          <strong>Tools Used:</strong> {estimation.tools}
         </div>
         <div>
-          <strong>Status:</strong> {status}
+          <strong>Status:</strong> {estimation.status}
         </div>
         <div>
           <strong>Estimate Date:</strong>{" "}
-          {new Date(estimateDate).toLocaleDateString()}
+          {new Date(estimation.estimateDate).toLocaleDateString()}
         </div>
-        {finalHours && (
+        {estimation.finalHours && (
           <div>
-            <strong>Final Hours:</strong> {finalHours}
+            <strong>Final Hours:</strong> {estimation.finalHours}
           </div>
         )}
-        {finalPrice && (
+        {estimation.finalPrice && (
           <div>
-            <strong>Final Price:</strong> {finalPrice}
+            <strong>Final Price:</strong> {estimation.finalPrice}
           </div>
         )}
-        {finalWeeks && (
+        {estimation.finalWeeks && (
           <div>
-            <strong>Final Weeks:</strong> {finalWeeks}
+            <strong>Final Weeks:</strong> {estimation.finalWeeks}
           </div>
+        )}
+      </div>
+      <div className="flex">
+        <strong>Estimation Detail:</strong>{" "}
+        <div
+          className="w-full  whitespace-normal text-right sm:text-left"
+          dangerouslySetInnerHTML={{ __html: estimation.description || "N/A" }}
+        />
+      </div>
+      <div>
+        <strong>Files:</strong>
+
+        {estimation?.files?.length ? (
+          estimation.files.map((file) => (
+            <a
+              key={file.id}
+              href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
+                estimation.rfqId
+              }/${file.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-blue-600 underline hover:text-blue-800"
+            >
+              {file.originalName || "Unnamed File"}
+            </a>
+          ))
+        ) : (
+          <span className="text-gray-400 text-sm">No files attached</span>
         )}
       </div>
 
       <div className="mt-4">
         <h3 className="font-semibold text-lg mb-2">Fabricator</h3>
-        {fabricators ? (
+        {estimation.fabricators ? (
           <div className="text-sm space-y-1">
             <div>
-              <strong>Name:</strong> {fabricators.fabName}
+              <strong>Name:</strong> {estimation.fabricators.fabName}
             </div>
             <div>
               <strong>Website:</strong>{" "}
               <a
-                href={fabricators.website}
+                href={estimation.fabricators.website}
                 target="_blank"
                 rel="noreferrer"
                 className="text-blue-600 underline"
               >
-                {fabricators.website}
+                {estimation.fabricators.website}
               </a>
             </div>
           </div>
@@ -109,13 +124,14 @@ const EstimationDetail = ({ estimationId }) => {
         <h3 className="font-semibold text-lg mb-2">Created By</h3>
         <div className="text-sm space-y-1">
           <div>
-            <strong>Name:</strong> {createdBy?.f_name} {createdBy?.l_name}
+            <strong>Name:</strong> {estimation.createdBy?.f_name}{" "}
+            {estimation.createdBy?.l_name}
           </div>
           <div>
-            <strong>Email:</strong> {createdBy?.email}
+            <strong>Email:</strong> {estimation.createdBy?.email}
           </div>
           <div>
-            <strong>Username:</strong> {createdBy?.username}
+            <strong>Username:</strong> {estimation.createdBy?.username}
           </div>
         </div>
       </div>

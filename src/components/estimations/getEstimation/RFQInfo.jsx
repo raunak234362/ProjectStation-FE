@@ -13,9 +13,6 @@ const RFQInfo = ({ data }) => {
           <strong>Subject:</strong> {data.subject}
         </div>
         <div>
-          <strong>Description:</strong> {data.description}
-        </div>
-        <div>
           <strong>Status:</strong> {data.status}
         </div>
         <div>
@@ -33,16 +30,17 @@ const RFQInfo = ({ data }) => {
                 key={file.id}
                 className="border rounded-md p-2 max-w-[200px] shadow-sm"
               >
-                  <a
-                    href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
-                      data.id
-                    }/${file.id}`}
-                    alt={file.originalName}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 underline hover:text-blue-800"
-                  >{file.originalName || "Unnamed File"}</a>
-               
+                <a
+                  href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
+                    data.id
+                  }/${file.id}`}
+                  alt={file.originalName}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 underline hover:text-blue-800"
+                >
+                  {file.originalName || "Unnamed File"}
+                </a>
               </div>
             ))}
           </div>
