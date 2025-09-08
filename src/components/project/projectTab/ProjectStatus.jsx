@@ -304,7 +304,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
           }
 
           return true;
-        } catch (error) {
+        } catch (error) {useEffect
           console.error("Error in date filtering:", error, { dateFilter });
           return true;
         }

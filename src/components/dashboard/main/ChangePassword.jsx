@@ -38,7 +38,7 @@ const ChangePassword = () => {
     console.log(cngPassword);
     if (cngPassword.status == 200) {
       alert(cngPassword.data.success)
-      navigate('/dashboard')
+      navigate('/dashboard/profile')
     } else {
       if ("cnf_password" in cngPassword.response.data)
         errors.cnf_password = cngPassword.response.data.cnf_password;
