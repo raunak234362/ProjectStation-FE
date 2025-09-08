@@ -542,15 +542,22 @@ const Overview = ({
             label: "Overall Project Efficiency",
             value:
               totalTakenHours > 0
-                ? `${Math.round(
-                    ((totalAssignedHours) /
-                      totalTakenHours) *
-                      100
-                  )}%`
+                ? `${Math.round((totalAssignedHours / totalTakenHours) * 100)}%`
                 : "0%",
             subtext:
               filterStage && filterStage !== "all" ? "Stage efficiency" : null,
-            show: filterStage ==="all"
+            show: filterStage === "CO",
+          },
+          {
+            icon: <Target className="w-5 h-5 text-purple-500" />,
+            label: "Overall Project Efficiency",
+            value:
+              totalTakenHours > 0
+                ? `${Math.round((totalAssignedHours / totalTakenHours) * 100)}%`
+                : "0%",
+            subtext:
+              filterStage && filterStage !== "all" ? "Stage efficiency" : null,
+            show: filterStage === "all",
           },
         ]
           .filter((card) => card.show === undefined || card.show)
