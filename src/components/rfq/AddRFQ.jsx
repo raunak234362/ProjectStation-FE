@@ -34,7 +34,7 @@ const AddRFQ = () => {
   );
   const ClientData = useSelector((state) => state.fabricatorData?.clientData);
   const userData = useSelector((state) => state.userData?.staffData);
-  console.log("fabricator ID:" , userData.fabricatorId);
+  console.log("fabricator ID:", userData.fabricatorId);
   const userType = sessionStorage.getItem("userType");
   console.log("Client Data:", ClientData);
   // managing the states
@@ -234,21 +234,23 @@ const AddRFQ = () => {
                 className="w-full border border-gray-300 rounded-md"
               />
             </div>
-            
-              <div className="w-full my-3">
-                <CustomSelect
-                  label="Tools"
-                  options={["TEKLA", "SDS2", "BOTH", "NO_PREFERENCE"].map((tool) => ({
+
+            <div className="w-full my-3">
+              <CustomSelect
+                label="Tools"
+                options={["TEKLA", "SDS2", "BOTH", "NO_PREFERENCE"].map(
+                  (tool) => ({
                     label: tool,
                     value: tool,
-                  }))}
-                  {...register("tools")}
-                  onChange={setValue}
-                />
-                {errors.tools && (
-                  <div className="text-red-600">{errors.tools.message}</div>
+                  })
                 )}
-              </div>
+                {...register("tools")}
+                onChange={setValue}
+              />
+              {errors.tools && (
+                <div className="text-red-600">{errors.tools.message}</div>
+              )}
+            </div>
             <div className="w-full my-3">
               <Input
                 label="BID Amount (in USD):"
@@ -273,7 +275,10 @@ const AddRFQ = () => {
           <SectionTitle title="Detailing Scope" />
           <div className="grid md:grid-cols-3 gap-4 mt-4  mx-3">
             <Toggle label="Main Steel" {...register("detailingMain")} />
-            <Toggle label="Miscellaneous Steel" {...register("detailingMisc")} />
+            <Toggle
+              label="Miscellaneous Steel"
+              {...register("detailingMisc")}
+            />
           </div>
 
           {/* File Upload */}

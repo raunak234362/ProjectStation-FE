@@ -140,6 +140,7 @@ class Service {
           Authorization: `Token ${token}`,
         },
       });
+      console.log("Change Password Response:", response);
       return response;
     } catch (error) {
       console.log("Error changing password:", error);
