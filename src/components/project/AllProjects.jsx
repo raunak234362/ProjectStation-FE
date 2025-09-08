@@ -187,30 +187,86 @@ const AllProjects = () => {
           const project = row.original;
           const projectTasks = taskData?.filter(
             (task) => task?.project_id === project.id
-          );
+          ) || [];
           const completedTasksCount = projectTasks?.filter(
             (task) => task.status === "COMPLETE"
-          ).length;
+          ).length || 0;
+          const totalTasks = projectTasks.length;
+          const progress =
+            totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+
+          // Set bar color based on progress
+          let barColor = "bg-red-500";
+          if (progress >= 80) {
+            barColor = "bg-green-500";
+          } else if (progress >= 50) {
+            barColor = "bg-yellow-500";
+          } else if (progress >= 20) {
+            barColor = "bg-orange-500";
+          }
+
           return (
-            <div>
-              <div className="text-xs font-medium text-gray-700 sm:text-sm">
-                {projectTasks?.length || 0}
+            <div className="flex flex-col items-center">
+              <div className="text-xs font-medium text-gray-700 sm:text-sm mb-1">
+                {completedTasksCount} / {totalTasks} completed
               </div>
-              <div className="text-xs text-gray-500">
-                {completedTasksCount || 0} completed
+              <div className="w-full h-2 bg-gray-200 rounded">
+                <div
+                  className={`h-2 ${barColor} rounded`}
+                  style={{ width: `${progress}%` }}
+                ></div>
               </div>
+              <div className="text-[10px] text-gray-500 mt-1">{progress}%</div>
             </div>
           );
         },
       },
       {
-        Header: "Start Date",
-        accessor: (row) => formatDate(row.startDate),
-        id: "startDate",
+        Header: "Approval Date",
+        accessor: (row) => {
+          // Use timestamp for sorting, fallback to 0 if not available
+          const deadline = row.deadline || row.approvalDate;
+          return deadline ? new Date(deadline).getTime() : 0;
+        },
+        id: "deadline",
+        Cell: ({ row }) => {
+          const status = row.original.status;
+          const deadline = row.original.deadline || row.original.approvalDate;
+
+          if (status === "COMPLETE") {
+            return (
+              <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                Completed
+              </span>
+            );
+          }
+
+          if (!deadline) return <span className="text-gray-400">N/A</span>;
+
+          const deadlineDate = new Date(deadline);
+          const today = new Date();
+          const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+
+          let color = "bg-green-100 text-green-700";
+          let label = "On Track";
+          if (diffDays < 0) {
+            color = "bg-red-100 text-red-700";
+            label = "Overdue";
+          } else if (diffDays <= 3) {
+            color = "bg-yellow-100 text-yellow-700";
+            label = "Due Soon";
+          }
+
+          return (
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+              {formatDate(deadline)} &nbsp; ({label})
+            </span>
+          );
+        },
       },
       {
-        Header: "Approval Date",
-        accessor: (row) => formatDate(row.approvalDate),
+        Header: "Submission Date",
+        accessor: (row) => formatDate(row.endDate),
         id: "approvalDate",
       },
     ],

@@ -539,7 +539,7 @@ const Overview = ({
           },
           {
             icon: <Target className="w-5 h-5 text-purple-500" />,
-            label: "Overall Project Efficiency",
+            label: "Project Efficiency for Change Order",
             value:
               totalTakenHours > 0
                 ? `${Math.round((totalAssignedHours / totalTakenHours) * 100)}%`
