@@ -11,6 +11,7 @@ import { RFI, Submittals } from "../../index";
 import Service from "../../../config/Service";
 import CO from "../../changeOrder/CO";
 import Notes from "../../notes/Notes";
+import Milestone from "../../milestone/Milestone";
 
 const ProjectStatus = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("projectDetail");
@@ -66,13 +67,13 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const filteredTaskData = useMemo(() => {
     if (userType === "department-manager") {
       return taskData
-      .filter((task) => task?.id === projectId) // <-- actual condition
-      .flatMap((task) =>
-        (task.tasks || []).map((subTask) => ({
-          ...subTask,
-          projectId,
-        }))
-      );
+        .filter((task) => task?.id === projectId) // <-- actual condition
+        .flatMap((task) =>
+          (task.tasks || []).map((subTask) => ({
+            ...subTask,
+            projectId,
+          }))
+        );
     }
     return taskData;
   }, [taskData, userType, projectId]);
@@ -304,7 +305,8 @@ const ProjectStatus = ({ projectId, onClose }) => {
           }
 
           return true;
-        } catch (error) {useEffect
+        } catch (error) {
+          useEffect;
           console.error("Error in date filtering:", error, { dateFilter });
           return true;
         }
@@ -486,6 +488,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                   { key: "overview", label: "Overview" },
                   { key: "timeline", label: "Timeline" },
                   { key: "team", label: "Team" },
+                  { key: "milestone", label: "Milestones" },
                   { key: "RFI", label: "RFI" },
                   { key: "Submittals", label: "Submittals" },
                   { key: "CO", label: "CO#" },
@@ -548,12 +551,22 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 statusColors={statusColors}
               />
             )}
+            {activeTab === "milestone" && (
+              <Milestone
+                projectId={projectId}
+                onClose={onClose}
+                projectData={projectData}
+                fetchProjectByID={fetchProjectByID}
+              />
+            )}
             {activeTab === "RFI" && <RFI projectData={projectData} />}
             {activeTab === "Submittals" && (
               <Submittals projectData={projectData} />
             )}
             {activeTab === "CO" && <CO projectData={projectData} />}
-            {activeTab === "Notes" && <Notes projectData={projectData} projectId={projectId}/>}
+            {activeTab === "Notes" && (
+              <Notes projectData={projectData} projectId={projectId} />
+            )}
           </>
         )}
       </div>

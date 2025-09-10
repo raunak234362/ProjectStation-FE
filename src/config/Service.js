@@ -613,31 +613,27 @@ class Service {
 
   //Add Estimations
   static async addEstimation(estData) {
-      const data = new FormData();
-      for (let i = 0; i < estData.files.length; i++) {
-        data.append("files", estData.files[i]);
-      }
-      // data.append("files", estData.files);
-      data.append("rfqId", estData.rfqId);
-      data.append("description", estData.description);
-      data.append("projectName", estData.projectName);
-      data.append("fabricatorId", estData.fabricatorId);
-      data.append("estimateDate", estData.estimateDate);
-      data.append("estimationNumber", estData.estimationNumber);
-      data.append("tools", estData.tools);
+    const data = new FormData();
+    for (let i = 0; i < estData.files.length; i++) {
+      data.append("files", estData.files[i]);
+    }
+    // data.append("files", estData.files);
+    data.append("rfqId", estData.rfqId);
+    data.append("description", estData.description);
+    data.append("projectName", estData.projectName);
+    data.append("fabricatorId", estData.fabricatorId);
+    data.append("estimateDate", estData.estimateDate);
+    data.append("estimationNumber", estData.estimationNumber);
+    data.append("tools", estData.tools);
 
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.post(
-        `/api/Estimation/addEstimation`,
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post(`/api/Estimation/addEstimation`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       console.log("Error fetching estimations:", error);
@@ -1390,7 +1386,7 @@ class Service {
   //Add RFQ
 
   static async addRFQ(RFQData) {
-    console.log(RFQData)
+    console.log(RFQData);
     const data = new FormData();
 
     // Append files
@@ -1398,14 +1394,39 @@ class Service {
       data.append("files", RFQData?.files[i]);
     }
 
-    data.append("fabricatorId", RFQData?.fabricatorId || "" );
+    data.append("fabricatorId", RFQData?.fabricatorId || "");
     data.append("projectName", RFQData?.projectName || "");
     data.append("projectNumber", RFQData?.projectNumber || "");
-    data.append("detailingMain", typeof RFQData?.detailingMain === "boolean" ? RFQData?.detailingMain : !!RFQData?.detailingMain || false);
-    data.append("detailingMisc", typeof RFQData?.detailingMisc === "boolean" ? RFQData?.detailingMisc : !!RFQData?.detailingMisc || false);
-    data.append("connectionDesign", typeof RFQData?.connectionDesign === "boolean" ? RFQData?.connectionDesign : !!RFQData?.connectionDesign || false);
-    data.append("miscDesign", typeof RFQData?.miscDesign === "boolean" ? RFQData?.miscDesign : !!RFQData?.miscDesign || false);
-    data.append("customer", typeof RFQData?.customer === "boolean" ? RFQData?.customer : !!RFQData?.customer || false);
+    data.append(
+      "detailingMain",
+      typeof RFQData?.detailingMain === "boolean"
+        ? RFQData?.detailingMain
+        : !!RFQData?.detailingMain || false
+    );
+    data.append(
+      "detailingMisc",
+      typeof RFQData?.detailingMisc === "boolean"
+        ? RFQData?.detailingMisc
+        : !!RFQData?.detailingMisc || false
+    );
+    data.append(
+      "connectionDesign",
+      typeof RFQData?.connectionDesign === "boolean"
+        ? RFQData?.connectionDesign
+        : !!RFQData?.connectionDesign || false
+    );
+    data.append(
+      "miscDesign",
+      typeof RFQData?.miscDesign === "boolean"
+        ? RFQData?.miscDesign
+        : !!RFQData?.miscDesign || false
+    );
+    data.append(
+      "customer",
+      typeof RFQData?.customer === "boolean"
+        ? RFQData?.customer
+        : !!RFQData?.customer || false
+    );
     data.append("recepient_id", RFQData?.recipient_id || "");
     data.append("subject", RFQData?.subject || "");
     data.append("description", RFQData?.description || "");
@@ -1877,12 +1898,15 @@ class Service {
   static async deleteMemberById(memberId, groupId) {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.delete(`/api/chat/removeMember/${groupId}/${memberId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.delete(
+        `/api/chat/removeMember/${groupId}/${memberId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.log("Error in deleting member: ", error);
@@ -1940,6 +1964,120 @@ class Service {
       return response.data;
     } catch (error) {
       console.log("Error in getting Notes: ", error);
+      throw error;
+    }
+  }
+
+  //adding milestone
+  static async addMilestone(milestoneData, projectID, fabricatorID) {
+    console.log(milestoneData, projectID, fabricatorID);
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(
+        `/api/Milestone/add/${projectID}/${fabricatorID}`,
+        milestoneData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in adding Milestone: ", error);
+      throw error;
+    }
+  }
+
+  //fetching all milestones
+  static async getAllMilestones() {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Milestone/all`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in fetching all Milestones: ", error);
+      throw error;
+    }
+  }
+
+  //fetching milestone by project ID
+  static async getMilestoneByProjectId(projectID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Milestone/project/${projectID}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in fetching Milestones by project ID: ", error);
+      throw error;
+    }
+  }
+
+  //fetch milestone by ID
+  static async getMilestoneById(milestoneID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/Milestone/${milestoneID}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in fetching Milestone by ID: ", error);
+      throw error;
+    }
+  }
+
+  //update milestone by ID
+  static async updateMilestoneById(milestoneID, milestoneData) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.put(
+        `/api/Milestone/update/${milestoneID}`,
+        milestoneData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in updating Milestone by ID: ", error);
+      throw error;
+    }
+  }
+
+  //delete milestone by ID
+  static async deleteMilestoneById(milestoneID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.delete(
+        `/api/Milestone/delete/${milestoneID}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in deleting Milestone by ID: ", error);
       throw error;
     }
   }
