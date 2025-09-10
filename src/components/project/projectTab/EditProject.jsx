@@ -47,6 +47,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       label: team?.name,
       value: team?.id,
     }));
+    console.log(options);
     setTeamOptions(options);
   }, []);
 
@@ -56,6 +57,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
   };
 
   const onSubmit = async (data) => {
+    console.log(data, "-=-=-=-=-==-=-=-=-=-=-=");
     const projectData = {
       ...data,
       approvalDate: data.approvalDate
@@ -220,7 +222,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 name="team"
                 options={teamOptions}
                 className="w-full"
-                {...register("teamID")}
+                {...register("team")}
                 onChange={setValue}
               />
             </div>

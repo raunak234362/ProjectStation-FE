@@ -10,6 +10,7 @@ import { updatetoken as authLogin, setUserData } from "../../store/userSlice";
 import AuthService from "../../config/AuthService";
 import Service from "../../config/Service";
 import { useState } from "react";
+import { userData } from "../../signals";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -30,9 +31,8 @@ const Login = () => {
 
       // Store session data
       sessionStorage.setItem("token", token);
-
+      userData.value=user
       dispatch(authLogin(user));
-
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
@@ -43,6 +43,7 @@ const Login = () => {
       );
     }
   };
+
 
   return (
     <div className="relative">
