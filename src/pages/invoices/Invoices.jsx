@@ -6,15 +6,13 @@ import AllRFQ from "../../components/rfq/AllRFQ";
 
 const RFQ = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);
-  const [activeTab, setActiveTab] = useState("allRFQ");
+  const [activeTab, setActiveTab] = useState("InvoiceRemainder");
 
   return (
     <div className="w-full overflow-y-hidden">
       <div className="flex flex-col w-full h-full">
         <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
-          <h1 className="text-2xl py-2 font-bold text-white">
-            RFQ Detail
-          </h1>
+          <h1 className="text-2xl py-2 font-bold text-white">Invoice Detail</h1>
           <div className="flex space-x-4 overflow-x-auto">
             <button
               onClick={() => setActiveTab("addRFQ")}
@@ -24,7 +22,7 @@ const RFQ = () => {
                   : "md:text-base text-sm bg-white"
               }`}
             >
-              Create RFQ
+              Invoice Projects
             </button>
             <button
               onClick={() => setActiveTab("allRFQ")}
@@ -34,7 +32,7 @@ const RFQ = () => {
                   : "md:text-base text-sm bg-white"
               }`}
             >
-              View RFQ
+              View Invoices
             </button>
           </div>
         </div>
@@ -44,8 +42,11 @@ const RFQ = () => {
               <AddRFQ />
             </div>
           )}
-          {activeTab === "allRFQ" && (
-            <div> <AllRFQ /> </div>
+          {activeTab === "InvoiceRemainder" && (
+            <div>
+              {" "}
+              <AllRFQ />{" "}
+            </div>
           )}
         </div>
       </div>

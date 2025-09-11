@@ -20,6 +20,7 @@ import RFQ from "../pages/rfq/RFQ.jsx";
 import EstimationView from "../pages/estimation/EstimationView.jsx";
 import CoListTable from "../components/changeOrder/details/CoListTable.jsx";
 import CoListTablePage from "../pages/coListTable/CoListTablePage.jsx";
+import Invoice from "../pages/invoices/Invoices.jsx";
 
 //For Sales-Admin
 // import {Dashboard as SalesDashboard} from './components/dashboard/staff/sales/dashboard/Dashboard.jsx'
@@ -64,6 +65,10 @@ const routes = [
           {
             path: "team",
             element: <ManageTeam />,
+          },
+          {
+            path: "invoices",
+            element: <Invoice />,
           },
           {
             path: "rfq",
