@@ -204,8 +204,17 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const StatCard = ({ title, value, subtitle, icon, trend, color, progress }) => (
-  <Card hover className="p-6">
+const StatCard = ({
+  title,
+  value,
+  subtitle,
+  suptitle,
+  icon,
+  trend,
+  color,
+  progress,
+}) => (
+  <Card hover className="p-4">
     <div className="flex items-start justify-between">
       <div className="flex-1">
         <div className="flex items-center">
@@ -216,6 +225,7 @@ const StatCard = ({ title, value, subtitle, icon, trend, color, progress }) => (
           </div>
         </div>
         {subtitle && <p className="text-md text-gray-500 mt-2">{subtitle}</p>}
+        {suptitle && <p className="text-md text-gray-500 mt-1">{suptitle}</p>}
         {trend && (
           <div className="flex items-center mt-2">
             <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
@@ -387,6 +397,7 @@ export default function ProjectDashboard() {
     const stats = {
       completed: 0,
       inProgress: 0,
+      onHold: 0,
       assigned: 0,
       inReview: 0,
       total: 0,
@@ -507,63 +518,81 @@ export default function ProjectDashboard() {
 
       <main className="py-8 mx-5">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Total Projects"
-            value={projectData.length}
-            subtitle={`${
-              projectData.filter((p) => p.status === "ACTIVE").length
-            } active projects`}
-            icon={<Building2 className="w-6 h-6 text-blue-600" />}
-            trend="+12% from last month"
-            color="bg-blue-50"
-            progress={
-              projectData.length > 0
-                ? (projectData.filter((p) => p.status === "ACTIVE").length /
-                    projectData.length) *
-                  100
-                : 0
-            }
-          />
-          <StatCard
-            title="On Hold Projects"
-            value={taskStats.completed}
-            subtitle={`${taskStats.total} total tasks`}
-            icon={<CheckCircle2 className="w-6 h-6 text-green-600" />}
-            trend="+8% from last week"
-            color="bg-green-50"
-            progress={
-              taskStats.total > 0
-                ? (taskStats.completed / taskStats.total) * 100
-                : 0
-            }
-          />
-          <StatCard
-            title="In Progress"
-            value={taskStats.inProgress}
-            subtitle={`${taskStats.assigned} assigned tasks`}
-            icon={<Clock className="w-6 h-6 text-yellow-600" />}
-            color="bg-yellow-50"
-            progress={
-              taskStats.inProgress + taskStats.assigned > 0
-                ? (taskStats.inProgress /
-                    (taskStats.inProgress + taskStats.assigned)) *
-                  100
-                : 0
-            }
-          />
-          <StatCard
-            title="Pending Actions"
-            value={rfiData.count + submittalData.count}
-            subtitle={`${rfiData.count} RFI, ${submittalData.count} Submittals`}
-            icon={<AlertCircle className="w-6 h-6 text-purple-600" />}
-            color="bg-purple-50"
-            progress={
-              rfiData.count + submittalData.count > 0
-                ? (rfiData.count / (rfiData.count + submittalData.count)) * 100
-                : 0
-            }
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <StatCard
+              title="Total Projects"
+              value={projectData.length}
+              subtitle={`${
+                projectData.filter((p) => p.status === "COMPLETE").length
+              } Completed projects`}
+              suptitle={`${
+                projectData.filter((p) => p.status === "ONHOLD").length
+              } On Hold projects`}
+              icon={<Building2 className="w-4 h-4 text-blue-600" />}
+              color="bg-blue-50"
+              progress={
+                projectData.length > 0
+                  ? (projectData.filter((p) => p.status === "COMPLETE").length /
+                      projectData.length) *
+                    100
+                  : 0
+              }
+            />
+           
+            <StatCard
+              title="Pending Actions"
+              value={rfiData.count + submittalData.count}
+              subtitle={`${rfiData.count} RFI, ${submittalData.count} Submittals`}
+              icon={<AlertCircle className="w-4 h-4 text-purple-600" />}
+              color="bg-purple-50"
+              progress={
+                rfiData.count + submittalData.count > 0
+                  ? (rfiData.count / (rfiData.count + submittalData.count)) *
+                    100
+                  : 0
+              }
+            />
+          </div>
+          {/* Recent Activity */}
+          <div>
+            <Card className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Recent Activity
+              </h2>
+              <div className="space-y-4">
+                {projectData.slice(0, 3).map((project, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
+                        {project.status === "ACTIVE" ? (
+                          <Activity className="w-4 h-4" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4" />
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {project.name}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <StatusBadge status={project.status} />
+                        <span className="text-xs text-gray-500">
+                          {project.completion || 0}% complete
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                  View All Activity
+                </button>
+              </div>
+            </Card>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -649,7 +678,7 @@ export default function ProjectDashboard() {
             </Card>
 
             {/* Quick Actions */}
-            <Card className="p-6">
+            {/* <Card className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Quick Actions
               </h2>
@@ -677,45 +706,7 @@ export default function ProjectDashboard() {
                   Generate Report
                 </Button>
               </div>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Recent Activity
-              </h2>
-              <div className="space-y-4">
-                {projectData.slice(0, 3).map((project, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
-                        {project.status === "ACTIVE" ? (
-                          <Activity className="w-4 h-4" />
-                        ) : (
-                          <CheckCircle2 className="w-4 h-4" />
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {project.name}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <StatusBadge status={project.status} />
-                        <span className="text-xs text-gray-500">
-                          {project.completion || 0}% complete
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
-                  View All Activity
-                </button>
-              </div>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </main>

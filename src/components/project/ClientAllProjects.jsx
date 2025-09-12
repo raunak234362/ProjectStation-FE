@@ -83,11 +83,6 @@ const ClientAllProjects = () => {
       icon: <Loader2 className="w-4 h-4 mr-1" />,
       label: "Active",
     },
-    IN_PROGRESS: {
-      color: "bg-yellow-100 text-yellow-800",
-      icon: <Clock className="w-4 h-4 mr-1" />,
-      label: "In Progress",
-    },
     COMPLETE: {
       color: "bg-green-100 text-green-800",
       icon: <CheckCircle2 className="w-4 h-4 mr-1" />,
@@ -103,7 +98,7 @@ const ClientAllProjects = () => {
       icon: <AlertCircle className="w-4 h-4 mr-1" />,
       label: "In Review",
     },
-    ON_HOLD: {
+    ONHOLD: {
       color: "bg-red-100 text-red-800",
       icon: <PauseCircle className="w-4 h-4 mr-1" />,
       label: "On Hold",

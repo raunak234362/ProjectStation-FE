@@ -37,7 +37,7 @@ const Milestone = ({ projectData }) => {
     console.log("Form Data Submitted:", data);
     const response = await Service.addMilestone(data, projectId, fabricationId);
     milestoneData.value = [...milestoneData.value, response.data];
-    console.log("Response from addMilestone API:", response);
+    console.log("Response from addMilestone API:", response.data);
   };
   return (
     <div className="w-full overflow-y-hidden">

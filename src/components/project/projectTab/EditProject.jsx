@@ -202,7 +202,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 name="status"
                 options={[
                   { label: "ACTIVE", value: "ACTIVE" },
-                  { label: "ON-HOLD", value: "ON-HOLD" },
+                  { label: "ON-HOLD", value: "ONHOLD" },
                   { label: "INACTIVE", value: "INACTIVE" },
                   { label: "DELAY", value: "DELAY" },
                   { label: "REOPEN", value: "REOPEN" },
