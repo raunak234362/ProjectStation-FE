@@ -30,7 +30,7 @@ const EstimationView = () => {
             Estimation Dashboard
           </h1>
           <div className="flex space-x-2 overflow-x-auto">
-            <button
+            {/* <button
               onClick={() => setActiveTab("Estimations")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
                 activeTab === "Estimations"
@@ -39,7 +39,7 @@ const EstimationView = () => {
               }`}
             >
               Estimations
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab("addEstimation")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
