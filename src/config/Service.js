@@ -372,6 +372,23 @@ class Service {
     }
   }
 
+  //Delete Client By ID -- updated
+  static async deleteClient(clientId) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.delete(`/api/client/client/${clientId}/deleteClient`, {
+        headers: {
+          "Content-Type": "Application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error deleting client:", error);
+      throw error;
+    }
+  }
+
   // Add all Project File --updated
   static async addFabricatorFile(formData, id) {
     const token = sessionStorage.getItem("token");

@@ -130,9 +130,21 @@ const AddClient = ({ fabricator }) => {
             label="Username"
             {...register("username", { required: true })}
           />
-          <Input
+          <CustomSelect
             label="Designation"
-            {...register("designation", { required: true })}
+            options={[
+              { label: "Project Manager", value: "project_manager" },
+              { label: "Structural Engineer", value: "structural_engineer" },
+              { label: "Architectural Engineer", value: "architectural_engineer" },
+              { label: "Civil Engineer", value: "civil_engineer" },
+              { label: "Mechanical Engineer", value: "mechanical_engineer" },
+              { label: "Joist Engineer", value: "joist_engineer" },
+              { label: "Wood Engineer", value: "wood_engineer" },
+              { label: "General Contractor", value: "general_contractor" },
+              { label: "Other", value: "other" },
+            ]}
+            {...register("designation")}
+            onChange={setValue}
           />
           <Input
             label="First Name"

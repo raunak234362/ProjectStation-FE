@@ -37,22 +37,18 @@ const AddEmployee = () => {
   }));
 
   const manager = watch("is_manager");
-  console.log(manager);
+  // console.log(manager);
 
   const departmentManager = watch("is_department_manager");
-  console.log(departmentManager);
+  // console.log(departmentManager);
 
-  const addStaff = async (data) => {
+  const addStaff = async (data, event) => {
+    event.preventDefault(); // Prevent default form submission
     if (departmentManager) {
       setValue("is_manager", true);
       setValue("is_staff", true);
       const is_manager = watch("is_manager");
       const is_staff = watch("is_staff");
-      if (data.password !== data.cnf_password) {
-        setShowalert(true);
-        return;
-      }
-      clearErrors("cnf_password");
       const phoneNumber = `${data.country_code}${data.phone}`;
       const updatedData = {
         ...data,
@@ -77,11 +73,6 @@ const AddEmployee = () => {
       setValue("is_staff", false);
       const is_manager = watch("is_manager");
       const is_staff = watch("is_staff");
-      console.log(data);
-      if (data.password !== data.cnf_password) {
-        setShowalert(true);
-        return;
-      }
       clearErrors("cnf_password");
       const phoneNumber = `${data.country_code}${data.phone}`;
       const updatedData = {
@@ -103,7 +94,6 @@ const AddEmployee = () => {
         console.error("Error adding employee:", error);
       }
     } else {
-      console.log(data);
       if (data.password !== data.cnf_password) {
         setShowalert(true);
         return;
@@ -305,7 +295,10 @@ const AddEmployee = () => {
           )} */}
 
           <div className="w-full my-5">
-            <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold">
+            <Button
+              type="submit"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            >
               Submit
             </Button>
           </div>
