@@ -16,6 +16,7 @@ import {
 import EditProject from "./EditProject";
 import Service from "../../../config/Service";
 import AddWB from "../wb/AddWB";
+import AddFiles from "./AddFiles";
 
 // UI Components
 const Button = ({

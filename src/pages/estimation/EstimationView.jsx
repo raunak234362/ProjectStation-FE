@@ -5,7 +5,7 @@ import AddEstimation from "../../components/estimations/AddEstimation";
 import Service from "../../config/Service";
 
 const EstimationView = () => {
-  const [activeTab, setActiveTab] = useState("Estimations");
+  const [activeTab, setActiveTab] = useState("allEstimation");
   const [estimationData, setEstimationData] = useState(null);
 //   const userType = sessionStorage.getItem("userType");
   const fetchEstimationData = async () => {

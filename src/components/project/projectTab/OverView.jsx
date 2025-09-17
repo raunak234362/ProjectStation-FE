@@ -303,7 +303,15 @@ const Overview = ({
   // Task status distribution for pie chart
   const statusData = useMemo(() => {
     const statusCounts = filteredTasks.reduce((acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
+      let status = task.status;
+      if (
+        status === "COMPLETE" ||
+        status === "VALIDATE_COMPLETE" ||
+        status === "COMPLETE_OTHER"
+      ) {
+        status = "COMPLETE";
+      }
+      acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
     return Object.entries(statusCounts).map(([status, count]) => ({
@@ -457,12 +465,12 @@ const Overview = ({
           {
             icon: <ClipboardCheck className="w-5 h-5 text-green-700" />,
             label: "Completed",
-            value: filteredTasks.filter((task) => task.status === "COMPLETE")
+            value: filteredTasks.filter((task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER")
               .length,
             component: (
               <ProgressBar
                 value={
-                  filteredTasks.filter((task) => task.status === "COMPLETE")
+                  filteredTasks.filter((task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER")
                     .length
                 }
                 max={filteredTasks.length}

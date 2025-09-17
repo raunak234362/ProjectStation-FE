@@ -104,11 +104,8 @@ const AllMilestone = ({ milestoneData }) => {
   }, []);
 
   return (
-    <section className="w-full py-8 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-primary to-teal-300 dark:from-primary dark:to-white text-transparent bg-clip-text mb-6 text-center">
-          Milestones
-        </h1>
+    <section className="w-full  bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans">
+      <div className=" mx-auto">
         <div className="overflow-x-auto">
           <table
             {...getTableProps()}

@@ -189,7 +189,7 @@ const AllProjects = () => {
             (task) => task?.project_id === project.id
           ) || [];
           const completedTasksCount = projectTasks?.filter(
-            (task) => task.status === "COMPLETE"
+            (task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER"
           ).length || 0;
           const totalTasks = projectTasks.length;
           const progress =
