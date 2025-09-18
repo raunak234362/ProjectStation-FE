@@ -7,7 +7,7 @@ import Service from "../../config/Service";
 const EstimationView = () => {
   const [activeTab, setActiveTab] = useState("allEstimation");
   const [estimationData, setEstimationData] = useState(null);
-//   const userType = sessionStorage.getItem("userType");
+  const userType = sessionStorage.getItem("userType");
   const fetchEstimationData = async () => {
     try {
       const response = await Service.allEstimations();
@@ -40,16 +40,18 @@ const EstimationView = () => {
             >
               Estimations
             </button> */}
-            <button
-              onClick={() => setActiveTab("addEstimation")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "addEstimation"
-                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                  : "md:text-base text-sm bg-white"
-              }`}
-            >
-              Add Estimation
-            </button>
+            {userType === "estimator-head" ? null : (
+              <button
+                onClick={() => setActiveTab("addEstimation")}
+                className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
+                  activeTab === "addEstimation"
+                    ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                    : "md:text-base text-sm bg-white"
+                }`}
+              >
+                Add Estimation
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("allEstimation")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${

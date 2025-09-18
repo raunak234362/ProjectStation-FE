@@ -28,16 +28,24 @@ const GetEstimation = ({ estimation, onClose }) => {
   console.log("Estimation Detail Data:", estimationTaskData);
 
   const [activeTab, setActiveTab] = useState("estimationDetail");
+  // Example: get user role from localStorage or context
+  const userRole = sessionStorage.getItem("userType"); // adjust as needed
+
+  // Define tabs based on role
+  const tabs = [
+    { key: "estimationDetail", label: "Estimation Details" },
+    ...(userRole === "estimator-head" || userRole === "admin" || userRole === "department-manager"
+      ? [{ key: "addEstimationTask", label: "Add Estimation Task" }]
+      : []),
+    { key: "estimationTaskList", label: "Estimation Task List" },
+  ];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white h-[90vh] p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
         <div className="my-3 border-b flex items-center justify-between">
           <div className="flex overflow-x-auto">
-            {[
-              { key: "estimationDetail", label: "Estimation Details" },
-              { key: "addEstimationTask", label: "Add Estimation Task" },
-              { key: "estimationTaskList", label: "Estimation Task List" },
-            ].map(({ key, label }) => (
+            {tabs.map(({ key, label }) => (
               <button
                 key={key}
                 className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${
