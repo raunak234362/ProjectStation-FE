@@ -752,6 +752,25 @@ class Service {
       throw error;
     }
   }
+  // Fetch all estimation tasks by estimation ID
+  static async editEstimationTasksById(estimationTaskId) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(
+        `/api/EstimationTask/task/${estimationTaskId}`,
+        {
+          headers: {
+            "Content-Type": "Application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      console.log("Error fetching estimation tasks by ID:", error);
+      throw error;
+    }
+  }
 
   // Add JobStudy
   static async addJobStudy(jobData) {
