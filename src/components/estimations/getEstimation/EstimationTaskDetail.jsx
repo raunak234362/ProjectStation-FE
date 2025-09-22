@@ -1,134 +1,41 @@
 /* eslint-disable react/prop-types */
-/* eslint-disable no-unused-vars */
-import { useCallback, useEffect, useState } from "react";
-import Service from "../../../config/Service";
 
-// Helper to format date
-const formatDate = (dateStr) =>
-  dateStr ? new Date(dateStr).toLocaleString() : "—";
-
-const EstimationTaskDetail = ({ estimation }) => {
-  const [estimationTask, setEstimationTask] = useState();
-
-  const fetchEstimation = async () => {
-    try {
-      const response = await Service.getEstimationTasksById(estimation.id);
-      console.log("Fetched Estimation:", response);
-      setEstimationTask(response);
-    } catch (error) {
-      console.error("Error fetching estimation:", error);
-    }
-  };
-  useEffect(() => {
-    fetchEstimation();
-  }, []);
-
-  console.log("Estimation Task Detail Data:", estimation);
-  console.log("Estimation Task Detail Data:=========", estimationTask);
-
-  // Display assigned user info fallback
-  const assignedTo =
-    estimation.assignedTo?.username || estimation.assignedToId || "—";
+const EstimationTaskDetail = ({ task, onClose }) => {
+  if (!task) return null;
 
   return (
-    <div className="w-full h-[60vh] overflow-y-auto mx-auto my-5 bg-white rounded-lg shadow border p-5">
-      <h2 className="text-lg font-bold text-teal-700 mb-4">
-        Estimation Task Details
-      </h2>
-      <div className="space-y-4">
-        {/* Task Info */}
-        <div className="grid grid-cols-2 gap-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-teal-700">Task Details</h2>
+          <button className="px-3 py-1 bg-gray-200 rounded" onClick={onClose}>Close</button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-gray-700">Task Status:</span>
-            <div className="text-gray-800 font-semibold">
-              {estimationTask?.status}
-            </div>
+            <strong>Project:</strong> {task.estimation?.projectName || ""}
           </div>
           <div>
-            <span className="font-medium text-gray-700">Assigned To:</span>
-            <div className="text-gray-800 font-semibold">
-              {estimationTask?.assignedTo?.f_name}{" "}
-              {estimationTask?.assignedTo?.m_name}{" "}
-              {estimationTask?.assignedTo?.l_name}
-            </div>
+            <strong>Assigned To:</strong> {[
+              task.assignedTo?.f_name,
+              task.assignedTo?.m_name,
+              task.assignedTo?.l_name,
+            ].filter(Boolean).join(" ")}
           </div>
           <div>
-            <span className="font-medium text-gray-700">Start Date:</span>
-            <div className="text-gray-800">
-              {formatDate(estimationTask?.startDate)}
-            </div>
+            <strong>Start Date:</strong> {task.startDate ? new Date(task.startDate).toLocaleDateString() : ""}
           </div>
           <div>
-            <span className="font-medium text-gray-700">End Date:</span>
-            <div className="text-gray-800">
-              {formatDate(estimationTask?.endDate)}
-            </div>
+            <strong>End Date:</strong> {task.endDate ? new Date(task.endDate).toLocaleDateString() : ""}
+          </div>
+          <div>
+            <strong>Status:</strong> {task.status}
           </div>
         </div>
 
-        {/* Estimation Info */}
-        <div>
-          <span className="font-medium text-gray-700">Estimation Number:</span>
-          <div className="text-gray-800">
-            {estimationTask?.estimation?.estimationNumber || "—"}
-          </div>
-        </div>
-        <div>
-          <span className="font-medium text-gray-700">Project Name:</span>
-          <div className="text-gray-800">
-            {estimationTask?.estimation?.projectName || "—"}
-          </div>
-        </div>
-        {/* Additional Notes */}
-        <div>
-          <span className="font-medium text-gray-700">Notes:</span>
-          <div className="text-gray-800">{estimationTask?.notes || "—"}</div>
-        </div>
-        {/* Working Hours */}
-        <div>
-          <span className="font-medium text-gray-700">Working Hours:</span>
-          <div className="text-gray-800">
-            {Array.isArray(estimationTask?.workinghours) &&
-            estimationTask?.workinghours.length > 0
-              ? estimation.workinghours
-                  .map(
-                    (wh) =>
-                      `User: ${wh.user_id || "—"}, Hours: ${wh.hours || "—"}`
-                  )
-                  .join(" | ")
-              : "—"}
-          </div>
-        </div>
-        {/* Reviewed Info */}
-        <div>
-          <span className="font-medium text-gray-700">Reviewed By:</span>
-          <div className="text-gray-800">
-            {estimation.reviewedBy?.username || estimation.reviewedById || "—"}
-          </div>
-        </div>
-        {/* Review Notes */}
-        <div>
-          <span className="font-medium text-gray-700">Review Notes:</span>
-          <div className="text-gray-800">{estimation.reviewNotes || "—"}</div>
-        </div>
-        {/* Files */}
-        <div>
-          <span className="font-medium text-gray-700">Files:</span>
-          <div className="text-gray-800">
-            {Array.isArray(estimation.files) && estimation.files.length > 0
-              ? estimation.files.map((file) => (
-                  <a
-                    key={file.id}
-                    href={file.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline mr-2"
-                  >
-                    {file.name || "File"}
-                  </a>
-                ))
-              : "—"}
-          </div>
+        <div className="mt-4">
+          <strong>Notes:</strong>
+          <div className="whitespace-pre-wrap text-sm mt-1">{task.notes || "-"}</div>
         </div>
       </div>
     </div>

@@ -3,20 +3,22 @@ import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
 import LineItemTable from "./LineItemTable";
 import RFQInfo from "./RFQInfo";
+import { useSignals } from "@preact/signals-react/runtime";
+import { estimationSignal } from "../../../signals";
 
 const EstimationDetail = ({ estimationId }) => {
-  const [estimation, setEstimation] = useState(null);
+  useSignals();
 
   const getEstimation = async () => {
     try {
       const data = await Service.getEstimationById(estimationId);
-      setEstimation(data);
+      estimationSignal.value = data;
     } catch (error) {
       console.error("Error fetching estimation:", error);
     }
   };
 
-  console.log("Estimation Detail Data:", estimation);
+  console.log("Estimation Detail Data:", estimationSignal.value);
 
   useEffect(() => {
     if (estimationId) {
@@ -24,7 +26,8 @@ const EstimationDetail = ({ estimationId }) => {
     }
   }, [estimationId]);
 
-  if (!estimation) return <div>Loading estimation...</div>;
+  const estimation = estimationSignal.value;
+  if (!estimation || estimation?.id !== estimationId) return <div>Loading estimation...</div>;
 
   return (
     <div className="p-4 h-[80vh] overflow-y-auto bg-white rounded-lg shadow-md space-y-4">
@@ -137,7 +140,20 @@ const EstimationDetail = ({ estimationId }) => {
       </div>
 
       <div className="mt-4">
-        <LineItemTable items={estimation.lineItems} />
+        <LineItemTable
+          items={estimation.lineItems}
+          onEdit={(id, updatedData) => {
+            // Update the signal immutably so all subscribers re-render
+            const current = estimationSignal.value;
+            if (!current) return;
+            estimationSignal.value = {
+              ...current,
+              lineItems: current.lineItems.map((li) =>
+                li.id === id ? { ...li, ...updatedData } : li
+              ),
+            };
+          }}
+        />
       </div>
     </div>
   );

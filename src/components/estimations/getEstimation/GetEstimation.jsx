@@ -7,8 +7,11 @@ import EstimationDetail from "./EstimationDetail";
 import AddEstimationTask from "./AddEstimationTask";
 import EstimationTaskList from "./EstimationTaskList";
 import Service from "../../../config/Service";
+import { useSignals } from "@preact/signals-react/runtime";
+import { estimationSignal } from "../../../signals";
 
 const GetEstimation = ({ estimation, onClose }) => {
+  useSignals();
   const [estimationTaskData, setEstimationTaskData] = useState(null);
   const estimationTask = estimationTaskData 
   console.log("Selected Estimation:", estimationTaskData);
@@ -16,6 +19,7 @@ const GetEstimation = ({ estimation, onClose }) => {
     try {
       const data = await Service.getEstimationById(estimation.id);
       setEstimationTaskData(data);
+      estimationSignal.value = data; // publish to signal for real-time subscribers
     } catch (error) {
       console.error("Error fetching estimation:", error);
     }

@@ -3,21 +3,22 @@ import { AllEstimations } from "../../components";
 import Estimations from "../../components/estimations/Estimations";
 import AddEstimation from "../../components/estimations/AddEstimation";
 import Service from "../../config/Service";
+import { estimationsSignal } from "../../signals";
 
 const EstimationView = () => {
   const [activeTab, setActiveTab] = useState("allEstimation");
-  const [estimationData, setEstimationData] = useState(null);
+  // The list is stored in estimationsSignal for real-time updates
   const userType = sessionStorage.getItem("userType");
   const fetchEstimationData = async () => {
     try {
       const response = await Service.allEstimations();
-      setEstimationData(response.data);
+      estimationsSignal.value = response?.data || [];
     } catch (error) {
       console.error("Error fetching estimation data:", error);
     }
   };
 
-  console.log("Estimation Data:", estimationData);
+  console.log("Estimation Data:", estimationsSignal.value);
   useEffect(() => {
     fetchEstimationData();
   }, []);
@@ -77,7 +78,7 @@ const EstimationView = () => {
           )}
           {activeTab === "allEstimation" && (
             <div>
-              <AllEstimations estimationData={estimationData} />
+              <AllEstimations />
             </div>
           )}
         </div>

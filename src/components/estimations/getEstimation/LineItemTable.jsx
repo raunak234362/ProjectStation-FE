@@ -1,176 +1,181 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
-
-const EditLineItemModal = ({ item, isOpen, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
-    scopeOfWork: item?.scopeOfWork || '',
-    quantity: item?.quantity || '',
-    hoursPerQty: item?.hoursPerQty || '',
-    totalHours: item?.totalHours || '',
-    remarks: item?.remarks || ''
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(item.id, formData);
-    onClose();
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-xl font-bold text-teal-700 mb-4">Edit Line Item</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Scope of Work</label>
-            <input
-              type="text"
-              name="scopeOfWork"
-              value={formData.scopeOfWork}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Quantity</label>
-            <input
-              type="number"
-              name="quantity"
-              value={formData.quantity}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Hours/Qty</label>
-            <input
-              type="number"
-              name="hoursPerQty"
-              value={formData.hoursPerQty}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Total Hours</label>
-            <input
-              type="number"
-              name="totalHours"
-              value={formData.totalHours}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-1">Remarks</label>
-            <textarea
-              name="remarks"
-              value={formData.remarks}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-teal-700 text-white rounded hover:bg-teal-800"
-            >
-              Save
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
+import { useState, useMemo, useEffect } from "react";
+import { useTable, useSortBy } from "react-table";
+import EditLineItemModal from "./EditLineItemModal";
 
 const LineItemTable = ({ items, onEdit }) => {
   const [editItem, setEditItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  if (!items || items.length === 0) {
-    return <div className="text-gray-600">No Line Items Available</div>;
-  }
-
+  // ✅ Enable edit only for certain user types
   const handleEditable = () => {
     const response = sessionStorage.getItem("userType");
-    return response === "admin"; // Example: Only admins can edit
+    return response === "admin" || response === "estimator-head";
   };
 
   const openEditModal = (item) => {
+    console.log("Opening edit modal for item:", item);
     setEditItem(item);
     setIsModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsModalOpen(false);
+    setEditItem(null);
   };
 
   const handleSave = (id, updatedData) => {
     onEdit(id, updatedData);
   };
 
+  // ✅ Add stable index (S.No.) to items
+  const data = useMemo(() => {
+    return (items || []).map((item, idx) => ({
+      ...item,
+      sno: idx + 1,
+    }));
+  }, [items]);
+
+  // ✅ Define table columns
+  const columns = useMemo(() => {
+    const baseCols = [
+      { Header: "#", accessor: "sno", disableSortBy: true }, // Fixed S.No.
+      { Header: "Scope of Work", accessor: "scopeOfWork" },
+      { Header: "Quantity", accessor: "quantity" },
+      { Header: "Hours/Qty", accessor: "hoursPerQty" },
+      { Header: "Total Hours", accessor: "totalHours" },
+      { Header: "Remarks", accessor: "remarks" },
+    ];
+
+    if (handleEditable()) {
+      baseCols.push({
+        Header: "Actions",
+        accessor: "actions",
+        disableSortBy: true,
+        Cell: ({ row }) => (
+          <button
+            onClick={() => openEditModal(row.original)}
+            className="text-teal-700 hover:text-teal-900 font-medium"
+          >
+            Edit
+          </button>
+        ),
+      });
+    }
+
+    return baseCols;
+  }, []);
+
+  // ✅ Table setup
+  const tableInstance = useTable({ columns, data }, useSortBy);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
+
+  // ✅ Simulate loading until items are ready
+  useEffect(() => {
+    if (items && items.length > 0) {
+      setLoading(false);
+    } else {
+      setLoading(false); // still stop loader even if empty
+    }
+  }, [items]);
+
+  if (!items || items.length === 0) {
+    return <div className="text-gray-600">No Line Items Available</div>;
+  }
+
+  // ✅ Skeleton rows
+  const renderSkeletonRows = (count = 8) => {
+    return Array.from({ length: count }).map((_, rowIdx) => (
+      <tr key={rowIdx} className="animate-pulse">
+        {columns.map((col, colIdx) => (
+          <td key={colIdx} className="px-4 py-2 border">
+            {col.accessor !== "actions" ? (
+              <div className="h-4 bg-gray-300 rounded w-full"></div>
+            ) : (
+              <div className="h-6 w-12 bg-gray-200 rounded mx-auto"></div>
+            )}
+          </td>
+        ))}
+      </tr>
+    ));
+  };
+
   return (
-    <div className="mt-6 h-[50vh] overflow-y-auto">
+    <div className="mt-6 h-[50vh] ">
       <h2 className="text-xl font-bold text-teal-700 mb-3">Line Items</h2>
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full text-sm text-left border-collapse">
-          <thead className="bg-gray-100 text-gray-800">
-            <tr>
-              <th className="border px-3 py-2">#</th>
-              <th className="border px-3 py-2">Scope of Work</th>
-              <th className="border px-3 py-2">Quantity</th>
-              <th className="border px-3 py-2">Hours/Qty</th>
-              <th className="border px-3 py-2">Total Hours</th>
-              <th className="border px-3 py-2">Remarks</th>
-              {handleEditable() && <th className="border px-3 py-2">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={item.id} className="even:bg-gray-50">
-                <td className="border px-3 py-2">{idx + 1}</td>
-                <td className="border px-3 py-2">{item.scopeOfWork}</td>
-                <td className="border px-3 py-2">{item.quantity ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.hoursPerQty ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.totalHours ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.remarks || "-"}</td>
-                {handleEditable() && (
-                  <td className="border px-3 py-2">
-                    <button
-                      onClick={() => openEditModal(item)}
-                      className="text-teal-700 hover:text-teal-900"
-                    >
-                      Edit
-                    </button>
-                  </td>
-                )}
+      <div className="overflow-x-auto rounded-md border max-h-[80vh]">
+        <table
+          {...getTableProps()}
+          className="min-w-[800px] w-full border-collapse text-sm text-left"
+        >
+          {/* Header */}
+          <thead className="sticky top-0 z-10 bg-teal-200">
+            {headerGroups.map((headerGroup, headerGroupIdx) => (
+              <tr
+                key={headerGroup.id || headerGroupIdx}
+                {...headerGroup.getHeaderGroupProps()}
+              >
+                {headerGroup.headers.map((column, colIdx) => (
+                  <th
+                    key={column.id || colIdx}
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className="px-4 py-2 font-semibold border whitespace-nowrap cursor-pointer select-none"
+                  >
+                    {column.render("Header")}
+                    {column.isSorted ? (column.isSortedDesc ? " ↓" : " ↑") : ""}
+                  </th>
+                ))}
               </tr>
             ))}
+          </thead>
+
+          {/* Body */}
+          <tbody {...getTableBodyProps()}>
+            {loading ? (
+              renderSkeletonRows(8)
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="py-4 text-center">
+                  No Projects Found
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    {...row.getRowProps()}
+                    key={row.id || row.index}
+                    className="hover:bg-gray-50 transition"
+                  >
+                    {row.cells.map((cell) => (
+                      <td
+                        key={cell.column.id || cell.getCellProps().key}
+                        {...cell.getCellProps()}
+                        className="px-4 py-2 border"
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
-      <EditLineItemModal
-        item={editItem}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSave}
-      />
+
+      {/* Modal */}
+      {editItem && (
+        <EditLineItemModal
+          item={editItem}
+          isOpen={isModalOpen}
+          onClose={closeEditModal}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };

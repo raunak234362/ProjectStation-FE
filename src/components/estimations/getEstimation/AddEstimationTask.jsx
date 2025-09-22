@@ -6,6 +6,7 @@ import { Button, CustomSelect, Input } from "../..";
 import SectionTitle from "../../../util/SectionTitle";
 import Service from "../../../config/Service";
 import toast from "react-hot-toast";
+import { estimationSignal } from "../../../signals";
 
 const AddEstimationTask = ({ estimationId }) => {
   const userData = useSelector((state) => state.userData?.staffData);
@@ -25,7 +26,7 @@ const AddEstimationTask = ({ estimationId }) => {
     }));
     console.log("Estimator Options:", estimatorOptions);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const payload = {
       ...data,
       endDate: new Date(data.endDate).toISOString(),
@@ -33,17 +34,21 @@ const AddEstimationTask = ({ estimationId }) => {
       estimationId: estimationId,
     };
     try {
-      // Handle form submission logic here
-      const response = Service.addEstimationTask(estimationId,payload);
-        console.log("Estimation task added:", response);
+      const response = await Service.addEstimationTask(estimationId, payload);
+      const createdTask = response?.data || payload;
+      // Update signal so task list/detail refreshes immediately
+      const current = estimationSignal.value;
+      if (current) {
+        estimationSignal.value = {
+          ...current,
+          tasks: [createdTask, ...(current.tasks || [])],
+        };
+      }
       toast.success("Estimation task added successfully!");
     } catch (error) {
-      // Handle error here
       toast.error("Error adding estimation task.");
       console.error("Error adding estimation task:", error);
     }
-    console.log("Form Data:", data);
-    // Handle form submission logic here
   };
 
   return (
