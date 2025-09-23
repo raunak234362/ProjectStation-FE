@@ -1,14 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import {
-  Calendar,
-  Edit2,
-  FileText,
-  Plus,
-  X,
-  ChevronRight,
-} from "lucide-react";
+import { Calendar, Edit2, FileText, Plus, X, ChevronRight } from "lucide-react";
 
 // UI Components
 const Button = ({
@@ -111,7 +104,12 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 };
 
 // Main Component
-const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose }) => {
+const ClientProjectDetail = ({
+  projectId,
+  projectData,
+  fetchProjectByID,
+  onClose,
+}) => {
   const [activeTab, setActiveTab] = useState("details");
 
   const [selectedEditProject, setSelectedEditProject] = useState(null);
@@ -146,13 +144,46 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
 
   const getStatusVariant = (status) => {
     const statusMap = {
-      Completed: "success",
+      COMPLETE: "success",
       "In Progress": "info",
       "On Hold": "warning",
       Delayed: "danger",
       "Not Started": "default",
     };
     return statusMap[status] || "default";
+  };
+
+  // NEW: Calculate overall task completion %
+  const getTaskCompletionPercentage = (tasks) => {
+    if (!Array.isArray(tasks) || tasks.length === 0) return 0;
+    const completed = tasks.filter((task) => task.status === "COMPLETE").length;
+    return Math.round((completed / tasks.length) * 100);
+  };
+
+  const getMilestoneStatus = (tasks) => {
+    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+
+    // Group tasks by milestone
+    const milestoneMap = {};
+    tasks.forEach((task) => {
+      const ms = task.mileStone || "No Milestone";
+      if (!milestoneMap[ms]) milestoneMap[ms] = [];
+      milestoneMap[ms].push(task);
+    });
+
+    // MilestoneSummary
+    const milestonesSummary = Object.entries(milestoneMap).map(
+      ([milestone, tasks]) => {
+        const completedCount = tasks.filter(
+          (t) => t.status === "Completed"
+        ).length;
+        const total = tasks.length;
+        const percentage = Math.round((completedCount / total) * 100);
+        return { milestone, percentage };
+      }
+    );
+
+    return milestonesSummary; // Array of { milestone, percentage }
   };
 
   const formatDate = (dateString) => {
@@ -168,11 +199,7 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
     <div className="space-y-6">
       {/* Project Details Card */}
       <Card>
-      <CardHeader
-          title="Project Status"
-          icon={<Calendar size={18} />}
-         
-        />
+        <CardHeader title="Project Status" icon={<Calendar size={18} />} />
       </Card>
       <Card>
         <CardHeader
@@ -193,14 +220,61 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
+              {/* Task Completion - NEW */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Task Completion
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {getTaskCompletionPercentage(projectData?.tasks)}%
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                  <div
+                    className="bg-teal-500 h-2.5 rounded-full"
+                    style={{
+                      width: `${getTaskCompletionPercentage(
+                        projectData?.tasks
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Milestone - NEW */}
+              {/* Milestone status - NEW */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Milestones
+                </h4>
+                {getMilestoneStatus(projectData?.tasks)?.map((ms) => (
+                  <div
+                    key={ms.milestone}
+                    className="flex items-center gap-2 mb-1"
+                  >
+                    <Badge
+                      variant={getStatusVariant(
+                        ms.percentage === 100 ? "Completed" : "In Progress"
+                      )}
+                    >
+                      {ms.milestone}
+                    </Badge>
+                    <span className="text-gray-700 text-sm">
+                      {ms.percentage}% completed
+                    </span>
+                  </div>
+                ))}
+              </div>
+
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Description
                 </h4>
                 <div
-            className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
-            dangerouslySetInnerHTML={{ __html: projectData?.description || "N/A" }}
-          />
+                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
+                  dangerouslySetInnerHTML={{
+                    __html: projectData?.description || "N/A",
+                  }}
+                />
               </div>
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
@@ -248,6 +322,8 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
                 </p>
               </div>
             </div>
+
+            {/* Right column remains unchanged */}
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
@@ -333,7 +409,6 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 
@@ -401,7 +476,6 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
-      {/* Note: ProjectStatus modal not implemented here as it requires additional context */}
     </>
   );
 };
