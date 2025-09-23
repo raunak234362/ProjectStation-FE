@@ -104,7 +104,10 @@ const LineItemTable = ({ items, onEdit }) => {
 
   return (
     <div className="mt-6 h-[50vh] ">
-      <h2 className="text-xl font-bold text-teal-700 mb-3">Line Items</h2>
+      <div>
+        <h2 className="text-xl font-bold text-teal-700 mb-3">Line Items</h2>
+        <button className="text-teal-700 hover:text-teal-900 font-medium" onClick={() => openEditModal(null)}>Add Line Item</button>
+      </div>
       <div className="overflow-x-auto rounded-md border max-h-[80vh]">
         <table
           {...getTableProps()}

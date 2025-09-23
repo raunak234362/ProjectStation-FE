@@ -49,6 +49,7 @@ const EditLineItemModal = ({ item, isOpen, onClose, onSave }) => {
       onSave(lineItemID, responseData); // update parent
       onClose();
     } catch (err) {
+      toast.error("Failed to update line item.");
       console.error("Error updating line item:", err);
     }
   };

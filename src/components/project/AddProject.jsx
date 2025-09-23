@@ -294,12 +294,12 @@ const AddProject = () => {
           <SectionTitle title="Detailing Scope" />
           <div className="grid md:grid-cols-3 gap-4 mt-4">
             <Toggle
-              label="Main Design"
+              label="Main Steel"
               {...register("detailingMain")}
               onChange={(value) => setValue("detailingMain", value)}
             />
             <Toggle
-              label="Misc Design"
+              label="Miscellaneous Steel"
               {...register("detailingMisc")}
               onChange={(value) => setValue("detailingMisc", value)}
             />
