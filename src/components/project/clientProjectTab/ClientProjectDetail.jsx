@@ -168,6 +168,13 @@ const ClientProjectDetail = ({ projectId, projectData, fetchProjectByID, onClose
     <div className="space-y-6">
       {/* Project Details Card */}
       <Card>
+      <CardHeader
+          title="Project Status"
+          icon={<Calendar size={18} />}
+         
+        />
+      </Card>
+      <Card>
         <CardHeader
           title="Project Details"
           icon={<Calendar size={18} />}
