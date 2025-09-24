@@ -14,6 +14,7 @@ import Service from "../../config/Service";
 import socket from "../../socket";
 import toast, { Toaster } from "react-hot-toast";
 import JoditEditor from "jodit-react";
+import { prependRFI } from "../../signals";
 
 const AddRFI = ({ projectData }) => {
   const project = projectData || {};
@@ -115,9 +116,14 @@ const AddRFI = ({ projectData }) => {
       const response = await Service.addRFI(rfiData);
       toast.success("RFI created successfully");
       console.log("RFI created successfully:", response);
-      if (response.user) {
+      // Try to optimistically add to the RFI list
+      const created = response?.data?.data || response?.data || null;
+      if (created) {
+        prependRFI(created);
+      }
+      if (response?.user) {
         socket.emit("sendNotification", {
-          userId: response.user, // should be the assigned user's ID
+          userId: response.user,
           message: `📌 New Task Assigned: ${projectData.name}`,
           title: "New Task",
         });

@@ -14,7 +14,14 @@ const RFIDetail = ({ rfi, FileLinks, rfiId }) => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-3">
         <InfoItem label="Subject" value={rfi.subject} />
-        <InfoItem label="Description" value={rfi.description} />
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+          <div className="font-medium text-gray-800">Description:</div>
+          <br />
+          <div
+            className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
+            dangerouslySetInnerHTML={{ __html: rfi?.description || "N/A" }}
+          />
+        </div>
         <InfoItem
           label="Date"
           value={new Date(rfi.date).toLocaleDateString()}

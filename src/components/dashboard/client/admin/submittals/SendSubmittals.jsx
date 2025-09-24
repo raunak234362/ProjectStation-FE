@@ -10,6 +10,7 @@ import {
 } from "../../../../index";
 import toast from "react-hot-toast";
 import Service from "../../../../../config/Service";
+import { prependSubmittal } from "../../../../../signals";
 
 const SendSubmittals = () => {
   const [recipients, setRecipients] = useState([]);
@@ -98,6 +99,10 @@ console.log("==================================",recipientID)
     try {
       const response = await Service.addSubmittal(submittalData);
       toast.success("Submittal created successfully");
+      const created = response?.data?.data || response?.data || null;
+      if (created) {
+        prependSubmittal(created);
+      }
     } catch (error) {
       toast.error("Error creating submittal");
       console.error("Error creating submittal:", error);

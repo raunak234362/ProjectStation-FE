@@ -160,30 +160,28 @@ const ClientProjectDetail = ({
     return Math.round((completed / tasks.length) * 100);
   };
 
+  // Group tasks by milestone (subject + id) and compute completion percentage
   const getMilestoneStatus = (tasks) => {
-    if (!Array.isArray(tasks) || tasks.length === 0) return null;
+    if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-    // Group tasks by milestone
-    const milestoneMap = {};
+    const groups = new Map();
     tasks.forEach((task) => {
-      const ms = task.mileStone || "No Milestone";
-      if (!milestoneMap[ms]) milestoneMap[ms] = [];
-      milestoneMap[ms].push(task);
+      const ms = task.mileStone || task.milestone || {};
+      const id = task.mileStone_id || task.milestone_id || ms.id || "unknown";
+      const subject = ms.subject || ms.Subject || "Unknown Milestone";
+      const key = `${id}||${subject}`;
+      if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
+      groups.get(key).tasks.push(task);
     });
 
-    // MilestoneSummary
-    const milestonesSummary = Object.entries(milestoneMap).map(
-      ([milestone, tasks]) => {
-        const completedCount = tasks.filter(
-          (t) => t.status === "Completed"
-        ).length;
-        const total = tasks.length;
-        const percentage = Math.round((completedCount / total) * 100);
-        return { milestone, percentage };
-      }
-    );
-
-    return milestonesSummary; // Array of { milestone, percentage }
+    return Array.from(groups.values()).map((group) => {
+      const total = group.tasks.length;
+      const completedCount = group.tasks.filter(
+        (t) => t.status === "COMPLETE"
+      ).length;
+      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+      return { ...group, total, completedCount, percentage };
+    });
   };
 
   const formatDate = (dateString) => {
@@ -200,6 +198,45 @@ const ClientProjectDetail = ({
       {/* Project Details Card */}
       <Card>
         <CardHeader title="Project Status" icon={<Calendar size={18} />} />
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">
+              Task Completion
+            </h4>
+            <p className="text-gray-800 font-semibold">
+              {getTaskCompletionPercentage(projectData?.tasks)}%
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+              <div
+                className="bg-teal-500 h-2.5 rounded-full"
+                style={{
+                  width: `${getTaskCompletionPercentage(projectData?.tasks)}%`,
+                }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Milestones grouped by subject and id */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-500 mb-1">
+              Milestones
+            </h4>
+            {getMilestoneStatus(projectData?.tasks).map((ms) => (
+              <div key={ms.id} className="flex items-center gap-2 mb-1">
+                <Badge
+                  variant={getStatusVariant(
+                    ms.percentage === 100 ? "Completed" : "In Progress"
+                  )}
+                >
+                  {ms.subject}
+                </Badge>
+                <span className="text-gray-700 text-sm">
+                  {ms.percentage}% completed
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
       </Card>
       <Card>
         <CardHeader
@@ -221,49 +258,6 @@ const ClientProjectDetail = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               {/* Task Completion - NEW */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Task Completion
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {getTaskCompletionPercentage(projectData?.tasks)}%
-                </p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                  <div
-                    className="bg-teal-500 h-2.5 rounded-full"
-                    style={{
-                      width: `${getTaskCompletionPercentage(
-                        projectData?.tasks
-                      )}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-
-              {/* Milestone - NEW */}
-              {/* Milestone status - NEW */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Milestones
-                </h4>
-                {getMilestoneStatus(projectData?.tasks)?.map((ms) => (
-                  <div
-                    key={ms.milestone}
-                    className="flex items-center gap-2 mb-1"
-                  >
-                    <Badge
-                      variant={getStatusVariant(
-                        ms.percentage === 100 ? "Completed" : "In Progress"
-                      )}
-                    >
-                      {ms.milestone}
-                    </Badge>
-                    <span className="text-gray-700 text-sm">
-                      {ms.percentage}% completed
-                    </span>
-                  </div>
-                ))}
-              </div>
 
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">

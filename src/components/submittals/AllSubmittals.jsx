@@ -40,10 +40,7 @@ const AllSubmittals = ({ projectData }) => {
                 Header: "Subject",
                 accessor: "subject",
             },
-            {
-                Header: "Description",
-                accessor: "description",
-            },
+            
             {
                 Header: "Date",
                 accessor: "date",
