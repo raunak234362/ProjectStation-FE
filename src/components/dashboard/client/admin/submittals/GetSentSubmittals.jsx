@@ -92,11 +92,12 @@ const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }
   );
 
   // File download URL based on role
-  const getFileUrl = (file, submittalId, responseId = null) => {
+  const getFileUrl = (file, submittalId, responseId ) => {
+    console.log("Generating file URL for:",  submittalId);
     const baseUrl = import.meta.env.VITE_BASE_URL;
     if (userRole === "admin") {
       return responseId
-        ? `${baseUrl.replace(/\/$/, "")}/api/submittalsResponse/${responseId}/${file.id}`
+        ? `${baseUrl.replace(/\/$/, "")}/api/submittalsResponse/${submittalId}/${file.id}`
         : `${baseUrl.replace(/\/$/, "")}/api/submittals/submittals/${submittalId}/${file.id}`;
     }
     return `${baseUrl}/api/RFi/rfi/${responseId || submittalId}/${file.id}`;
@@ -189,6 +190,7 @@ const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }
                             rel="noopener noreferrer"
                             className="text-blue-600 hover:underline"
                           >
+                            {console.log("submital file:", file, submittal.id)}
                             <div>{file.originalName || `File ${file.id}`}</div>
                           </a>
                         ))

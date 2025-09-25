@@ -9,17 +9,18 @@ import RFIDetail from "./RFIDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 
-const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
+const FileLinks = ({ files, rfiId, isResponse = false, responseId }) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
-
+const responseID = responseId;
+const rfiID= rfiId;
   if (!Array.isArray(files) || files.length === 0) {
     return <span className="text-sm text-gray-500">Not available</span>;
   }
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
+      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseID}/${file.id}`
+      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiID}/${file.id}`;
 
     return (
       <a

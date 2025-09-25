@@ -66,28 +66,34 @@ const ClientProjectDetail = ({
   };
 
   // Group tasks by milestone (subject + id) and compute completion percentage
-  const getMilestoneStatus = (tasks) => {
-    if (!Array.isArray(tasks) || tasks.length === 0) return [];
+  // Group tasks by milestone (subject + id) and compute completion percentage
+const getMilestoneStatus = (tasks) => {
+  if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-    const groups = new Map();
-    tasks.forEach((task) => {
-      const ms = task.mileStone || task.milestone || {};
-      const id = task.mileStone_id || task.milestone_id || ms.id || "unknown";
-      const subject = ms.subject || ms.Subject || "Unknown Milestone";
-      const key = `${id}||${subject}`;
-      if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
-      groups.get(key).tasks.push(task);
-    });
+  const groups = new Map();
+  tasks.forEach((task) => {
+    const ms = task.mileStone || task.milestone || {};
+    const id = task.mileStone_id || task.milestone_id || ms.id;
+    const subject = ms.subject || ms.Subject;
 
-    return Array.from(groups.values()).map((group) => {
-      const total = group.tasks.length;
-      const completedCount = group.tasks.filter(
-        (t) => t.status === "COMPLETE"
-      ).length;
-      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-      return { ...group, total, completedCount, percentage };
-    });
-  };
+    // ✅ Skip tasks with no milestone info
+    if (!id || !subject) return;
+
+    const key = `${id}||${subject}`;
+    if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
+    groups.get(key).tasks.push(task);
+  });
+
+  return Array.from(groups.values()).map((group) => {
+    const total = group.tasks.length;
+    const completedCount = group.tasks.filter(
+      (t) => t.status === "COMPLETE" && t.status==="COMPLETE_OTHER" && t.status==="COMPLETE_VALIDATE"
+    ).length;
+    const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+    return { ...group, total, completedCount, percentage };
+  });
+};
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not available";
