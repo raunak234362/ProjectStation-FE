@@ -1,107 +1,12 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import { Calendar, Edit2, FileText, Plus, X, ChevronRight } from "lucide-react";
+import { Calendar, Edit2, FileText, Plus, ChevronRight } from "lucide-react";
+import Button from "../../fields/Button";
+import { Badge, Card, CardHeader, Tabs } from "@material-tailwind/react";
+import { CardContent } from "@mui/material";
 
-// UI Components
-const Button = ({
-  children,
-  variant = "primary",
-  size = "md",
-  className = "",
-  onClick,
-  ...props
-}) => {
-  const baseStyles =
-    "font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2";
-  const variants = {
-    primary: "bg-teal-500 hover:bg-teal-600 text-white shadow-sm",
-    secondary: "bg-gray-100 hover:bg-gray-200 text-gray-700",
-    outline: "border border-gray-300 hover:bg-gray-50 text-gray-700",
-    danger: "bg-red-500 hover:bg-red-600 text-white",
-    ghost: "hover:bg-gray-100 text-gray-700",
-  };
-  const sizes = {
-    sm: "text-xs px-2.5 py-1.5",
-    md: "text-sm px-4 py-2",
-    lg: "text-base px-5 py-2.5",
-  };
-  return (
-    <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      onClick={onClick}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-const Badge = ({ children, variant = "default" }) => {
-  const variants = {
-    default: "bg-gray-100 text-gray-800",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    danger: "bg-red-100 text-red-800",
-    info: "bg-blue-100 text-blue-800",
-    primary: "bg-teal-100 text-teal-800",
-  };
-  return (
-    <span
-      className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${variants[variant]}`}
-    >
-      {children}
-    </span>
-  );
-};
-
-const Card = ({ children, className = "" }) => {
-  return (
-    <div
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}
-    >
-      {children}
-    </div>
-  );
-};
-
-const CardHeader = ({ title, icon, action }) => {
-  return (
-    <div className="flex items-center justify-between border-b border-gray-100 p-4">
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-teal-500">{icon}</span>}
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-      </div>
-      {action && <div>{action}</div>}
-    </div>
-  );
-};
-
-const CardContent = ({ children, className = "" }) => {
-  return <div className={`p-4 ${className}`}>{children}</div>;
-};
-
-const Tabs = ({ tabs, activeTab, onChange }) => {
-  return (
-    <div className="border-b border-gray-200">
-      <nav className="flex space-x-6 px-4" aria-label="Tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            className={`py-3 px-1 border-b-2 font-medium text-sm ${
-              activeTab === tab.id
-                ? "border-teal-500 text-teal-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-};
+// Reusable UI Components (Button, Badge, Card, etc.) ...
 
 // Main Component
 const ClientProjectDetail = ({
@@ -195,10 +100,11 @@ const ClientProjectDetail = ({
 
   const renderDetailsAndFabricator = () => (
     <div className="space-y-6">
-      {/* Project Details Card */}
+      {/* Project Status Card */}
       <Card>
         <CardHeader title="Project Status" icon={<Calendar size={18} />} />
         <CardContent className="space-y-4">
+          {/* Task Completion */}
           <div>
             <h4 className="text-sm font-medium text-gray-500 mb-1">
               Task Completion
@@ -216,7 +122,7 @@ const ClientProjectDetail = ({
             </div>
           </div>
 
-          {/* Milestones grouped by subject and id */}
+          {/* Milestones */}
           <div>
             <h4 className="text-sm font-medium text-gray-500 mb-1">
               Milestones
@@ -238,6 +144,8 @@ const ClientProjectDetail = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Project Details Card */}
       <Card>
         <CardHeader
           title="Project Details"
@@ -256,15 +164,14 @@ const ClientProjectDetail = ({
         />
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Left Column */}
             <div className="space-y-4">
-              {/* Task Completion - NEW */}
-
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Description
                 </h4>
                 <div
-                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
+                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal"
                   dangerouslySetInnerHTML={{
                     __html: projectData?.description || "N/A",
                   }}
@@ -296,7 +203,9 @@ const ClientProjectDetail = ({
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Team
+                </h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.team?.name || "Not available"}
                 </p>
@@ -317,7 +226,7 @@ const ClientProjectDetail = ({
               </div>
             </div>
 
-            {/* Right column remains unchanged */}
+            {/* Right Column */}
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
@@ -361,7 +270,7 @@ const ClientProjectDetail = ({
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">
                     Main Design

@@ -1,14 +1,13 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
+import RFIResponse from "./response/RFIResponse";
 import { X } from "lucide-react";
-import RFIDetail from "./SubmittalDetail";
+import RFIDetail from "./RFIDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
-import ResponseSubmittals from "./response/SubmittalsResponse";
 
 const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
@@ -36,23 +35,20 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
   });
 };
 
-const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
-  console.log("Fetched Submittals ID-------:", submittalId);
-  const submittalID = submittalId;
-  const [submittal, setSubmittal] = useState(null);
-  const [submittalResponse, setSubmittalResponse] = useState([]);
+const RFIList = ({ rfiId, isOpen, onClose }) => {
+  const [rfi, setRFI] = useState(null);
+  const [rfiResponse, setRFIResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [loading, setLoading] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
-  const fetchSubmittals = useCallback(async () => {
+  const fetchRFI = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await Service.getSentSubmittals(submittalID);
-      // setSubmittal(response);
-      console.log("Fetched Submittals:", response);
-      setSubmittal((prev) => {
-        const newData = response;
+      const response = await Service.fetchRFIById(rfiId);
+      console.log("Fetched RFI:", response.data);
+      setRFI((prev) => {
+        const newData = response?.data;
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
           return newData;
         }
@@ -64,14 +60,14 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [submittalId]);
+  }, [rfiId]);
 
-  console.log("GetSubmittals component rendered with submittalId:", submittal);
+  console.log("GetRFI component rendered with rfiId:", rfi);
 
-  const fetchSubmittalResponses = useCallback(async () => {
+  const fetchRFIResponses = useCallback(async () => {
     try {
-      const response = await Service.fetchRFIResponseById(submittalId);
-      setSubmittalResponse((prev) => {
+      const response = await Service.fetchRFIResponseById(rfiId);
+      setRFIResponse((prev) => {
         const newData = response?.data || [];
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
           return newData;
@@ -82,7 +78,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
       toast.error("Failed to fetch RFI responses");
       console.error("Error fetching RFI responses:", error);
     }
-  }, [submittalId]);
+  }, [rfiId]);
 
   const handleViewModalOpen = useCallback((rfiResponseData) => {
     console.log("Opening modal for response ID:", rfiResponseData);
@@ -103,7 +99,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
       },
       {
         Header: "Description",
-        accessor: "description",
+        accessor: "reason",
         Cell: ({ value }) => value || "N/A",
       },
       {
@@ -134,50 +130,39 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
     [userType, handleViewModalOpen]
   );
 
-  console.log("Submittal Responses:", submittal);
-
-  const tableData = useMemo(() => {
-    if (Array.isArray(submittal?.submittalsResponse)) {
-      return submittal.submittalsResponse;
-    }
-    console.warn(
-      "❗ Expected array for submittalsResponse, got:",
-      submittal?.submittalsResponse
-    );
-    return [];
-  }, [submittal?.submittalsResponse]);
+  const tableData = useMemo(() => rfi?.rfiresponse || [], [rfi?.rfiresponse]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: tableData }, useSortBy);
 
   useEffect(() => {
-    if (isOpen && submittalId) {
-      fetchSubmittals();
-      fetchSubmittalResponses();
+    if (isOpen && rfiId) {
+      fetchRFI();
+      fetchRFIResponses();
     }
-  }, [submittalId, isOpen, fetchSubmittals, fetchSubmittalResponses]);
+  }, [rfiId, isOpen, fetchRFI, fetchRFIResponses]);
+
   if (!isOpen) return null;
 
-  console.log("Submittal Responses:", submittal);
-  if (loading || !submittal) {
+  if (loading || !rfi) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div className="bg-white p-6 rounded-md shadow-md text-center">
-          {loading
-            ? "Loading Submittal details..."
-            : "No Submittal data available"}
+          {loading ? "Loading RFI details..." : "No RFI data available"}
         </div>
       </div>
     );
   }
+
+  // eslint-disable-next-line no-unused-vars
+  const { subject, recepients, rfiresponse, id: rfiID } = rfi;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white h-[90%] w-11/12 max-w-5xl rounded-lg shadow-lg overflow-hidden">
         <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
-            <span className="font-bold">Subject:</span>{" "}
-            {submittal?.subject || "N/A"}
+            <span className="font-bold">Subject:</span> {subject || "N/A"}
           </div>
           <button
             className="p-2 text-gray-800 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
@@ -189,22 +174,12 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         </div>
 
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <div
-            className={`grid gap-4 ${
-              userType === "client"
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1"
-            }`}
-          >
-            <RFIDetail
-              submittal={submittal}
-              FileLinks={FileLinks}
-              submittalId={submittalID}
-            />
+          <div className={`grid gap-4 ${userType === "client" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
+            <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfiID} />
             {userType === "client" && (
-              <ResponseSubmittals
-                submittalResponse={submittalResponse}
-                submittal={submittal}
+              <RFIResponse
+                rfiResponse={rfiResponse}
+                rfi={rfi}
                 onClose={onClose}
               />
             )}
@@ -212,7 +187,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
 
           <section>
             <h3 className="px-3 py-2 mt-3 font-bold text-white bg-teal-400 rounded-lg shadow-md md:text-2xl">
-              Submittals Responses
+              RFI Responses
             </h3>
             <div className="p-5 bg-gray-50 rounded-lg shadow-inner min-h-[100px] overflow-x-auto">
               <table
@@ -220,7 +195,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
                 className="min-w-full text-sm text-center text-gray-700 border-collapse rounded-xl"
               >
                 <thead>
-                  {headerGroups?.map((headerGroup) => (
+                  {headerGroups.map((headerGroup) => (
                     <tr
                       {...headerGroup.getHeaderGroupProps()}
                       className="bg-teal-200/90"
@@ -295,4 +270,4 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   );
 };
 
-export default GetSubmittals;
+export default RFIList;
