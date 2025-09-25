@@ -13,7 +13,7 @@ const SelectedResponseDetail = ({ responseDetail }) => {
           responseDetail.files.map((file) => (
             <a
               key={file.id}
-              href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfqResponse/${
+              href={`${import.meta.env.VITE_BASE_URL}/api/Submittals/submittalsResponse/${
                 responseDetail.id
               }/${file.id}`}
               target="_blank"

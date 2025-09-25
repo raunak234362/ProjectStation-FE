@@ -67,33 +67,35 @@ const ClientProjectDetail = ({
 
   // Group tasks by milestone (subject + id) and compute completion percentage
   // Group tasks by milestone (subject + id) and compute completion percentage
-const getMilestoneStatus = (tasks) => {
-  if (!Array.isArray(tasks) || tasks.length === 0) return [];
+  const getMilestoneStatus = (tasks) => {
+    if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-  const groups = new Map();
-  tasks.forEach((task) => {
-    const ms = task.mileStone || task.milestone || {};
-    const id = task.mileStone_id || task.milestone_id || ms.id;
-    const subject = ms.subject || ms.Subject;
+    const groups = new Map();
+    tasks.forEach((task) => {
+      const ms = task.mileStone || task.milestone || {};
+      const id = task.mileStone_id || task.milestone_id || ms.id;
+      const subject = ms.subject || ms.Subject;
 
-    // ✅ Skip tasks with no milestone info
-    if (!id || !subject) return;
+      // ✅ Skip tasks with no milestone info
+      if (!id || !subject) return;
 
-    const key = `${id}||${subject}`;
-    if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
-    groups.get(key).tasks.push(task);
-  });
+      const key = `${id}||${subject}`;
+      if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
+      groups.get(key).tasks.push(task);
+    });
 
-  return Array.from(groups.values()).map((group) => {
-    const total = group.tasks.length;
-    const completedCount = group.tasks.filter(
-      (t) => t.status === "COMPLETE" && t.status==="COMPLETE_OTHER" && t.status==="COMPLETE_VALIDATE"
-    ).length;
-    const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-    return { ...group, total, completedCount, percentage };
-  });
-};
-
+    return Array.from(groups.values()).map((group) => {
+      const total = group.tasks.length;
+      const completedCount = group.tasks.filter(
+        (t) =>
+          t.status === "COMPLETE" &&
+          t.status === "VALIDATE_COMPLETE" &&
+          t.status === "COMPLETE_OTHER"
+      ).length;
+      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+      return { ...group, total, completedCount, percentage };
+    });
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not available";
@@ -135,13 +137,6 @@ const getMilestoneStatus = (tasks) => {
             </h4>
             {getMilestoneStatus(projectData?.tasks).map((ms) => (
               <div key={ms.id} className="flex items-center gap-2 mb-1">
-                <Badge
-                  variant={getStatusVariant(
-                    ms.percentage === 100 ? "Completed" : "In Progress"
-                  )}
-                >
-                  {ms.subject}
-                </Badge>
                 <span className="text-gray-700 text-sm">
                   {ms.percentage}% completed
                 </span>
@@ -188,16 +183,7 @@ const getMilestoneStatus = (tasks) => {
                   Status
                 </h4>
                 <div className="flex items-center gap-2">
-                  <Badge variant={getStatusVariant(projectData?.status)}>
-                    {projectData?.status || "Not available"}
-                  </Badge>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleStatusView(projectId)}
-                  >
-                    View Details
-                  </Button>
+                  {projectData?.status || "Not available"}
                 </div>
               </div>
               <div>
@@ -209,9 +195,7 @@ const getMilestoneStatus = (tasks) => {
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Team
-                </h4>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.team?.name || "Not available"}
                 </p>
@@ -276,42 +260,84 @@ const getMilestoneStatus = (tasks) => {
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Main Design
-                  </h4>
-                  <Badge
-                    variant={
-                      projectData?.connectionDesign ? "success" : "default"
-                    }
-                  >
-                    {projectData?.connectionDesign
-                      ? "Required"
-                      : "Not required"}
-                  </Badge>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+                <div className="font-medium text-gray-800">
+                  Connection Design Scope:
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Misc Design
-                  </h4>
-                  <Badge
-                    variant={projectData?.miscDesign ? "success" : "default"}
-                  >
-                    {projectData?.miscDesign ? "Required" : "Not required"}
-                  </Badge>
+                  <div>Main: </div>
+                  <div>
+                    {projectData?.connectionDesign ? (
+                      <span className="text-green-600 font-semibold">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Not Required
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Connection Design
-                  </h4>
-                  <Badge
-                    variant={
-                      projectData?.customerDesign ? "success" : "default"
-                    }
-                  >
-                    {projectData?.customerDesign ? "Required" : "Not required"}
-                  </Badge>
+                  <div>MISC: </div>
+                  <div>
+                    {projectData?.miscDesign ? (
+                      <span className="text-green-600 font-semibold">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Not Required
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div>Custom: </div>
+                  <div>
+                    {projectData?.customerDesign ? (
+                      <span className="text-green-600 font-semibold">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Not Required
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+                <div className="font-medium text-gray-800">
+                  Detailing Scope:
+                </div>
+                <div>
+                  <div>Main: </div>
+                  <div>
+                    {projectData?.detailingMain ? (
+                      <span className="text-green-600 font-semibold">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Not Required
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div>MISC: </div>
+                  <div>
+                    {projectData?.detailingMisc ? (
+                      <span className="text-green-600 font-semibold">
+                        Required
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        Not Required
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

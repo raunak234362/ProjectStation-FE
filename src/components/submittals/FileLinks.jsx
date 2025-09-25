@@ -9,8 +9,8 @@ const FileLinks = ({ files, submittalId, isResponse = false, responseId }) => {
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${submittalId}/${file.id}`;
+      ? `${baseURL.replace(/\/$/, "")}/api/Submittals/submittalsResponse/${responseId}/${file.id}`
+      : `${baseURL.replace(/\/$/, "")}/api/Submittals/submittals/${submittalId}/${file.id}`;
 
     return (
       <a

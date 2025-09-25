@@ -53,7 +53,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
               selectedCO.files.map((file) => (
                 <ul key={file.id}>
                   <a
-                    href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
+                    href={`${import.meta.env.VITE_BASE_URL}/api/co/viewfile/${
                       selectedCO.id
                     }/${file.id}`}
                     target="_blank"
