@@ -18,8 +18,8 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL}api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL}api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
+      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
+      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
 
     return (
       <a

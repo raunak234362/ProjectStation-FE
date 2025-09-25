@@ -96,8 +96,8 @@ const GetSentSubmittals = ({ submittalId, isOpen, onClose, userRole = "client" }
     const baseUrl = import.meta.env.VITE_BASE_URL;
     if (userRole === "admin") {
       return responseId
-        ? `${baseUrl}api/submittalsResponse/${responseId}/${file.id}`
-        : `${baseUrl}api/submittals/submittals/${submittalId}/${file.id}`;
+        ? `${baseUrl.replace(/\/$/, "")}/api/submittalsResponse/${responseId}/${file.id}`
+        : `${baseUrl.replace(/\/$/, "")}/api/submittals/submittals/${submittalId}/${file.id}`;
     }
     return `${baseUrl}/api/RFi/rfi/${responseId || submittalId}/${file.id}`;
   };

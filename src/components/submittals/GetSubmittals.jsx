@@ -19,8 +19,8 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL}api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL}api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
+      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
+      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
 
     return (
       <a
@@ -29,7 +29,7 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
         target="_blank"
         rel="noopener noreferrer"
         className="text-sm text-teal-600 hover:underline block"
-      >
+      > 
         {file.originalName || `File ${index + 1}`}
       </a>
     );
