@@ -67,35 +67,33 @@ const ClientProjectDetail = ({
 
   // Group tasks by milestone (subject + id) and compute completion percentage
   // Group tasks by milestone (subject + id) and compute completion percentage
-  const getMilestoneStatus = (tasks) => {
-    if (!Array.isArray(tasks) || tasks.length === 0) return [];
+ const getMilestoneStatus = (tasks) => {
+  if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-    const groups = new Map();
-    tasks.forEach((task) => {
-      const ms = task.mileStone || task.milestone || {};
-      const id = task.mileStone_id || task.milestone_id || ms.id;
-      const subject = ms.subject || ms.Subject;
+  const groups = new Map();
 
-      // ✅ Skip tasks with no milestone info
-      if (!id || !subject) return;
+  tasks.forEach((task) => {
+    console.log("Task milestone raw:", task.milestone, task.mileStone, task);
 
-      const key = `${id}||${subject}`;
-      if (!groups.has(key)) groups.set(key, { id, subject, tasks: [] });
-      groups.get(key).tasks.push(task);
-    });
+    const ms = task.milestone || task.mileStone || {};
+    const id = task.milestone_id || task.mileStone_id || ms.id;
+    const subject = ms.subject || ms.Subject || ms.name || task.milestone_name;
 
-    return Array.from(groups.values()).map((group) => {
-      const total = group.tasks.length;
-      const completedCount = group.tasks.filter(
-        (t) =>
-          t.status === "COMPLETE" &&
-          t.status === "VALIDATE_COMPLETE" &&
-          t.status === "COMPLETE_OTHER"
-      ).length;
-      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-      return { ...group, total, completedCount, percentage };
-    });
-  };
+    if (!id && !subject) return; // ✅ only skip if both missing
+
+    const key = `${id || subject}`;
+    if (!groups.has(key)) groups.set(key, { id, subject: subject || "Unnamed Milestone", tasks: [] });
+    groups.get(key).tasks.push(task);
+  });
+
+  return Array.from(groups.values()).map((group) => {
+    const total = group.tasks.length;
+    const completedCount = group.tasks.filter((t) => t.status === "COMPLETE").length;
+    const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+    return { ...group, total, completedCount, percentage };
+  });
+};
+
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not available";
@@ -135,13 +133,26 @@ const ClientProjectDetail = ({
             <h4 className="text-sm font-medium text-gray-500 mb-1">
               Milestones
             </h4>
-            {getMilestoneStatus(projectData?.tasks).map((ms) => (
-              <div key={ms.id} className="flex items-center gap-2 mb-1">
-                <span className="text-gray-700 text-sm">
-                  {ms.percentage}% completed
-                </span>
-              </div>
-            ))}
+            {getMilestoneStatus(projectData?.tasks).length > 0 ? (
+              getMilestoneStatus(projectData?.tasks).map((ms) => (
+                <div
+                  key={ms.id}
+                  className="flex items-center gap-5 mb-1"
+                >
+                  {/* ✅ Show milestone subject */}
+                  <span className="text-gray-800 text-sm font-semibold">
+                    {ms.subject}
+                  </span>
+
+                  {/* ✅ Show percentage */}
+                  <span className="text-gray-700 font-semibold text-sm">
+                    {ms.percentage}% completed
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">No milestones available</p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -260,7 +271,7 @@ const ClientProjectDetail = ({
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
                 <div className="font-medium text-gray-800">
                   Connection Design Scope:
                 </div>
