@@ -73,7 +73,7 @@ const ClientProjectDetail = ({
   const groups = new Map();
 
   tasks.forEach((task) => {
-    console.log("Task milestone raw:", task.milestone, task.mileStone, task);
+    // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
 
     const ms = task.milestone || task.mileStone || {};
     const id = task.milestone_id || task.mileStone_id || ms.id;

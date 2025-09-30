@@ -65,9 +65,9 @@ const AllRFI = ({ projectData }) => {
                 accessor: "status",
                 Cell: ({ value }) =>
                     value ? (
-                        <span className="text-green-600 font-semibold">Active</span>
+                        <span className="text-red-600 font-semibold">Not Replied</span>
                     ) : (
-                        <span className="text-red-500 font-semibold">Inactive</span>
+                        <span className="text-green-500 font-semibold">Replied</span>
                     ),
             },
         ],

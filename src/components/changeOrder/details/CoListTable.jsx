@@ -3,21 +3,39 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSortBy, useTable } from "react-table";
+import Service from "../../../config/Service";
 
 const CoListTable = ({ selectedCO, fetchCO }) => {
   const [selectedElement, setSelectedElement] = useState(null);
+  const [coTableData, setCoTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const data = useMemo(() => selectedCO?.CoRefersTo || [], [selectedCO]);
+  const data = useMemo(() => coTableData || [], [coTableData]);
+  const coID = selectedCO?.id;
+  const fetchTableData = async () => {
+    try {
+      setLoading(true);
+      const response = await Service.fetchCOTable(coID);
+      console.log("Table Data:", response.coRow);
+      setCoTableData(response.coRow || []);
+
+      await fetchCO();
+    } catch (error) {
+      console.error("Error fetching table data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Set loading to false when data loads/changes
   useEffect(() => {
     setLoading(false);
+    fetchTableData();
   }, [selectedCO]); // or [data] if you prefer
   //To Edit and open the specific Element detail
   const handleElementView = useCallback((data) => {
     setSelectedElement(data);
   });
-
+  console.log("selectedElement", coTableData);
   const columns = useMemo(
     () => [
       {

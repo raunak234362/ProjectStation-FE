@@ -79,10 +79,14 @@ const EstimationDetail = ({ estimationId }) => {
 
         {estimation?.files?.length ? (
           estimation.files.map((file) => (
+            <div
+                key={file.id}
+                className="border rounded-md p-2 max-w-[200px] shadow-sm"
+              >
             <a
               key={file.id}
-              href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
-                estimation.rfqId
+              href={`${import.meta.env.VITE_BASE_URL}/api/Estimation/${
+                estimation.id
               }/${file.id}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -90,6 +94,7 @@ const EstimationDetail = ({ estimationId }) => {
             >
               {file.originalName || "Unnamed File"}
             </a>
+            </div>
           ))
         ) : (
           <span className="text-gray-400 text-sm">No files attached</span>

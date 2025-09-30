@@ -1118,7 +1118,7 @@ class Service {
           "Content-Type": "application/form-data",
         },
       });
-      return response.data;
+      return response.data.data;
     } catch (error) {
       console.log("Error fetching CO:", error);
       throw error;

@@ -496,7 +496,7 @@ export default function ProjectDashboard() {
                   )}
                 </button>
               </div>
-              <Button
+              {/* <Button
                 onClick={() => navigate("../rfq/add-rfq")}
                 className="flex items-center gap-2"
               >
@@ -506,11 +506,11 @@ export default function ProjectDashboard() {
               <Button variant="success" className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Schedule Meeting
-              </Button>
-              <Button variant="outline" className="flex items-center gap-2">
+              </Button> */}
+              {/* <Button variant="outline" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Generate Report
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
@@ -556,8 +556,8 @@ export default function ProjectDashboard() {
           </div>
           {/* Recent Activity */}
           <div>
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <Card className="p-3">
+              <h2 className="text-md font-semibold text-gray-900 mb-4">
                 Recent Activity
               </h2>
               <div className="space-y-4">
@@ -586,11 +586,11 @@ export default function ProjectDashboard() {
                   </div>
                 ))}
               </div>
-              <div className="mt-4 text-center">
+              {/* <div className="mt-4 text-center">
                 <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
                   View All Activity
                 </button>
-              </div>
+              </div> */}
             </Card>
           </div>
         </div>
