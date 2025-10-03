@@ -14,26 +14,30 @@ const ProjectView = () => {
             Projects Detail
           </h1>
           <div className="flex space-x-2 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab("ProjectDashboard")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "ProjectDashboard"
-                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                  : "md:text-base text-sm bg-white"
-              }`}
-            >
-              Project Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab("addProject")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "addProject"
-                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                  : "md:text-base text-sm bg-white"
-              }`}
-            >
-              Add Project
-            </button>
+            {userType === "client" || userType === "staff" ? null : (
+              <div>
+                <button
+                  onClick={() => setActiveTab("ProjectDashboard")}
+                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
+                    activeTab === "ProjectDashboard"
+                      ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                      : "md:text-base text-sm bg-white"
+                  }`}
+                >
+                  Project Dashboard
+                </button>
+                <button
+                  onClick={() => setActiveTab("addProject")}
+                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
+                    activeTab === "addProject"
+                      ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                      : "md:text-base text-sm bg-white"
+                  }`}
+                >
+                  Add Project
+                </button>
+              </div>
+            )}
             <button
               onClick={() => setActiveTab("allProject")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${

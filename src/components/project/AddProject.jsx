@@ -9,7 +9,6 @@ import Service from "../../config/Service";
 import JoditEditor from "jodit-react";
 import { useEffect, useState } from "react";
 import { showRFQs } from "../../store/rfqSlice";
-import { set } from "jodit/esm/core/helpers";
 
 const AddProject = () => {
   const dispatch = useDispatch();
@@ -41,6 +40,7 @@ const AddProject = () => {
       approvalDate: "",
     },
   });
+
   const userType = sessionStorage.getItem("userType");
   const [rfq, setRfq] = useState([]);
   const [joditContent, setJoditContent] = useState("");
@@ -58,7 +58,7 @@ const AddProject = () => {
       value: user.id,
     }));
 
-  // Get selected RFQ and fabricator from form state
+  // Watch values
   const selectedRfqId = watch("rfqId");
   const selectedFabricatorId = watch("fabricator");
 
@@ -73,6 +73,7 @@ const AddProject = () => {
       value: user.id,
     })) || [];
 
+  // Fetch RFQs
   const fetchInboxRFQ = async () => {
     try {
       let rfqDetail;
@@ -81,11 +82,9 @@ const AddProject = () => {
       } else {
         rfqDetail = await Service.inboxRFQ();
       }
-      console.log("Fetched RFQ Data:", rfqDetail);
       setRfq(rfqDetail || []);
       dispatch(showRFQs(rfqDetail || []));
     } catch (error) {
-      console.error("Error fetching RFQ:", error);
       toast.error("Failed to fetch RFQs");
       setRfq([]);
     }
@@ -97,8 +96,6 @@ const AddProject = () => {
 
   // Auto-populate fields when RFQ is selected
   useEffect(() => {
-    console.log("Selected RFQ ID:", selectedRfqId);
-    console.log("Selected RFQ:", selectedRfq);
     if (selectedRfq && selectedRfq.sender) {
       setValue("fabricator", selectedRfq.sender?.fabricator?.id || "", {
         shouldValidate: true,
@@ -120,16 +117,6 @@ const AddProject = () => {
     processPasteHTML: true,
     askBeforePasteHTML: false,
     defaultActionOnPaste: "custom",
-    link: {
-      processPastedLink: true,
-      openInNewTabCheckbox: true,
-      noFollowCheckbox: true,
-    },
-    defaultValue: "",
-    removeEmptyBlocks: true,
-    cleanHTML: {
-      removeEmptyElements: true,
-    },
   };
 
   const onSubmit = async (data) => {
@@ -146,16 +133,13 @@ const AddProject = () => {
       detailingMisc: Boolean(data.detailingMisc),
     };
     try {
-      console.log("Submitting Project Data:", JSON.stringify(projectData, null, 2));
-      const response = await Service.addProject(projectData);
-      console.log("Project Added:", response);
+      await Service.addProject(projectData);
       toast.success("Project Added Successfully");
       setJoditContent("");
       setValue("description", "");
       reset();
     } catch (error) {
       toast.error("Error Adding Project");
-      console.error("Error adding project:", error);
     }
   };
 
@@ -166,18 +150,19 @@ const AddProject = () => {
           {/* Fabricator Info */}
           <SectionTitle title="Fabricator Information" />
           <CustomSelect
-            label="RFQ"
+            label={<span>RFQ <span className="text-red-500">*</span></span>}
             placeholder="Select RFQ"
             options={rfq?.map((rfqData) => ({
               label: `${rfqData.projectName} - ${rfqData.subject}`,
               value: rfqData.id,
             }))}
-            {...register("rfqId")}
+            {...register("rfqId", { required: "RFQ is required" })}
             onChange={setValue}
           />
           <ErrorMsg msg={errors.rfqId?.message} />
+
           <CustomSelect
-            label="Fabricator"
+            label={<span>Fabricator <span className="text-red-500">*</span></span>}
             placeholder="Select Fabricator"
             options={fabricatorData?.map((fab) => ({
               label: fab.fabName,
@@ -187,11 +172,12 @@ const AddProject = () => {
             onChange={setValue}
           />
           <ErrorMsg msg={errors.fabricator?.message} />
+
           <CustomSelect
-            label="Point of Contact"
+            label={<span>Point of Contact <span className="text-red-500">*</span></span>}
             placeholder="Select Point of Contact"
             options={clientOptions}
-            {...register("clientId")}
+            {...register("clientId", { required: "Point of Contact is required" })}
             onChange={setValue}
           />
           <ErrorMsg msg={errors.clientId?.message} />
@@ -199,10 +185,11 @@ const AddProject = () => {
           {/* Project Info */}
           <SectionTitle title="Project Information" />
           <Input
-            label="Project Name"
+            label={<span>Project Name <span className="text-red-500">*</span></span>}
             {...register("name", { required: "Project Name is required" })}
           />
           <ErrorMsg msg={errors.name?.message} />
+
           <JoditEditor
             value={joditContent}
             config={joditConfig}
@@ -217,6 +204,7 @@ const AddProject = () => {
             {...register("description", { required: "Description is required" })}
           />
           <ErrorMsg msg={errors.description?.message} />
+
           <Input
             type="number"
             label="Estimated Hours"
@@ -227,7 +215,7 @@ const AddProject = () => {
           {/* Department & Manager */}
           <SectionTitle title="Department Information" />
           <CustomSelect
-            label="Department"
+            label={<span>Department <span className="text-red-500">*</span></span>}
             options={departmentData?.map((dep) => ({
               label: dep.name,
               value: dep.id,
@@ -236,8 +224,9 @@ const AddProject = () => {
             onChange={setValue}
           />
           <ErrorMsg msg={errors.department?.message} />
+
           <CustomSelect
-            label="Manager"
+            label={<span>Manager <span className="text-red-500">*</span></span>}
             options={[{ label: "Select Manager", value: "" }, ...managerOption]}
             {...register("manager", { required: "Manager is required" })}
             onChange={setValue}
@@ -310,18 +299,20 @@ const AddProject = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <Input
               type="date"
-              label="Start Date"
+              label={<span>Start Date <span className="text-red-500">*</span></span>}
               {...register("start_date", { required: "Start Date is required" })}
             />
             <ErrorMsg msg={errors.start_date?.message} />
+
             <Input
               type="date"
-              label="Approval Date"
+              label={<span>Approval Date <span className="text-red-500">*</span></span>}
               {...register("approvalDate", { required: "Approval Date is required" })}
             />
             <ErrorMsg msg={errors.approvalDate?.message} />
           </div>
 
+          {/* Submit */}
           <div className="text-center">
             <Button
               type="submit"
