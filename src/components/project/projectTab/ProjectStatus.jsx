@@ -16,6 +16,7 @@ import Milestone from "../../milestone/Milestone";
 const ProjectStatus = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("projectDetail");
   const [projectData, setProjectData] = useState(null);
+  const [files, setFiles] = useState([]);
   const [filteredData, setFilteredData] = useState(null);
   const [sortBy, setSortBy] = useState("stage_date");
   const [dateFilter, setDateFilter] = useState({
@@ -436,6 +437,18 @@ const ProjectStatus = ({ projectId, onClose }) => {
     BREAK: "#EF4444",
   };
 
+  const fetchFilesByProjectId = async () => {
+    const response = await Service.getFilesByProjectId(projectId);
+    console.log("Fetched Files:", response.data);
+    setFiles(response.data);
+  };
+
+  useEffect(() => {
+    if (projectId) {
+      fetchFilesByProjectId(projectId);
+    }
+  }, [projectId]);
+
   // Handle type expansion for TimeLine
   const toggleTypeExpansion = useCallback((type) => {
     setExpandedTypes((prev) => ({
@@ -513,6 +526,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
               <GetProject
                 projectId={projectId}
                 onClose={onClose}
+                files={files}
                 projectData={projectData}
                 fetchProjectByID={fetchProjectByID}
               />

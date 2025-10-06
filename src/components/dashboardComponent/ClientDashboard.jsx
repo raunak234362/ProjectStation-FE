@@ -302,6 +302,7 @@ const getChartOptions = (type, labels) => ({
 
 export default function ProjectDashboard() {
   const navigate = useNavigate();
+  const [notification, setNotification] = useState([]);
   const projectData =
     useSelector((state) => state?.projectData?.projectData) || [];
   const [filters, setFilters] = useState({
@@ -320,6 +321,8 @@ export default function ProjectDashboard() {
     count: 0,
   });
 
+
+  console.log("Notification:==================", notification);
   // Fetch RFI and Submittals
   useEffect(() => {
     const fetchData = async () => {
@@ -338,6 +341,15 @@ export default function ProjectDashboard() {
       }
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchNotification = async () => {
+      const notification = await Service.fetchNotification();
+      setNotification(notification);
+      console.log("Notification:", notification);
+    };
+    fetchNotification();
   }, []);
 
   useEffect(() => {

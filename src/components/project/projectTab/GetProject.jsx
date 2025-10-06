@@ -119,13 +119,31 @@ const Tabs = ({ tabs, activeTab, onChange }) => {
 };
 
 // Main Component
-const GetProject = ({ projectId, projectData, fetchProjectByID, onClose }) => {
+const GetProject = ({
+  projectId,
+  projectData,
+  fetchProjectByID,
+  onClose,
+  files,
+}) => {
   const [activeTab, setActiveTab] = useState("details");
 
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddFilesModalOpen, setIsAddFilesModalOpen] = useState(false);
+
   const [selectedProjectStatus, setSelectedProjectStatus] = useState(null);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+
+  const handleAddFilesClick = () => {
+    setIsAddFilesModalOpen(true);
+    console.log("Add Files Modal Open");
+  };
+
+  const handleAddFilesClose = () => {
+    setIsAddFilesModalOpen(false);
+    console.log("Add Files Modal Close");
+  };
 
   const handleEditClick = () => {
     setIsModalOpen(true);
@@ -150,7 +168,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, onClose }) => {
   const tabs = [
     { id: "details", label: "Details & Fabricator" },
     { id: "workbreakdown", label: "Work Breakdown" },
-    { id: "files", label: "Files" },
+    { id: "files", label: "Document" },
   ];
 
   const getStatusVariant = (status) => {
@@ -443,51 +461,87 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, onClose }) => {
     </div>
   );
 
-  const renderFiles = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h4 className="text-sm font-medium text-gray-700">Project Files</h4>
-        <Button size="sm" variant="outline">
-          <Plus size={14} />
-          Add Files
-        </Button>
-      </div>
-      {Array.isArray(projectData?.files) && projectData?.files.length > 0 ? (
-        <div className="grid grid-cols-1 gap-2">
-          {projectData?.files?.map((file, index) => (
-            <a
-              key={index}
-              href={`${
-                import.meta.env.VITE_BASE_URL
-              }/api/project/projects/viewfile/${projectId}/${file.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-            >
-              <FileText size={18} className="text-teal-500" />
-              <div>
-                <p className="text-gray-800 text-sm font-medium">
-                  {file.originalName || `File ${index + 1}`}
-                </p>
-                <p className="text-xs text-gray-500">
-                  Added on {new Date().toLocaleDateString()}
-                </p>
-              </div>
-              <ChevronRight size={16} className="text-gray-400 ml-auto" />
-            </a>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
-          <p className="text-gray-500">No files available for this project</p>
-          <Button size="sm" variant="ghost" className="mt-2">
+  const renderFiles = () => {
+    // Extract files from projectData.documents, including description, user, and uploadedAt
+    const projectFiles = Array.isArray(files)
+      ? files?.flatMap((doc) =>
+          Array.isArray(doc.files)
+            ? doc.files.map((file) => ({
+                ...file,
+                documentId: doc.id,
+                description: doc.description,
+                uploadedAt: doc.uploadedAt,
+                user: doc.user,
+              }))
+            : []
+        )
+      : [];
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h4 className="text-sm font-medium text-gray-700">Project Files</h4>
+          <Button size="sm" variant="outline" onClick={handleAddFilesClick}>
             <Plus size={14} />
-            Upload Files
+            Add Document
           </Button>
         </div>
-      )}
-    </div>
-  );
+        {projectFiles.length > 0 ? (
+          <div className="grid grid-cols-1 gap-2">
+            {projectFiles.map((file, index) => (
+              <a
+                key={file.id || `file-${index}`}
+                href={`${
+                  import.meta.env.VITE_BASE_URL
+                }/api/project/projects/viewfile/${projectId}/${file.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+              >
+                <FileText size={18} className="text-teal-500" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-800 text-sm font-medium truncate">
+                    {file.originalName || `File ${index + 1}`}
+                  </p>
+                  {file.description && (
+                    <div
+                      className="text-gray-600 text-xs mt-1 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: file.description }}
+                    />
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Added on {formatDate(file.uploadedAt)}
+                  </p>
+                  {file.user && (
+                    <p className="text-xs text-gray-400 truncate">
+                      {/* By {formatUserName(file.user)} */}
+                    </p>
+                  )}
+                </div>
+                <ChevronRight
+                  size={16}
+                  className="text-gray-400 flex-shrink-0"
+                />
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
+            <p className="text-gray-500">No files available for this project</p>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleAddFilesClick}
+              className="mt-2"
+            >
+              <Plus size={14} />
+              Upload Files
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -516,6 +570,16 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, onClose }) => {
           onUpdate={fetchProjectByID}
           onClose={handleModalClose}
         />
+      )}
+
+      {isAddFilesModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <AddFiles
+            projectId={projectId}
+            onUpdate={fetchProjectByID}
+            onClose={handleAddFilesClose}
+          />
+        </div>
       )}
       {/* Note: ProjectStatus modal not implemented here as it requires additional context */}
     </>

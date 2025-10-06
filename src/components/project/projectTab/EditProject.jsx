@@ -260,7 +260,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
             </div>
           </form>
         </div>
-        <AddFiles onUpdate={onUpdate} projectId={project?.id} />
+        {/* <AddFiles onUpdate={onUpdate} projectId={project?.id} /> */}
       </div>
     </div>
   );

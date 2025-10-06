@@ -7,6 +7,7 @@ import Service from "../../config/Service";
 // import { useSignal } from "@preact/signals-react";
 import { milestoneData } from "../../signals/projectData";
 import { useSignals } from "@preact/signals-react/runtime";
+import toast from "react-hot-toast";
 
 const Milestone = ({ projectData }) => {
   useSignals();
@@ -36,6 +37,7 @@ const Milestone = ({ projectData }) => {
     // Handle form submission from AddMilestone
     console.log("Form Data Submitted:", data);
     const response = await Service.addMilestone(data, projectId, fabricationId);
+    toast.success("Milestone added successfully");
     milestoneData.value = [...milestoneData.value, response.data];
     console.log("Response from addMilestone API:", response.data);
   };

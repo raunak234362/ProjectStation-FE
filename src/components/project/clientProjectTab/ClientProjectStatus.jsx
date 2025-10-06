@@ -60,6 +60,7 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
               // { key: "overview", label: "Overview" },
               { key: "RFI", label: "RFI" },
               { key: "Submittals", label: "Submittals" },
+              { key: "DesignDrawings", label: "Design Drawings" },
               { key: "CO", label: "CO#" },
             ].map(({ key, label }) => (
               <button
@@ -84,6 +85,10 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
         )}
         {activeTab === "Submittals" && (
           <Submittals projectData={projectData} />
+        )}
+        {activeTab === "DesignDrawings" && (
+          // <DesignDrawings projectData={projectData} />
+          <div>Design Drawings</div>
         )}
         {activeTab === "CO" && (
           <CO projectData={projectData} />

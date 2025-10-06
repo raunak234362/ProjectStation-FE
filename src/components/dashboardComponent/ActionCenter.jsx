@@ -85,20 +85,20 @@ const ActionCenter = () => {
   };
 
   console.log("RFI List:", rfiList);
+  console.log("Submittal List:", submittalList);
+  console.log("RFQ List:", rfqList);
   useEffect(() => {
     fetchData();
   }, []);
 
   const pendingItems = {
     rfi: rfiList.filter((item) => item?.rfiresponse === null),
-    submittals: submittalList.filter(
-      (item) => item?.submittalsResponse === null
-    ),
+    submittals: submittalList.filter((item) => item?.submittalsResponse === null),
       rfq: rfqList.filter((item) => (item.response?.length > 0)),
     co: [], // Placeholder if Change Orders added later
   };
 
-  console.log("Pending Items:", pendingItems?.rfq?.status);
+  console.log("Pending Items:", pendingItems);
 
   const renderItemCard = (item, type) => (
     <div

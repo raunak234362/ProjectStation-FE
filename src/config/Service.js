@@ -376,12 +376,15 @@ class Service {
   static async deleteClient(clientId) {
     try {
       const token = sessionStorage.getItem("token");
-      const response = await api.delete(`/api/client/client/${clientId}/deleteClient`, {
-        headers: {
-          "Content-Type": "Application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.delete(
+        `/api/client/client/${clientId}/deleteClient`,
+        {
+          headers: {
+            "Content-Type": "Application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.log("Error deleting client:", error);
@@ -773,10 +776,7 @@ class Service {
   }
 
   //update Estimation Task Line Items by ID
-  static async updateEstimationTaskLineItemsById(
-    lineItemID,
-    lineItemData
-  ) {
+  static async updateEstimationTaskLineItemsById(lineItemID, lineItemData) {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.patch(
@@ -1000,7 +1000,7 @@ class Service {
     data.append("project", coData?.project_id);
     data.append("recipients", coData?.recipient_id);
     data.append("remarks", coData?.remark);
-    data.append("Stage",coData?.stage)
+    data.append("Stage", coData?.stage);
     data.append("description", coData?.description);
     // data.append("rows", coData?.rows);
 
@@ -2139,6 +2139,88 @@ class Service {
       return response.data;
     } catch (error) {
       console.log("Error in deleting Milestone by ID: ", error);
+      throw error;
+    }
+  }
+
+  //adding files by Project ID
+  static async addFilesByProjectId(projectID, documentData) {
+    const data = new FormData();
+    for (let i = 0; i < documentData?.files.length; i++) {
+      data.append("files", documentData?.files[i]);
+    }
+    data.append("description", documentData?.description);
+    data.append("stage", documentData?.stage);
+
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(
+        `/api/designDrawings/designdrawing/add/${projectID}`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in adding Files by Project ID: ", error);
+      throw error;
+    }
+  }
+
+  //get files by Project ID
+  static async getFilesByProjectId(projectID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(
+        `/api/designDrawings/designdrawing/project/${projectID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in getting Files by Project ID: ", error);
+      throw error;
+    }
+  }
+
+  //viewFiles by Project ID
+  static async viewFilesByProjectId(fileID, projectID) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(
+        `/api/designDrawings/designdrawing/viewfile/${fileID}/${projectID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error in viewing Files by Project ID: ", error);
+      throw error;
+    }
+  }
+
+  //viewFiles by Fabricator ID
+
+  static async fetchNotification() {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/notifications/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.log("Error in fetching Notification: ", error);
       throw error;
     }
   }
