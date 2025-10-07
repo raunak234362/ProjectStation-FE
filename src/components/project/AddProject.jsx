@@ -150,13 +150,13 @@ const AddProject = () => {
           {/* Fabricator Info */}
           <SectionTitle title="Fabricator Information" />
           <CustomSelect
-            label={<span>RFQ <span className="text-red-500">*</span></span>}
+            label={<span>RFQ</span>}
             placeholder="Select RFQ"
             options={rfq?.map((rfqData) => ({
               label: `${rfqData.projectName} - ${rfqData.subject}`,
               value: rfqData.id,
             }))}
-            {...register("rfqId", { required: "RFQ is required" })}
+            {...register("rfqId")}
             onChange={setValue}
           />
           <ErrorMsg msg={errors.rfqId?.message} />
@@ -174,10 +174,10 @@ const AddProject = () => {
           <ErrorMsg msg={errors.fabricator?.message} />
 
           <CustomSelect
-            label={<span>Point of Contact <span className="text-red-500">*</span></span>}
+            label={<span>Point of Contact </span>}
             placeholder="Select Point of Contact"
             options={clientOptions}
-            {...register("clientId", { required: "Point of Contact is required" })}
+            {...register("clientId")}
             onChange={setValue}
           />
           <ErrorMsg msg={errors.clientId?.message} />

@@ -493,7 +493,7 @@ const GetProject = ({
                 key={file.id || `file-${index}`}
                 href={`${
                   import.meta.env.VITE_BASE_URL
-                }/api/project/projects/viewfile/${projectId}/${file.id}`}
+                }/api/designDrawings/designdrawing/viewfile/${projectId}/${file.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
