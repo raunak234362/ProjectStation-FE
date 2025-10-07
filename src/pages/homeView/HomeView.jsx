@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import {
-  ClientDashboard,
   SalesDashboard,
   WBTDashboard,
 } from "../../components";
 import getUserType from "../../util/getUserType.jsx";
 import { useSignals } from "@preact/signals-react/runtime";
 import { userData as userSignal } from "../../signals";
+import ClientDashboardLYT from "../../components/dashboardComponent/ClientDashboardLYT.jsx";
 
 const HomeView = () => {
   useSignals();
@@ -32,7 +32,7 @@ const HomeView = () => {
 
   return (
     <div className="w-full">
-      {resolvedUserType === "client" && <ClientDashboard />}
+      {resolvedUserType === "client" && <ClientDashboardLYT />}
       {resolvedUserType === "sales" && <SalesDashboard />}
       {resolvedUserType !== "client" && resolvedUserType !== "sales" && <WBTDashboard />}
     </div>

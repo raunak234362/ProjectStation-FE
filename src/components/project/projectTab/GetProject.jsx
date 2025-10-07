@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Calendar,
   Edit2,
@@ -8,17 +8,15 @@ import {
   Globe,
   HardDrive,
   Plus,
-  X,
   ChevronRight,
-  BarChart2,
   Layers,
 } from "lucide-react";
 import EditProject from "./EditProject";
-import Service from "../../../config/Service";
 import AddWB from "../wb/AddWB";
 import AddFiles from "./AddFiles";
+import RenderFiles from "../RenderFiles";
 
-// UI Components
+// ------------------------ Reusable UI Components ------------------------
 const Button = ({
   children,
   variant = "primary",
@@ -70,105 +68,75 @@ const Badge = ({ children, variant = "default" }) => {
   );
 };
 
-const Card = ({ children, className = "" }) => {
-  return (
-    <div
-      className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}
-    >
-      {children}
+const Card = ({ children, className = "" }) => (
+  <div
+    className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden ${className}`}
+  >
+    {children}
+  </div>
+);
+
+const CardHeader = ({ title, icon, action }) => (
+  <div className="flex items-center justify-between border-b border-gray-100 p-4">
+    <div className="flex items-center gap-2">
+      {icon && <span className="text-teal-500">{icon}</span>}
+      <h3 className="font-semibold text-gray-800">{title}</h3>
     </div>
-  );
-};
+    {action && <div>{action}</div>}
+  </div>
+);
 
-const CardHeader = ({ title, icon, action }) => {
-  return (
-    <div className="flex items-center justify-between border-b border-gray-100 p-4">
-      <div className="flex items-center gap-2">
-        {icon && <span className="text-teal-500">{icon}</span>}
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-      </div>
-      {action && <div>{action}</div>}
-    </div>
-  );
-};
+const CardContent = ({ children, className = "" }) => (
+  <div className={`p-4 ${className}`}>{children}</div>
+);
 
-const CardContent = ({ children, className = "" }) => {
-  return <div className={`p-4 ${className}`}>{children}</div>;
-};
+const Tabs = ({ tabs, activeTab, onChange }) => (
+  <div className="border-b border-gray-200">
+    <nav className="flex space-x-6 px-4" aria-label="Tabs">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => onChange(tab.id)}
+          className={`py-3 px-1 border-b-2 font-medium text-sm ${
+            activeTab === tab.id
+              ? "border-teal-500 text-teal-600"
+              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </nav>
+  </div>
+);
 
-const Tabs = ({ tabs, activeTab, onChange }) => {
-  return (
-    <div className="border-b border-gray-200">
-      <nav className="flex space-x-6 px-4" aria-label="Tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => onChange(tab.id)}
-            className={`py-3 px-1 border-b-2 font-medium text-sm ${
-              activeTab === tab.id
-                ? "border-teal-500 text-teal-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-};
-
-// Main Component
+// ------------------------ Main Component ------------------------
 const GetProject = ({
   projectId,
   projectData,
   fetchProjectByID,
-  onClose,
   files,
 }) => {
   const [activeTab, setActiveTab] = useState("details");
-
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddFilesModalOpen, setIsAddFilesModalOpen] = useState(false);
 
-  const [selectedProjectStatus, setSelectedProjectStatus] = useState(null);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-
-  const handleAddFilesClick = () => {
-    setIsAddFilesModalOpen(true);
-    console.log("Add Files Modal Open");
-  };
-
-  const handleAddFilesClose = () => {
-    setIsAddFilesModalOpen(false);
-    console.log("Add Files Modal Close");
-  };
-
+  const handleAddFilesClick = () => setIsAddFilesModalOpen(true);
+  const handleAddFilesClose = () => setIsAddFilesModalOpen(false);
   const handleEditClick = () => {
     setIsModalOpen(true);
     setSelectedEditProject(projectData);
   };
-
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedEditProject(null);
   };
 
-  const handleStatusView = (projectID) => {
-    setSelectedProjectStatus(projectID);
-    setIsStatusModalOpen(true);
-  };
-
-  const handleStatusClose = () => {
-    setSelectedProjectStatus(null);
-    setIsStatusModalOpen(false);
-  };
-
   const tabs = [
     { id: "details", label: "Details & Fabricator" },
-    { id: "workbreakdown", label: "Work Breakdown" },
     { id: "files", label: "Document" },
+    { id: "workbreakdown", label: "Work Breakdown" },
   ];
 
   const getStatusVariant = (status) => {
@@ -191,9 +159,10 @@ const GetProject = ({
     return `${mm}-${dd}-${yyyy}`;
   };
 
+  // ------------------------ Tabs Rendering ------------------------
   const renderDetailsAndFabricator = () => (
     <div className="space-y-6">
-      {/* Project Details Card */}
+      {/* Project Details */}
       <Card>
         <CardHeader
           title="Project Details"
@@ -224,23 +193,16 @@ const GetProject = ({
                   }}
                 />
               </div>
+
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Status
                 </h4>
-                <div className="flex items-center gap-2">
-                  <Badge variant={getStatusVariant(projectData?.status)}>
-                    {projectData?.status || "Not available"}
-                  </Badge>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleStatusView(projectId)}
-                  >
-                    View Details
-                  </Button>
-                </div>
+                <Badge variant={getStatusVariant(projectData?.status)}>
+                  {projectData?.status || "Not available"}
+                </Badge>
               </div>
+
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Department
@@ -250,26 +212,19 @@ const GetProject = ({
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.team?.name || "Not available"}
-                </p>
-              </div>
-              <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Project Manager
                 </h4>
                 <p className="text-gray-800 font-semibold">
-                  {projectData?.manager?.f_name ||
-                  projectData?.manager?.m_name ||
-                  projectData?.manager?.l_name
+                  {projectData?.manager
                     ? `${projectData?.manager?.f_name || ""} ${
-                        projectData?.manager?.m_name || ""
-                      } ${projectData?.manager?.l_name || ""}`.trim()
+                        projectData?.manager?.l_name || ""
+                      }`
                     : "Not available"}
                 </p>
               </div>
             </div>
+
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
@@ -277,22 +232,6 @@ const GetProject = ({
                 </h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.estimatedHours || "Not available"}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Stage
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.stage || "Not available"}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Tools
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.tools || "Not available"}
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-4">
@@ -306,14 +245,6 @@ const GetProject = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Approval Date
-                  </h4>
-                  <p className="text-gray-800 font-semibold">
-                    {formatDate(projectData?.approvalDate)}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
                     Submission Date
                   </h4>
                   <p className="text-gray-800 font-semibold">
@@ -321,132 +252,22 @@ const GetProject = ({
                   </p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Main Design
-                  </h4>
-                  <Badge
-                    variant={
-                      projectData?.connectionDesign ? "success" : "default"
-                    }
-                  >
-                    {projectData?.connectionDesign
-                      ? "Required"
-                      : "Not required"}
-                  </Badge>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Misc Design
-                  </h4>
-                  <Badge
-                    variant={projectData?.miscDesign ? "success" : "default"}
-                  >
-                    {projectData?.miscDesign ? "Required" : "Not required"}
-                  </Badge>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    Connection Design
-                  </h4>
-                  <Badge
-                    variant={
-                      projectData?.customerDesign ? "success" : "default"
-                    }
-                  >
-                    {projectData?.customerDesign ? "Required" : "Not required"}
-                  </Badge>
-                </div>
-              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Fabricator Details Card */}
+      {/* Fabricator Details */}
       <Card>
         <CardHeader title="Fabricator Details" icon={<Layers size={18} />} />
         <CardContent>
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">
-                Fabricator Name
-              </h4>
-              <p className="text-gray-800 font-medium">
-                {projectData?.fabricator?.fabName || "Not available"}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Website
-                </h4>
-                {projectData?.fabricator?.website ? (
-                  <a
-                    href={projectData?.fabricator?.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-teal-600 hover:text-teal-700 hover:underline flex items-center gap-1"
-                  >
-                    <Globe size={16} />
-                    <span>Visit Website</span>
-                  </a>
-                ) : (
-                  <p className="text-gray-500">Not available</p>
-                )}
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Drive
-                </h4>
-                {projectData?.fabricator?.drive ? (
-                  <a
-                    href={projectData?.fabricator.drive}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-teal-600 hover:text-teal-700 hover:underline flex items-center gap-1"
-                  >
-                    <HardDrive size={16} />
-                    <span>Access Drive</span>
-                  </a>
-                ) : (
-                  <p className="text-gray-500">Not available</p>
-                )}
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 mb-1">Files</h4>
-              {Array.isArray(projectData?.fabricator?.files) &&
-              projectData?.fabricator?.files.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2 mt-2">
-                  {projectData?.fabricator?.files?.map((file, index) => (
-                    <a
-                      key={index}
-                      href={`${
-                        import.meta.env.VITE_BASE_URL
-                      }/fabricator/fabricator/viewfile/${
-                        projectData?.fabricatorID
-                      }/${file.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <FileText size={16} className="text-teal-500" />
-                      <span className="text-gray-700 text-sm">
-                        {file.originalName || `File ${index + 1}`}
-                      </span>
-                      <ChevronRight
-                        size={16}
-                        className="text-gray-400 ml-auto"
-                      />
-                    </a>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No files available</p>
-              )}
-            </div>
+          <div className="space-y-4">
+            <h4 className="text-sm font-medium text-gray-500 mb-1">
+              Fabricator Name
+            </h4>
+            <p className="text-gray-800 font-medium">
+              {projectData?.fabricator?.fabName || "Not available"}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -455,116 +276,35 @@ const GetProject = ({
 
   const renderWorkBreakdown = () => (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-3">
-        <AddWB projectId={projectId} projectData={projectData} />
-      </div>
+      <AddWB projectId={projectId} projectData={projectData} />
     </div>
   );
 
-  const renderFiles = () => {
-    // Extract files from projectData.documents, including description, user, and uploadedAt
-    const projectFiles = Array.isArray(files)
-      ? files?.flatMap((doc) =>
-          Array.isArray(doc.files)
-            ? doc.files.map((file) => ({
-                ...file,
-                documentId: doc.id,
-                description: doc.description,
-                uploadedAt: doc.uploadedAt,
-                user: doc.user,
-              }))
-            : []
-        )
-      : [];
-
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h4 className="text-sm font-medium text-gray-700">Project Files</h4>
-          <Button size="sm" variant="outline" onClick={handleAddFilesClick}>
-            <Plus size={14} />
-            Add Document
-          </Button>
-        </div>
-        {projectFiles.length > 0 ? (
-          <div className="grid grid-cols-1 gap-2">
-            {projectFiles.map((file, index) => (
-              <a
-                key={file.id || `file-${index}`}
-                href={`${
-                  import.meta.env.VITE_BASE_URL
-                }/api/designDrawings/designdrawing/viewfile/${projectId}/${file.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
-              >
-                <FileText size={18} className="text-teal-500" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-gray-800 text-sm font-medium truncate">
-                    {file.originalName || `File ${index + 1}`}
-                  </p>
-                  {file.description && (
-                    <div
-                      className="text-gray-600 text-xs mt-1 line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: file.description }}
-                    />
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    Added on {formatDate(file.uploadedAt)}
-                  </p>
-                  {file.user && (
-                    <p className="text-xs text-gray-400 truncate">
-                      {/* By {formatUserName(file.user)} */}
-                    </p>
-                  )}
-                </div>
-                <ChevronRight
-                  size={16}
-                  className="text-gray-400 flex-shrink-0"
-                />
-              </a>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8 border border-dashed border-gray-200 rounded-lg">
-            <p className="text-gray-500">No files available for this project</p>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleAddFilesClick}
-              className="mt-2"
-            >
-              <Plus size={14} />
-              Upload Files
-            </Button>
-          </div>
-        )}
-      </div>
-    );
-  };
+  const renderFilesTab = () => (
+    <RenderFiles files={files} onAddFilesClick={handleAddFilesClick} formatDate={formatDate}/>
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "details":
         return renderDetailsAndFabricator();
+      case "files":
+        return renderFilesTab();
       case "workbreakdown":
         return renderWorkBreakdown();
-      case "files":
-        return renderFiles();
       default:
         return renderDetailsAndFabricator();
     }
   };
 
+  // ------------------------ Render ------------------------
   return (
     <>
-      {/* Tabs */}
       <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-
-      {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
 
-      {selectedEditProject && (
+      {/* Edit Project Modal */}
+      {selectedEditProject && isModalOpen && (
         <EditProject
           project={selectedEditProject}
           onUpdate={fetchProjectByID}
@@ -572,6 +312,7 @@ const GetProject = ({
         />
       )}
 
+      {/* Add Files Modal */}
       {isAddFilesModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <AddFiles
@@ -581,7 +322,6 @@ const GetProject = ({
           />
         </div>
       )}
-      {/* Note: ProjectStatus modal not implemented here as it requires additional context */}
     </>
   );
 };

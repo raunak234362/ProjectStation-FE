@@ -92,10 +92,27 @@ const ActionCenter = () => {
   }, []);
 
   const pendingItems = {
-    rfi: rfiList.filter((item) => item?.rfiresponse === null),
-    submittals: submittalList.filter((item) => item?.submittalsResponse === null),
-      rfq: rfqList.filter((item) => (item.response?.length > 0)),
-    co: [], // Placeholder if Change Orders added later
+    // RFI items with no response or empty array
+    rfi: rfiList.filter(
+      (item) =>
+        !item?.rfiresponse ||
+        (Array.isArray(item.rfiresponse) && item.rfiresponse.length === 0)
+    ),
+
+    // Submittals with no response or empty array
+    submittals: submittalList.filter(
+      (item) =>
+        !item?.submittalsResponse ||
+        (Array.isArray(item.submittalsResponse) &&
+          item.submittalsResponse.length === 0)
+    ),
+
+    // Example RFQ handling
+    rfq: rfqList.filter(
+      (item) => Array.isArray(item.response) && item.response.length === 0
+    ),
+
+    co: [], // Change Order placeholder
   };
 
   console.log("Pending Items:", pendingItems);
@@ -110,17 +127,24 @@ const ActionCenter = () => {
           <h3 className="font-medium text-gray-900 text-sm line-clamp-1">
             {item?.subject || "No Subject"}
           </h3>
-          <p className="text-xs text-gray-500 mt-1">
-            {item?.description || "No description provided"}
-          </p>
+          <p
+            className="text-xs text-gray-600 mt-1"
+            dangerouslySetInnerHTML={{
+              __html: item?.description || "No description",
+            }}
+          />
+          {item?.stage && (
+            <p className="text-xs text-blue-600 font-semibold mt-1">
+              Stage: {item.stage}
+            </p>
+          )}
         </div>
         <Badge variant="warning">Pending</Badge>
       </div>
+
       <div className="flex items-center justify-between mt-3">
         <div className="text-xs text-gray-500">
-          {item?.createdAt
-            ? new Date(item.createdAt).toLocaleDateString()
-            : "No date"}
+          {item?.date ? new Date(item.date).toLocaleString() : "No date"}
         </div>
       </div>
     </div>

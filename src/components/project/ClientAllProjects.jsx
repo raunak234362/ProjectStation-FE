@@ -296,7 +296,7 @@ const ClientAllProjects = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow h-screen overflow-y-auto">
+    <div className="bg-white rounded-lg shadow h-fit overflow-y-auto">
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -369,9 +369,9 @@ const ClientAllProjects = () => {
       </div>
 
       {/* Project List */}
-      <div className="p-6">
+      <div className="p-4">
         {filteredAndSortedProjects.length === 0 ? (
-          <div className="py-12 text-center">
+          <div className=" text-center">
             <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               No projects found
@@ -397,7 +397,7 @@ const ClientAllProjects = () => {
                     </h3>
                     <StatusBadge status={project.status} />
                   </div>
-                  
+
                   {/* Progress */}
                   <div className="mb-4">
                     <div className="flex justify-between mb-1 text-sm">
@@ -445,10 +445,10 @@ const ClientAllProjects = () => {
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-md border max-h-[76vh]">
             <table
-              className="min-w-full divide-y divide-gray-200"
               {...getTableProps()}
+              className="min-w-[800px] w-full border-collapse text-sm text-center"
             >
               <thead className="bg-gray-50">
                 {headerGroups.map((headerGroup, hgIdx) => (

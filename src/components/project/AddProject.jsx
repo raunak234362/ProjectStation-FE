@@ -57,6 +57,7 @@ const AddProject = () => {
       label: `${user.f_name} ${user.l_name}`,
       value: user.id,
     }));
+    console.log("",managerOption)
 
   // Watch values
   const selectedRfqId = watch("rfqId");
