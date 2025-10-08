@@ -37,6 +37,8 @@ const rfiID= rfiId;
 };
 
 const GetRFI = ({ rfiId, isOpen, onClose }) => {
+  console.log(rfiId)
+  const rfi_Id = rfiId
   const [rfi, setRFI] = useState(null);
   const [rfiResponse, setRFIResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
@@ -46,8 +48,8 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
   const fetchRFI = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await Service.fetchRFIById(rfiId);
-      console.log("Fetched RFI:", response.data);
+      const response = await Service.fetchRFIById(rfi_Id);
+      console.log("Fetched RFI:", response);
       setRFI((prev) => {
         const newData = response?.data;
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
@@ -61,13 +63,13 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [rfiId]);
+  }, [rfi_Id]);
 
   console.log("GetRFI component rendered with rfiId:", rfi);
 
   const fetchRFIResponses = useCallback(async () => {
     try {
-      const response = await Service.fetchRFIResponseById(rfiId);
+      const response = await Service.fetchRFIResponseById(rfi_Id);
       setRFIResponse((prev) => {
         const newData = response?.data || [];
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
@@ -137,11 +139,11 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
     useTable({ columns, data: tableData }, useSortBy);
 
   useEffect(() => {
-    if (isOpen && rfiId) {
+    if (isOpen && rfi_Id) {
       fetchRFI();
       fetchRFIResponses();
     }
-  }, [rfiId, isOpen, fetchRFI, fetchRFIResponses]);
+  }, [rfi_Id, isOpen, fetchRFI, fetchRFIResponses]);
 
   if (!isOpen) return null;
 
@@ -176,7 +178,7 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
 
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           <div className={`grid gap-4 ${userType === "client" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
-            <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfiID} />
+            <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfi_Id} />
             {userType === "client" && (
               <RFIResponse
                 rfiResponse={rfiResponse}

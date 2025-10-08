@@ -206,16 +206,17 @@ const StatusBadge = ({ status }) => {
 const StatCard = ({
   title,
   value,
-  subtitle,
-  suptitle,
+  completeTitle,
+  OnHoldTitle,
+  activeTitle,
   icon,
   trend,
   color,
   progress,
 }) => (
   <Card hover className="p-2">
-    <div className="flex items-start justify-between">
-      <div className="flex-1">
+    <div className="">
+      <div className="flex flex-row justify-around items-center gap-5">
         <div className="flex items-center">
           <div className={`p-3 rounded-lg ${color} mr-4`}>{icon}</div>
           <div>
@@ -223,17 +224,30 @@ const StatCard = ({
             <p className="text-2xl font-bold text-gray-900">{value}</p>
           </div>
         </div>
-        {subtitle && <p className="text-md text-gray-500 mt-2">{subtitle}</p>}
-        {suptitle && <p className="text-md text-gray-500 mt-1">{suptitle}</p>}
-        {trend && (
-          <div className="flex items-center mt-2">
-            <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
-            <span className="text-sm text-green-600 font-medium">{trend}</span>
-          </div>
-        )}
-        {progress !== undefined && (
-          <Progress value={progress} color="blue" className="mt-3" />
-        )}
+        <div className="flex flex-col">
+          {activeTitle && (
+            <p className="text-md text-teal-500 mt-1">{activeTitle}</p>
+          )}
+          {completeTitle && (
+            <p className="text-md text-green-500 mt-1">{completeTitle}</p>
+          )}
+          {OnHoldTitle && (
+            <p className="text-md text-orange-500 mt-1">{OnHoldTitle}</p>
+          )}
+        </div>
+        {/* <div>
+          {trend && (
+            <div className="flex items-center mt-2">
+              <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
+              <span className="text-sm text-green-600 font-medium">
+                {trend}
+              </span>
+            </div>
+          )}
+          {progress !== undefined && (
+            <Progress value={progress} color="blue" className="mt-3" />
+          )}
+        </div> */}
       </div>
     </div>
   </Card>
@@ -534,19 +548,22 @@ const ClientDashboardLYT = () => {
         </div>
         <div className="w-full overflow-x-hidden">
           <div>
-          <NotificationsList notifications={notification}/>
+            <NotificationsList notifications={notification} />
           </div>
           <div className="flex flex-col gap-2 ">
             <div>
               <StatCard
                 title="Total Projects"
                 value={projectData.length}
-                subtitle={`${
+                activeTitle={`${
+                  projectData.filter((p) => p.status === "ACTIVE").length
+                } Active Projects`}
+                completeTitle={`${
                   projectData.filter((p) => p.status === "COMPLETE").length
-                } Completed projects`}
-                suptitle={`${
+                } Completed Projects`}
+                OnHoldTitle={`${
                   projectData.filter((p) => p.status === "ONHOLD").length
-                } On Hold projects`}
+                } On Hold Projects`}
                 icon={<Building2 className="w-4 h-4 text-blue-600" />}
                 color="bg-blue-50"
                 progress={

@@ -115,7 +115,7 @@ function Select({ options = [], label, name, className, onChange, placeholder, .
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 text-sm bg-white border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
+        <div className="absolute z-10 w-full mt-1 text-sm bg-white border border-gray-700 rounded-md shadow-lg max-h-44 overflow-auto">
           {filteredOptions.length > 0 ? (
             filteredOptions.map(
               (option) =>

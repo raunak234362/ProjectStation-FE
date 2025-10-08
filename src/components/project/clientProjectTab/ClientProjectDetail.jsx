@@ -197,20 +197,20 @@ const ClientProjectDetail = ({
                   {projectData?.status || "Not available"}
                 </div>
               </div>
-              <div>
+              {/* <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Department
                 </h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.department?.name || "Not available"}
                 </p>
-              </div>
-              <div>
+              </div> */}
+              {/* <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.team?.name || "Not available"}
                 </p>
-              </div>
+              </div> */}
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Project Manager
@@ -229,14 +229,14 @@ const ClientProjectDetail = ({
 
             {/* Right Column */}
             <div className="space-y-4">
-              <div>
+              {/* <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Estimated Hours
                 </h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.estimatedHours || "Not available"}
                 </p>
-              </div>
+              </div> */}
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Stage
