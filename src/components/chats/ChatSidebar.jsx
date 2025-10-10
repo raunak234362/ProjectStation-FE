@@ -1,4 +1,7 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable prettier/prettier */
 /* eslint-disable react/prop-types */
+import { Search, MoreVertical } from "lucide-react"
 import { useState } from "react"
 import AddGroupModal from "./AddGroupModal"
 import { MdGroupAdd } from "react-icons/md"
@@ -77,8 +80,8 @@ const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, se
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-sm text-gray-700 truncate w-40">{chats.lastMessage}</p>
-                  {(unreadChatIds.includes(chats.group.id) || chats.unread > 0) && activeChat?.group?.id !== chats.group.id && (
+                  <p className="text-sm text-gray-700 truncate w-40">{chats?.lastMessage}</p>
+                  {(unreadChatIds?.includes(chats?.group?.id) || chats?.unread > 0) && activeChat?.group?.id !== chats?.group?.id && (
                     <span className="bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       ●
                     </span>
@@ -92,14 +95,14 @@ const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, se
       {/* Add group button */}
       <div className="p-4 sticky flex bottom-0 justify-between border-t border-gray-200 bg-white items-center">
 
-
+        {/* 
         <Button variant="outline" size="xs" onClick={handlePrivateChat}>
           <TiUserAdd />
 
         </Button>
         <Button variant="outline" size="sm" onClick={handleAddGroupView}>
           <MdGroupAdd />
-        </Button>
+        </Button> */}
       </div>
       {/* Modal for adding group */}
       {isModalOpen && (

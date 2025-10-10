@@ -186,7 +186,7 @@ const ActionCenter = () => {
 
       <div className="flex items-center justify-between mt-3">
         <div className="text-xs text-gray-500">
-          {item?.date ? new Date(item.date).toLocaleString() : "No date"}
+          {item?.createdAt ? new Date(item.createdAt).toLocaleString() : "No date"}
         </div>
       </div>
     </div>

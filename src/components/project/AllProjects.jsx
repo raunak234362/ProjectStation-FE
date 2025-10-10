@@ -9,8 +9,12 @@ import ProjectStatus from "./projectTab/ProjectStatus";
 
 const AllProjects = () => {
   const dispatch = useDispatch();
-  const projects = useSelector((state) => state?.projectData?.projectData || []);
-  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData || []);
+  const projects = useSelector(
+    (state) => state?.projectData?.projectData || []
+  );
+  const fabricators = useSelector(
+    (state) => state?.fabricatorData?.fabricatorData || []
+  );
   const allTasks = useSelector((state) => state?.taskData?.taskData || []);
   const userType = useMemo(() => sessionStorage.getItem("userType"), []);
 
@@ -130,8 +134,8 @@ const AllProjects = () => {
     () => [
       {
         Header: "S.No",
-        accessor: (row, i) => i + 1,
         id: "sno",
+        Cell: ({ row }) => row.index + 1,
       },
       {
         Header: "Project Name",
@@ -185,15 +189,20 @@ const AllProjects = () => {
         id: "tasks",
         Cell: ({ row }) => {
           const project = row.original;
-          const projectTasks = taskData?.filter(
-            (task) => task?.project_id === project.id
-          ) || [];
-          const completedTasksCount = projectTasks?.filter(
-            (task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER"
-          ).length || 0;
+          const projectTasks =
+            taskData?.filter((task) => task?.project_id === project.id) || [];
+          const completedTasksCount =
+            projectTasks?.filter(
+              (task) =>
+                task.status === "COMPLETE" ||
+                task.status === "VALIDATE_COMPLETE" ||
+                task.status === "COMPLETE_OTHER"
+            ).length || 0;
           const totalTasks = projectTasks.length;
           const progress =
-            totalTasks > 0 ? Math.round((completedTasksCount / totalTasks) * 100) : 0;
+            totalTasks > 0
+              ? Math.round((completedTasksCount / totalTasks) * 100)
+              : 0;
 
           // Set bar color based on progress
           let barColor = "bg-red-500";
@@ -245,7 +254,9 @@ const AllProjects = () => {
 
           const deadlineDate = new Date(deadline);
           const today = new Date();
-          const diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+          const diffDays = Math.ceil(
+            (deadlineDate - today) / (1000 * 60 * 60 * 24)
+          );
 
           let color = "bg-green-100 text-green-700";
           let label = "On Track";
@@ -258,7 +269,9 @@ const AllProjects = () => {
           }
 
           return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}
+            >
               {formatDate(deadline)} &nbsp; ({label})
             </span>
           );

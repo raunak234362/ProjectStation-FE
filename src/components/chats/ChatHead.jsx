@@ -1,12 +1,13 @@
 /* eslint-disable no-unused-vars */
+/* eslint-disable prettier/prettier */
 /* eslint-disable react/prop-types */
 import { Search, MoreVertical } from "lucide-react"
+import Button from "../fields/Button"
 import { useState } from "react"
 import GroupDetail from "./GroupDetail"
-import Button from "../fields/Button"
 
 const ChatHead = ({ contact, onBack }) => {
-  console.log("Contact in ChatHead:", contact)
+  // console.log("Contact in ChatHead:", contact)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState(null)
   const group = contact?.group
@@ -16,7 +17,7 @@ const ChatHead = ({ contact, onBack }) => {
     setSelectedGroup(group)
     setIsModalOpen(true)
   }
-console.log("Selected group in ChatHead:", selectedGroup)
+// console.log("Selected group in ChatHead:", selectedGroup)
   const handleCloseModal = () => {
     setIsModalOpen(false)
     setSelectedGroup(null)
@@ -26,7 +27,7 @@ console.log("Selected group in ChatHead:", selectedGroup)
     <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
       <div className="flex items-center">
         {onBack && (
-          <button onClick={onBack} className="md:hidden mr-3 text-sm text-teal-500">
+          <button onClick={onBack} className="md:hidden mr-3 text-sm text-blue-500">
             ← Back
           </button>
         )}
@@ -35,7 +36,10 @@ console.log("Selected group in ChatHead:", selectedGroup)
         </div>
       </div>
       <div className="flex items-center space-x-2">
-        <Button onClick={()=> handleViewGroupDetails(contact.group)} variant="ghost" size="icon" className="rounded-full bg-teal-500 py-1">
+        {/* <Button variant="ghost" size="icon" className="rounded-full">
+          <Search size={20} />
+        </Button> */}
+        <Button onClick={()=> handleViewGroupDetails(contact.group)} variant="ghost" size="icon" className="rounded-full">
           <MoreVertical size={20} />
         </Button>
       </div>

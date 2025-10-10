@@ -465,13 +465,21 @@ const Overview = ({
           {
             icon: <ClipboardCheck className="w-5 h-5 text-green-700" />,
             label: "Completed",
-            value: filteredTasks.filter((task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER")
-              .length,
+            value: filteredTasks.filter(
+              (task) =>
+                task.status === "COMPLETE" ||
+                task.status === "VALIDATE_COMPLETE" ||
+                task.status === "COMPLETE_OTHER"
+            ).length,
             component: (
               <ProgressBar
                 value={
-                  filteredTasks.filter((task) => task.status === "COMPLETE" || task.status === "VALIDATE_COMPLETE" || task.status === "COMPLETE_OTHER")
-                    .length
+                  filteredTasks.filter(
+                    (task) =>
+                      task.status === "COMPLETE" ||
+                      task.status === "VALIDATE_COMPLETE" ||
+                      task.status === "COMPLETE_OTHER"
+                  ).length
                 }
                 max={filteredTasks.length}
               />
@@ -717,44 +725,92 @@ const Overview = ({
 
         {/* Status Distribution Pie Chart */}
         <Card>
-          <div className="p-5">
+          <div className="p-3">
             <h2 className="flex items-center gap-2 mb-4 text-lg font-bold">
               <PieChart className="w-5 h-5" /> Task Status Distribution
             </h2>
-            <div className="h-[300px]">
+
+            <div className="h-[300px] flex flex-row items-center justify-between">
               {statusData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={statusData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name}: ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {statusData.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => [`${value} tasks`, "Count"]}
-                      contentStyle={{
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
-                        border: "1px solid #ccc",
-                        borderRadius: "4px",
-                        padding: "10px",
-                      }}
-                    />
-                    <Legend />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+                <div className="flex w-full items-center justify-center gap-10">
+                  {/* 🥧 PIE CHART ON LEFT */}
+                  <ResponsiveContainer width="60%" height={300}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={statusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={90}
+                        dataKey="value"
+                        nameKey="name"
+                      >
+                        {statusData.map((_, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+
+                      {/* 🧠 CUSTOM TOOLTIP */}
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0];
+                            const total = statusData.reduce(
+                              (acc, item) => acc + item.value,
+                              0
+                            );
+                            const percentage = (
+                              (data.value / total) *
+                              100
+                            ).toFixed(1);
+
+                            return (
+                              <div
+                                className="bg-white shadow-md rounded-md p-3 border border-gray-200 text-sm"
+                                style={{ lineHeight: "1.5" }}
+                              >
+                                <p className="font-semibold text-gray-800">
+                                  {data.name}
+                                </p>
+                                <p className="text-gray-600">
+                                  <span className="font-medium">Count:</span>{" "}
+                                  {data.value}
+                                </p>
+                                <p className="text-gray-600">
+                                  <span className="font-medium">
+                                    Percentage:
+                                  </span>{" "}
+                                  {percentage}%
+                                </p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+
+                  {/* 🧾 LEGEND ON RIGHT */}
+                  <div className="flex flex-col gap-2 text-sm">
+                    {statusData.map((entry, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{
+                            backgroundColor: COLORS[index % COLORS.length],
+                          }}
+                        ></div>
+                        <span className="font-medium text-gray-700">
+                          {entry.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               ) : (
                 <div className="flex items-center justify-center h-full text-gray-500">
                   No data available for the selected{" "}

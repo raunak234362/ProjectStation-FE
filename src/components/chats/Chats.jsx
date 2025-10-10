@@ -1,11 +1,12 @@
+
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 import ChatSidebar from "./ChatSidebar"
 import ChatMain from "./ChatMain"
+import useGroupMessages from "./ReceivedGroupMessage"
 import Service from "../../config/Service"
 import socket from "../../socket"
-import useGroupMessages from "./ReceivedGroupMessage"
 
 const Chats = () => {
   const [message, setMessage] = useState("")
@@ -83,7 +84,7 @@ const Chats = () => {
 
 
   return (
-    <div className="w-full h-[90vh] md:h-screen flex overflow-hidden bg-white rounded-lg shadow-lg relative">
+     <div className="w-full h-screen flex overflow-hidden bg-white rounded-md shadow-lg relative">
 
       {/* Desktop View: Sidebar + Chat */}
       <div className="hidden md:flex w-full h-full">

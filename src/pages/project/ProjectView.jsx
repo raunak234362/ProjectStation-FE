@@ -15,7 +15,7 @@ const ProjectView = () => {
           </h1>
           <div className="flex space-x-2 overflow-x-auto">
             {userType === "client" || userType === "staff" ? null : (
-              <div>
+              <div className="flex space-x-2">
                 <button
                   onClick={() => setActiveTab("ProjectDashboard")}
                   className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
