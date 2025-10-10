@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-/* eslint-disable prettier/prettier */
 /* eslint-disable react/prop-types */
 import { Search, MoreVertical } from "lucide-react"
 import Button from "../fields/Button"
@@ -39,7 +38,7 @@ const ChatHead = ({ contact, onBack }) => {
         {/* <Button variant="ghost" size="icon" className="rounded-full">
           <Search size={20} />
         </Button> */}
-        <Button onClick={()=> handleViewGroupDetails(contact.group)} variant="ghost" size="icon" className="rounded-full">
+        <Button onClick={()=> handleViewGroupDetails(contact.group)} className="rounded-full text-gray-800 bg-teal-500">
           <MoreVertical size={20} />
         </Button>
       </div>
