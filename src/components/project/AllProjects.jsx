@@ -133,11 +133,6 @@ const AllProjects = () => {
   const columns = useMemo(
     () => [
       {
-        Header: "S.No",
-        id: "sno",
-        Cell: ({ row }) => row.index + 1,
-      },
-      {
         Header: "Project Name",
         accessor: "name",
       },
@@ -270,7 +265,7 @@ const AllProjects = () => {
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}
             >
-              {formatDate(deadline)} 
+              {formatDate(deadline)}
             </span>
           );
         },
@@ -364,6 +359,11 @@ const AllProjects = () => {
                 key={headerGroup.id || headerGroupIdx}
                 {...headerGroup.getHeaderGroupProps()}
               >
+                {/* Add S.No header manually */}
+                <th className="px-4 py-2 font-semibold border whitespace-nowrap">
+                  S.No
+                </th>
+
                 {headerGroup.headers.map((column, colIdx) => (
                   <th
                     key={column.id || colIdx}
@@ -377,17 +377,18 @@ const AllProjects = () => {
               </tr>
             ))}
           </thead>
+
           <tbody {...getTableBodyProps()}>
             {loading ? (
               renderSkeletonRows(8)
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-4 text-center">
+                <td colSpan={columns.length + 1} className="py-4 text-center">
                   No Projects Found
                 </td>
               </tr>
             ) : (
-              rows.map((row) => {
+              rows.map((row, index) => {
                 prepareRow(row);
                 return (
                   <tr
@@ -396,6 +397,9 @@ const AllProjects = () => {
                     className="hover:bg-gray-100 cursor-pointer transition"
                     onClick={() => handleViewClick(row.original.id)}
                   >
+                    {/* Add S.No value manually */}
+                    <td className="px-4 py-2 border">{index + 1}</td>
+
                     {row.cells.map((cell) => (
                       <td
                         key={cell.column.id || cell.getCellProps().key}
