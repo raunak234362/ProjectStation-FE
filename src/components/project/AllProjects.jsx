@@ -259,20 +259,18 @@ const AllProjects = () => {
           );
 
           let color = "bg-green-100 text-green-700";
-          let label = "On Track";
+
           if (diffDays < 0) {
             color = "bg-red-100 text-red-700";
-            label = "Overdue";
           } else if (diffDays <= 3) {
             color = "bg-yellow-100 text-yellow-700";
-            label = "Due Soon";
           }
 
           return (
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}
             >
-              {formatDate(deadline)} &nbsp; ({label})
+              {formatDate(deadline)} 
             </span>
           );
         },

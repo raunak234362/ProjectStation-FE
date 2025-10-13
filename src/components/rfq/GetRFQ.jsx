@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useMemo } from "react";
 import Button from "../fields/Button";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import RFQDetail from "./RFQDetail";
 import ResponseRFQ from "./ResponseRFQ";
 import UpdateStatus from "./UpdateStatus";
@@ -12,11 +12,14 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   const userType = sessionStorage.getItem("userType");
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
-  console.log("RFQ Data:", data);
+  const [showResponseForm, setShowResponseForm] = useState(false);
+
   const handleModalClose = useCallback(() => {
     onClose();
   }, [onClose]);
+
   const RFQData = data || {};
+
   const handleViewModalOpen = (id) => {
     setSelectedResponseId(id);
     setViewModalOpen(true);
@@ -25,6 +28,10 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   const handleViewModalClose = () => {
     setSelectedResponseId(null);
     setViewModalOpen(false);
+  };
+
+  const toggleResponseForm = () => {
+    setShowResponseForm((prev) => !prev);
   };
 
   const columns = useMemo(
@@ -78,6 +85,7 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
+        {/* Header */}
         <div className="sticky top-0 z-50 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
           <div className="text-lg text-white">
             <span className="font-bold">Subject:</span> {data?.subject}
@@ -91,20 +99,39 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
           </button>
         </div>
 
-        {/* RFQ Details and Response Form */}
+        {/* RFQ Details and Response Form Section */}
         <section
           className={`mb-8 gap-4 ${
             userType === "client"
               ? "flex flex-col w-full"
-              : "grid md:grid-cols-2 grid-cols-1 justify-between w-full"
+              : "grid md:grid-cols-1 grid-cols-1 justify-between w-full"
           }`}
         >
-          <div>
+          {/* Left: RFQ Details */}
+          <div className="w-full"> 
             <RFQDetail data={data} />
           </div>
+
+          {/* Right: Response Form with Button */}
           {userType !== "client" && (
-            <div>
-              <ResponseRFQ onClose={handleModalClose} rfqID={data.id} />
+            <div className="flex flex-col gap-4">
+              <Button
+                onClick={toggleResponseForm}
+                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                  showResponseForm
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-teal-600 hover:bg-teal-700"
+                }`}
+              >
+                <Plus className="w-4 h-4" />
+                {showResponseForm ? "Close Response Form" : "Add Response"}
+              </Button>
+
+              {showResponseForm && (
+                <div className="border border-gray-200 rounded-lg p-3 shadow-inner bg-gray-50">
+                  <ResponseRFQ onClose={handleModalClose} rfqID={data.id} />
+                </div>
+              )}
             </div>
           )}
         </section>
