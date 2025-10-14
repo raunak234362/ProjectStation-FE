@@ -6,6 +6,7 @@ import { useTable, useSortBy } from "react-table";
 import Button from "../fields/Button";
 import { CheckCircle2, Loader2, PauseCircle, AlertCircle } from "lucide-react";
 import ProjectStatus from "./projectTab/ProjectStatus";
+import { CustomSelect } from "..";
 
 const AllProjects = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ const AllProjects = () => {
     fabricator: "",
     status: "",
     manager: "",
+    project: "",
   });
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,9 +50,7 @@ const AllProjects = () => {
 
   const managerOptions = useMemo(() => {
     const managers = new Set(
-      projects
-        ?.map((project) => project?.manager?.f_name)
-        .filter((name) => name)
+      projects?.map((project) => project?.manager?.f_name).filter(Boolean)
     );
     return [...managers].sort();
   }, [projects]);
@@ -91,12 +91,20 @@ const AllProjects = () => {
       const statusMatch = !filters.status || project?.status === filters.status;
       const managerMatch =
         !filters.manager || project?.manager?.f_name === filters.manager;
-      return searchMatch && fabricatorMatch && statusMatch && managerMatch;
+      const projectMatch =
+        !filters.project || project?.id?.toString() === filters.project;
+
+      return (
+        searchMatch &&
+        fabricatorMatch &&
+        statusMatch &&
+        managerMatch &&
+        projectMatch
+      );
     });
 
     filtered.sort((a, b) => {
       let aKey, bKey;
-
       if (sortOrder.key === "fabricator") {
         aKey = a.fabricator?.fabName || "N/A";
         bKey = b.fabricator?.fabName || "N/A";
@@ -130,6 +138,7 @@ const AllProjects = () => {
 
   const data = useMemo(() => projectFilter || [], [projectFilter]);
 
+  // ✅ Table Columns
   const columns = useMemo(
     () => [
       {
@@ -199,15 +208,10 @@ const AllProjects = () => {
               ? Math.round((completedTasksCount / totalTasks) * 100)
               : 0;
 
-          // Set bar color based on progress
           let barColor = "bg-red-500";
-          if (progress >= 80) {
-            barColor = "bg-green-500";
-          } else if (progress >= 50) {
-            barColor = "bg-yellow-500";
-          } else if (progress >= 20) {
-            barColor = "bg-orange-500";
-          }
+          if (progress >= 80) barColor = "bg-green-500";
+          else if (progress >= 50) barColor = "bg-yellow-500";
+          else if (progress >= 20) barColor = "bg-orange-500";
 
           return (
             <div className="flex flex-col items-center">
@@ -227,23 +231,17 @@ const AllProjects = () => {
       },
       {
         Header: "Approval Date",
-        accessor: (row) => {
-          // Use timestamp for sorting, fallback to 0 if not available
-          const deadline = row.deadline || row.approvalDate;
-          return deadline ? new Date(deadline).getTime() : 0;
-        },
+        accessor: (row) => row.deadline || row.approvalDate,
         id: "deadline",
         Cell: ({ row }) => {
           const status = row.original.status;
           const deadline = row.original.deadline || row.original.approvalDate;
-
-          if (status === "COMPLETE") {
+          if (status === "COMPLETE")
             return (
               <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                 Completed
               </span>
             );
-          }
 
           if (!deadline) return <span className="text-gray-400">N/A</span>;
 
@@ -254,12 +252,8 @@ const AllProjects = () => {
           );
 
           let color = "bg-green-100 text-green-700";
-
-          if (diffDays < 0) {
-            color = "bg-red-100 text-red-700";
-          } else if (diffDays <= 3) {
-            color = "bg-yellow-100 text-yellow-700";
-          }
+          if (diffDays < 0) color = "bg-red-100 text-red-700";
+          else if (diffDays <= 3) color = "bg-yellow-100 text-yellow-700";
 
           return (
             <span
@@ -271,19 +265,19 @@ const AllProjects = () => {
         },
       },
       {
-        Header: "Submission Date",
+        Header: "Fabrication Date",
         accessor: (row) => formatDate(row.endDate),
         id: "approvalDate",
       },
     ],
-    [handleViewClick, taskData]
+    [taskData]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data }, useSortBy);
 
-  const renderSkeletonRows = (count = 10) => {
-    return Array.from({ length: count }).map((_, rowIdx) => (
+  const renderSkeletonRows = (count = 10) =>
+    Array.from({ length: count }).map((_, rowIdx) => (
       <tr key={rowIdx} className="animate-pulse">
         {columns.map((_, colIdx) => (
           <td key={colIdx} className="px-4 py-2 border">
@@ -292,59 +286,76 @@ const AllProjects = () => {
         ))}
       </tr>
     ));
-  };
 
   return (
     <div className="w-full p-4 rounded-lg bg-white/70">
       {/* Filters */}
-      <div className="flex flex-col gap-4 mb-4 md:flex-row">
-        <input
-          type="text"
-          placeholder="Search by name"
-          className="w-full p-2 border rounded"
-          value={searchQuery}
-          onChange={handleSearch}
-        />
-        <select
-          name="fabricator"
-          value={filters.fabricator}
-          onChange={handleFilterChange}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">All Fabricators</option>
-          {fabricators?.map((fab) => (
-            <option key={fab.id} value={fab.fabName}>
-              {fab.fabName}
-            </option>
-          ))}
-        </select>
-        <select
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">All Status</option>
-          <option value="ASSIGNED">ASSIGNED</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="ON-HOLD">ON-HOLD</option>
-          <option value="INACTIVE">INACTIVE</option>
-          <option value="DELAY">DELAY</option>
-          <option value="COMPLETE">COMPLETED</option>
-        </select>
-        <select
-          name="manager"
-          value={filters.manager}
-          onChange={handleFilterChange}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">All Managers</option>
-          {managerOptions.map((manager) => (
-            <option key={manager} value={manager}>
-              {manager}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-col gap-4 mb-4 md:flex-row ">
+        <div className="flex gap-4 w-full z-40">
+          <CustomSelect
+            label="Select Project"
+            name="project"
+            placeholder="Filter by Project"
+            options={[
+              { label: "All Projects", value: "" },
+              ...(projects?.map((proj) => ({
+                label: proj.name,
+                value: proj.id?.toString(),
+              })) || []),
+            ]}
+            value={filters.project}
+            onChange={(_, value) => {
+              setFilters((prev) => ({ ...prev, project: value || "" }));
+            }}
+            className="w-full"
+          />
+          <CustomSelect
+            label="Select Fabricator"
+            name="fabricator"
+            placeholder="Filter by Fabricator"
+            options={[
+              { label: "All Fabricators", value: "" },
+              ...(fabricators?.map((fab) => ({
+                label: fab.fabName,
+                value: fab.fabName,
+              })) || []),
+            ]}
+            value={filters.fabricator}
+            onChange={(_, value) => {
+              setFilters((prev) => ({ ...prev, fabricator: value || "" }));
+            }}
+            className="w-full"
+          />
+
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">All Status</option>
+            <option value="ASSIGNED">ASSIGNED</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="ON-HOLD">ON-HOLD</option>
+            <option value="INACTIVE">INACTIVE</option>
+            <option value="DELAY">DELAY</option>
+            <option value="COMPLETE">COMPLETED</option>
+          </select>
+
+          <select
+            name="manager"
+            value={filters.manager}
+            onChange={handleFilterChange}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">All Managers</option>
+            {managerOptions.map((manager) => (
+              <option key={manager} value={manager}>
+                {manager}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Table */}
@@ -354,16 +365,11 @@ const AllProjects = () => {
           className="min-w-[800px] w-full border-collapse text-sm text-center"
         >
           <thead className="sticky top-0 z-10 bg-teal-200">
-            {headerGroups.map((headerGroup, headerGroupIdx) => (
-              <tr
-                key={headerGroup.id || headerGroupIdx}
-                {...headerGroup.getHeaderGroupProps()}
-              >
-                {/* Add S.No header manually */}
+            {headerGroups.map((headerGroup, idx) => (
+              <tr key={idx} {...headerGroup.getHeaderGroupProps()}>
                 <th className="px-4 py-2 font-semibold border whitespace-nowrap">
                   S.No
                 </th>
-
                 {headerGroup.headers.map((column, colIdx) => (
                   <th
                     key={column.id || colIdx}
@@ -377,7 +383,6 @@ const AllProjects = () => {
               </tr>
             ))}
           </thead>
-
           <tbody {...getTableBodyProps()}>
             {loading ? (
               renderSkeletonRows(8)
@@ -393,16 +398,14 @@ const AllProjects = () => {
                 return (
                   <tr
                     {...row.getRowProps()}
-                    key={row.id || row.index}
-                    className="hover:bg-gray-100 cursor-pointer transition"
+                    key={row.id || index}
+                    className="hover:bg-gray-100 cursor-auto transition"
                     onClick={() => handleViewClick(row.original.id)}
                   >
-                    {/* Add S.No value manually */}
                     <td className="px-4 py-2 border">{index + 1}</td>
-
                     {row.cells.map((cell) => (
                       <td
-                        key={cell.column.id || cell.getCellProps().key}
+                        key={cell.column.id}
                         {...cell.getCellProps()}
                         className="px-4 py-2 border"
                       >

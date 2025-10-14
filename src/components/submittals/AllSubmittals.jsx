@@ -63,7 +63,7 @@ const AllSubmittals = ({ projectData }) => {
                     value ? (
                         <span className="text-red-600 font-semibold">Not Replied</span>
                     ) : (
-                        <span className="text-green-500 font-semibold">Completed</span>
+                        <span className="text-green-500 font-semibold">Replied</span>
                     ),
             },
         ],
@@ -79,7 +79,6 @@ const AllSubmittals = ({ projectData }) => {
     } = useTable({ columns, data }, useSortBy);
 
     const handleRowClick = useCallback((submittal) => {
-        console.log("Clicked Submittal:", submittal);
         setSelectedSubmittal(submittal);
         setIsModalOpen(true);
     }, []);

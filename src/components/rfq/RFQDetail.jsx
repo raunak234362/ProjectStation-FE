@@ -16,7 +16,7 @@ const RFQDetail = ({ data }) => {
       <h4 className="font-semibold text-gray-800 text-sm uppercase tracking-wide border-b pb-1">
         {title}
       </h4>
-      <div className="grid grid-cols-2 text-sm gap-y-2">
+      <div className="grid grid-cols-3 text-sm gap-y-2">
         <div>
           <span
             className={`font-semibold ${
@@ -57,7 +57,7 @@ const RFQDetail = ({ data }) => {
   );
 
   return (
-    <div className="w-full max-w-4xl bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+    <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-100">
       {/* Header */}
       <div className="flex items-center justify-between bg-gradient-to-r from-teal-500 to-teal-100 text-white px-5 py-3 rounded-t-lg shadow-sm">
         <h3 className="text-lg font-bold tracking-wide">RFQ Information</h3>

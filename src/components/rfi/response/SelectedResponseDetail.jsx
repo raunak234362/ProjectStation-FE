@@ -11,10 +11,6 @@ const SelectedResponseDetail = ({ responseDetail }) => {
       <p className=" text-gray-600">
         {responseDetail?.wbtStatus || "No status available."}
       </p>
-      <h4 className="text-md font-semibold">Received At</h4>
-      <p className=" text-gray-600">
-        {responseDetail?.createdAt || "No creation date available."}
-      </p>
       <h4 className="text-md font-semibold">Files</h4>
       <ul className=" list-disc list-inside">
         {responseDetail?.files?.length ? (

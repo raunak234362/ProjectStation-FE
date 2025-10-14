@@ -1,59 +1,62 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable react/prop-types */
-"use client"
+"use client";
 
-import React, { useId, useState, useRef, useEffect } from "react"
-import { Search } from "lucide-react"
+import React, { useId, useState, useRef, useEffect } from "react";
+import { Search } from "lucide-react";
 
-function Select({ options = [], label, name, className, onChange, placeholder, ...props }, ref) {
-  const id = useId()
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedOption, setSelectedOption] = useState(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filteredOptions, setFilteredOptions] = useState(options)
-  const wrapperRef = useRef(null)
-  const searchRef = useRef(null)
+function Select(
+  { options = [], label, name, className, onChange, placeholder, ...props },
+  ref
+) {
+  const id = useId();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredOptions, setFilteredOptions] = useState(options);
+  const wrapperRef = useRef(null);
+  const searchRef = useRef(null);
 
   useEffect(() => {
-    setFilteredOptions(options)
-  }, [options])
+    setFilteredOptions(options);
+  }, [options]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setIsOpen(false)
+        setIsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (event) => {
-    const term = event.target.value.toLowerCase()
-    setSearchTerm(term)
+    const term = event.target.value.toLowerCase();
+    setSearchTerm(term);
     const filtered = options.filter(
       (option) => option && option.label.toLowerCase().includes(term)
-    )
-    setFilteredOptions(filtered)
-  }
+    );
+    setFilteredOptions(filtered);
+  };
 
   const handleSelect = (option) => {
-    setSelectedOption(option)
-    setSearchTerm("")
-    setIsOpen(false)
+    setSelectedOption(option);
+    setSearchTerm("");
+    setIsOpen(false);
     if (onChange && typeof onChange === "function") {
-      onChange(name, option.value)
+      onChange(name, option.value);
     }
-  }
+  };
 
   const highlightMatch = (text, highlight) => {
     if (!highlight.trim()) {
-      return text
+      return text;
     }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
+    const regex = new RegExp(`(${highlight})`, "gi");
+    const parts = text.split(regex);
     return (
       <>
         {parts.map((part, i) =>
@@ -66,17 +69,17 @@ function Select({ options = [], label, name, className, onChange, placeholder, .
           )
         )}
       </>
-    )
-  }
+    );
+  };
 
   return (
     <div ref={wrapperRef} className="relative w-full">
       <div
         onClick={() => {
-          setIsOpen(!isOpen)
+          setIsOpen(!isOpen);
           setTimeout(() => {
-            searchRef.current?.focus()
-          }, 100)
+            searchRef.current?.focus();
+          }, 100);
         }}
         className={`flex items-center justify-between p-2 text-sm border border-gray-400 rounded-md bg-white cursor-pointer ${
           isOpen ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-300"
@@ -97,8 +100,12 @@ function Select({ options = [], label, name, className, onChange, placeholder, .
               />
             </div>
           ) : (
-            <span className={selectedOption ? "text-gray-900" : "text-gray-500"}>
-              {selectedOption ? selectedOption.label : label || placeholder || "Select an option"}
+            <span
+              className={selectedOption ? "text-gray-900" : "text-gray-500"}
+            >
+              {selectedOption
+                ? selectedOption.label
+                : label || placeholder || "Select an option"}
             </span>
           )}
         </div>
@@ -110,12 +117,17 @@ function Select({ options = [], label, name, className, onChange, placeholder, .
           stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 text-sm bg-white border border-gray-700 rounded-md shadow-lg max-h-44 overflow-auto">
+        <div className="absolute z-10 w-full mt-1 text-sm bg-white border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto">
           {filteredOptions.length > 0 ? (
             filteredOptions.map(
               (option) =>
@@ -135,7 +147,7 @@ function Select({ options = [], label, name, className, onChange, placeholder, .
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default React.forwardRef(Select)
+export default React.forwardRef(Select);

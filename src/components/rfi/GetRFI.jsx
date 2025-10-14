@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../index";
@@ -11,16 +12,21 @@ import ResponseFromClient from "./response/ResponseFromClient";
 
 const FileLinks = ({ files, rfiId, isResponse = false, responseId }) => {
   const baseURL = import.meta.env.VITE_BASE_URL;
-const responseID = responseId;
-const rfiID= rfiId;
+  const responseID = responseId;
+  const rfiID = rfiId;
   if (!Array.isArray(files) || files.length === 0) {
     return <span className="text-sm text-gray-500">Not available</span>;
   }
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/response/viewfile/${responseID}/${file.id}`
-      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiID}/${file.id}`;
+      ? `${baseURL.replace(
+          /\/$/,
+          ""
+        )}/api/RFI/rfi/response/viewfile/${responseID}/${file.id}`
+      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiID}/${
+          file.id
+        }`;
 
     return (
       <a
@@ -37,11 +43,12 @@ const rfiID= rfiId;
 };
 
 const GetRFI = ({ rfiId, isOpen, onClose }) => {
-  console.log(rfiId)
-  const rfi_Id = rfiId
+  console.log(rfiId);
+  const rfi_Id = rfiId;
   const [rfi, setRFI] = useState(null);
   const [rfiResponse, setRFIResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
+  const [showResponseForm, setShowResponseForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
@@ -138,6 +145,13 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: tableData }, useSortBy);
 
+  const handleModalClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  const toggleResponseForm = () => {
+    setShowResponseForm((prev) => !prev);
+  };
   useEffect(() => {
     if (isOpen && rfi_Id) {
       fetchRFI();
@@ -177,14 +191,31 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
         </div>
 
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <div className={`grid gap-4 ${userType === "client" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>
+          <div className={`grid gap-4 `}>
             <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfi_Id} />
             {userType === "client" && (
-              <RFIResponse
-                rfiResponse={rfiResponse}
-                rfi={rfi}
-                onClose={onClose}
-              />
+              <div className="flex flex-col gap-4">
+                <Button
+                  onClick={toggleResponseForm}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                    showResponseForm
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-teal-600 hover:bg-teal-700"
+                  }`}
+                >
+                  {showResponseForm ? "Close Response Form" : "Add Response"}
+                </Button>
+
+                {showResponseForm && (
+                  <div className="border border-gray-200 rounded-lg p-3 shadow-inner bg-gray-50">
+                    <RFIResponse
+                      rfiResponse={rfiResponse}
+                      rfi={rfi}
+                      onClose={onClose}
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

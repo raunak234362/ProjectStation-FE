@@ -64,58 +64,65 @@ const GetEmployee = ({ employee, onClose }) => {
       return;
     }
 
+    // 🧠 Filter tasks based on dateFilter
     filteredStatus.tasks = employeeStatus.tasks.filter((task) => {
       if (!task.start_date) return false;
 
       const taskDate = new Date(task.start_date);
 
-      if (dateFilter.type === "month") {
-        return (
-          taskDate.getMonth() === dateFilter.month &&
-          taskDate.getFullYear() === dateFilter.year
-        );
-      }
+      switch (dateFilter.type) {
+        case "month":
+          return (
+            taskDate.getMonth() === dateFilter.month &&
+            taskDate.getFullYear() === dateFilter.year
+          );
 
-      if (dateFilter.type === "year") {
-        return taskDate.getFullYear() === dateFilter.year;
-      }
+        case "year":
+          return taskDate.getFullYear() === dateFilter.year;
 
-      if (
-        dateFilter.type === "week" &&
-        dateFilter.weekStart &&
-        dateFilter.weekEnd
-      ) {
-        return (
-          taskDate.getTime() >= dateFilter.weekStart &&
-          taskDate.getTime() <= dateFilter.weekEnd
-        );
-      }
+        case "week":
+          return (
+            dateFilter.weekStart &&
+            dateFilter.weekEnd &&
+            taskDate.getTime() >= dateFilter.weekStart &&
+            taskDate.getTime() <= dateFilter.weekEnd
+          );
 
-      if (dateFilter.type === "range") {
-        const startDate = new Date(dateFilter.year, dateFilter.startMonth, 1);
-        const endDate = new Date(dateFilter.year, dateFilter.endMonth + 1, 0);
-        return (
-          taskDate.getTime() >= startDate.getTime() &&
-          taskDate.getTime() <= endDate.getTime()
-        );
-      }
+        case "range": {
+          const startDate = new Date(dateFilter.year, dateFilter.startMonth, 1);
+          const endDate = new Date(dateFilter.year, dateFilter.endMonth + 1, 0);
+          return (
+            taskDate.getTime() >= startDate.getTime() &&
+            taskDate.getTime() <= endDate.getTime()
+          );
+        }
 
-      if (
-        dateFilter.type === "dateRange" &&
-        dateFilter.startDate &&
-        dateFilter.endDate
-      ) {
-        const start = new Date(dateFilter.startDate);
-        const end = new Date(dateFilter.endDate);
-        return (
-          taskDate.getTime() >= start.getTime() &&
-          taskDate.getTime() <= end.getTime()
-        );
-      }
+        case "dateRange": {
+          const start = new Date(dateFilter.startDate);
+          const end = new Date(dateFilter.endDate);
+          return (
+            taskDate.getTime() >= start.getTime() &&
+            taskDate.getTime() <= end.getTime()
+          );
+        }
 
-      return true;
+        // ✅ NEW: Filter for specific date
+        case "specificDate": {
+          if (!dateFilter.date) return false;
+          const filterDate = new Date(dateFilter.date);
+          return (
+            taskDate.getFullYear() === filterDate.getFullYear() &&
+            taskDate.getMonth() === filterDate.getMonth() &&
+            taskDate.getDate() === filterDate.getDate()
+          );
+        }
+
+        default:
+          return true;
+      }
     });
 
+    // 🧠 Filter workingHourTask similarly
     filteredStatus.workingHourTask = employeeStatus.tasks
       .flatMap((task) => task.workingHourTask || [])
       .filter((entry) => {
@@ -123,51 +130,64 @@ const GetEmployee = ({ employee, onClose }) => {
 
         const entryDate = new Date(entry.date);
 
-        if (dateFilter.type === "month") {
-          return (
-            entryDate.getMonth() === dateFilter.month &&
-            entryDate.getFullYear() === dateFilter.year
-          );
-        }
+        switch (dateFilter.type) {
+          case "month":
+            return (
+              entryDate.getMonth() === dateFilter.month &&
+              entryDate.getFullYear() === dateFilter.year
+            );
 
-        if (dateFilter.type === "year") {
-          return entryDate.getFullYear() === dateFilter.year;
-        }
+          case "year":
+            return entryDate.getFullYear() === dateFilter.year;
 
-        if (
-          dateFilter.type === "week" &&
-          dateFilter.weekStart &&
-          dateFilter.weekEnd
-        ) {
-          return (
-            entryDate.getTime() >= dateFilter.weekStart &&
-            entryDate.getTime() <= dateFilter.weekEnd
-          );
-        }
+          case "week":
+            return (
+              dateFilter.weekStart &&
+              dateFilter.weekEnd &&
+              entryDate.getTime() >= dateFilter.weekStart &&
+              entryDate.getTime() <= dateFilter.weekEnd
+            );
 
-        if (dateFilter.type === "range") {
-          const startDate = new Date(dateFilter.year, dateFilter.startMonth, 1);
-          const endDate = new Date(dateFilter.year, dateFilter.endMonth + 1, 0);
-          return (
-            entryDate.getTime() >= startDate.getTime() &&
-            entryDate.getTime() <= endDate.getTime()
-          );
-        }
+          case "range": {
+            const startDate = new Date(
+              dateFilter.year,
+              dateFilter.startMonth,
+              1
+            );
+            const endDate = new Date(
+              dateFilter.year,
+              dateFilter.endMonth + 1,
+              0
+            );
+            return (
+              entryDate.getTime() >= startDate.getTime() &&
+              entryDate.getTime() <= endDate.getTime()
+            );
+          }
 
-        if (
-          dateFilter.type === "dateRange" &&
-          dateFilter.startDate &&
-          dateFilter.endDate
-        ) {
-          const start = new Date(dateFilter.startDate);
-          const end = new Date(dateFilter.endDate);
-          return (
-            entryDate.getTime() >= start.getTime() &&
-            entryDate.getTime() <= end.getTime()
-          );
-        }
+          case "dateRange": {
+            const start = new Date(dateFilter.startDate);
+            const end = new Date(dateFilter.endDate);
+            return (
+              entryDate.getTime() >= start.getTime() &&
+              entryDate.getTime() <= end.getTime()
+            );
+          }
 
-        return true;
+          // ✅ NEW: Filter workingHourTask for specific date
+          case "specificDate": {
+            if (!dateFilter.date) return false;
+            const filterDate = new Date(dateFilter.date);
+            return (
+              entryDate.getFullYear() === filterDate.getFullYear() &&
+              entryDate.getMonth() === filterDate.getMonth() &&
+              entryDate.getDate() === filterDate.getDate()
+            );
+          }
+
+          default:
+            return true;
+        }
       });
 
     setFilteredData(filteredStatus);

@@ -106,6 +106,7 @@ const ActionCenter = () => {
     }
   };
 
+  
   useEffect(() => {
     fetchData();
   }, []);
@@ -122,11 +123,18 @@ const ActionCenter = () => {
         (Array.isArray(item.submittalsResponse) &&
           item.submittalsResponse.length === 0)
     ),
-    rfq: rfqList.filter(
-      (item) => Array.isArray(item.response) && item.response.length > 0
+    rfq : rfqList.filter(
+      (item) =>
+        Array.isArray(item.response) &&
+        item.response.length > 0 &&
+        item.response.some(
+          (res) => Array.isArray(res.childResponses) && res.childResponses.length === 0
+        )
     ),
+    
     co: [],
   };
+
 
   const handleItemClick = (item, type) => {
     console.log(type);

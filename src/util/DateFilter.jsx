@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filter, ChevronDown } from "lucide-react";
 
 const DateFilter = ({ dateFilter, setDateFilter }) => {
@@ -23,44 +23,62 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
   ];
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i); // You can change range
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+  // ✅ Auto close when all required fields are filled
+  useEffect(() => {
+    const { type } = dateFilter;
+    if (
+      (type === "month" &&
+        dateFilter.year !== undefined &&
+        dateFilter.month !== undefined) ||
+      (type === "year" && dateFilter.year !== undefined) ||
+      (type === "week" && dateFilter.weekStart && dateFilter.weekEnd) ||
+      (type === "range" &&
+        dateFilter.startMonth !== undefined &&
+        dateFilter.endMonth !== undefined &&
+        dateFilter.year !== undefined) ||
+      (type === "dateRange" && dateFilter.startDate && dateFilter.endDate) ||
+      (type === "specificDate" && dateFilter.date) ||
+      type === "all"
+    ) {
+      setShowFilterDropdown(false);
+    }
+  }, [dateFilter]);
 
   return (
     <div className="bg-white rounded-lg shadow border border-gray-200 z-50">
       <div className="flex items-center justify-between gap-5">
-        {/* <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-teal-500 mr-2" />
-                    <h3 className="text-sm font-medium text-gray-700">Date Filter</h3>
-                </div> */}
         <div className="relative">
           <button
             className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100"
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+            onClick={() => setShowFilterDropdown((prev) => !prev)}
+            type="button"
           >
             <Filter size={16} />
             {dateFilter?.type === "all"
               ? "All Time"
               : dateFilter?.type === "month"
-              ? `${months[dateFilter.month]} ${dateFilter.year}`
-              : dateFilter?.type === "week"
-              ? `Week of ${new Date(dateFilter.weekStart).toLocaleDateString()}`
-              : dateFilter?.type === "range"
-              ? `${months[dateFilter.startMonth]} - ${
-                  months[dateFilter.endMonth]
-                } ${dateFilter.year}`
-              : dateFilter?.type === "dateRange"
-              ? `${new Date(
-                  dateFilter.startDate
-                ).toLocaleDateString()} - ${new Date(
-                  dateFilter.endDate
-                ).toLocaleDateString()}`
-              : `Year ${dateFilter.year}`}
+                ? `${months[dateFilter.month]} ${dateFilter.year}`
+                : dateFilter?.type === "week"
+                  ? `Week of ${new Date(dateFilter.weekStart).toLocaleDateString()}`
+                  : dateFilter?.type === "range"
+                    ? `${months[dateFilter.startMonth]} - ${months[dateFilter.endMonth]} ${dateFilter.year}`
+                    : dateFilter?.type === "dateRange"
+                      ? `${new Date(dateFilter.startDate).toLocaleDateString()} - ${new Date(dateFilter.endDate).toLocaleDateString()}`
+                      : dateFilter?.type === "specificDate"
+                        ? `${new Date(dateFilter.date).toLocaleDateString()}`
+                        : `Year ${dateFilter.year}`}
             <ChevronDown size={16} />
           </button>
 
           {showFilterDropdown && (
-            <div className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+            <div
+              className="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+              onClick={(e) => e.stopPropagation()} // ✅ prevent auto-close on inside click
+            >
               <div className="p-3">
+                {/* Filter Type */}
                 <div className="mb-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Filter Type
@@ -77,7 +95,8 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     <option value="month">By Month</option>
                     <option value="year">By Year</option>
                     <option value="range">Month Range</option>
-                    <option value="dateRange">Date Range</option> {/* 🔥 NEW */}
+                    <option value="dateRange">Date Range</option>
+                    <option value="specificDate">Specific Date</option>
                   </select>
                 </div>
 
@@ -90,7 +109,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     </label>
                     <select
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                      value={dateFilter.year}
+                      value={dateFilter.year || ""}
                       onChange={(e) =>
                         setDateFilter({
                           ...dateFilter,
@@ -98,6 +117,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                         })
                       }
                     >
+                      <option value="">Select Year</option>
                       {years.map((year) => (
                         <option key={year} value={year}>
                           {year}
@@ -129,7 +149,6 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                         const weekStart = new Date(date.setDate(diff));
                         const weekEnd = new Date(weekStart);
                         weekEnd.setDate(weekEnd.getDate() + 6);
-
                         setDateFilter({
                           ...dateFilter,
                           weekStart: weekStart.getTime(),
@@ -147,7 +166,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     </label>
                     <select
                       className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                      value={dateFilter.month}
+                      value={dateFilter.month || ""}
                       onChange={(e) =>
                         setDateFilter({
                           ...dateFilter,
@@ -155,6 +174,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                         })
                       }
                     >
+                      <option value="">Select Month</option>
                       {months.map((month, index) => (
                         <option key={month} value={index}>
                           {month}
@@ -172,7 +192,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                       </label>
                       <select
                         className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        value={dateFilter.startMonth}
+                        value={dateFilter.startMonth || ""}
                         onChange={(e) =>
                           setDateFilter({
                             ...dateFilter,
@@ -180,6 +200,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                           })
                         }
                       >
+                        <option value="">Select Start</option>
                         {months.map((month, index) => (
                           <option key={month} value={index}>
                             {month}
@@ -193,7 +214,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                       </label>
                       <select
                         className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        value={dateFilter.endMonth}
+                        value={dateFilter.endMonth || ""}
                         onChange={(e) =>
                           setDateFilter({
                             ...dateFilter,
@@ -201,6 +222,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                           })
                         }
                       >
+                        <option value="">Select End</option>
                         {months.map((month, index) => (
                           <option key={month} value={index}>
                             {month}
@@ -210,6 +232,7 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     </div>
                   </>
                 )}
+
                 {dateFilter?.type === "dateRange" && (
                   <>
                     <div className="mb-3">
@@ -258,6 +281,40 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     </div>
                   </>
                 )}
+
+                {/* Specific Date Input */}
+                {dateFilter?.type === "specificDate" && (
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Select Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                      value={
+                        dateFilter.date
+                          ? new Date(dateFilter.date)
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setDateFilter({
+                          ...dateFilter,
+                          date: new Date(e.target.value).toISOString(),
+                        })
+                      }
+                    />
+                  </div>
+                )}
+
+                {/* ✅ Apply Button */}
+                <button
+                  onClick={() => setShowFilterDropdown(false)}
+                  className="mt-2 w-full bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium py-2 rounded-md"
+                >
+                  Apply
+                </button>
               </div>
             </div>
           )}

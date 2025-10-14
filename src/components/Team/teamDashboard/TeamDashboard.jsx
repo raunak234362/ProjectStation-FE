@@ -69,7 +69,7 @@ const TeamDashboard = () => {
   const token = useSelector((state) => state?.auth?.token);
   const staffData = useSelector((state) => state?.userData?.staffData);
   const teamData = useSelector((state) => state?.userData?.teamData?.data);
-  console.log("Selected Employee-------------",selectedEmployee);
+  console.log("Selected Employee-------------", selectedEmployee);
   const handleAddTeam = useCallback(() => {
     setIsModalOpen(true);
   });
@@ -311,6 +311,10 @@ const TeamDashboard = () => {
           const endDate = new Date(filter.endDate);
           return taskStartDate <= endDate && taskEndDate >= startDate;
 
+        case "specificDate":
+          const specificDate = new Date(filter.date);
+          return taskStartDate.toDateString() === specificDate.toDateString();
+
         default:
           return true;
       }
@@ -363,7 +367,7 @@ const TeamDashboard = () => {
   const handleMemberClick = (memberId) => {
     setSelectedEmployee(memberId);
   };
-console.log("Selected Employee:", selectedEmployee);
+  console.log("Selected Employee:", selectedEmployee);
 
   const handleCloseModal = () => {
     setSelectedEmployee(null);
@@ -426,10 +430,6 @@ console.log("Selected Employee:", selectedEmployee);
   // Define columns for react-table
   const columns = useMemo(
     () => [
-      {
-        Header: "S.No",
-        accessor: "sno",
-      },
       {
         Header: "Name",
         accessor: "name",
@@ -807,6 +807,9 @@ console.log("Selected Employee:", selectedEmployee);
                                 {...headerGroup.getHeaderGroupProps()}
                                 key={headerGroup.id}
                               >
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
+                                  S.No
+                                </th>
                                 {headerGroup.headers.map((column) => (
                                   <th
                                     {...column.getHeaderProps(
@@ -837,15 +840,20 @@ console.log("Selected Employee:", selectedEmployee);
                             {...getTableBodyProps()}
                             className="bg-white divide-y divide-gray-200"
                           >
-                            {rows.map((row) => {
+                            {rows.map((row,index) => {
                               prepareRow(row);
                               return (
                                 <tr
                                   {...row.getRowProps()}
                                   className="hover:bg-gray-50 cursor-pointer"
                                   key={row.id}
-                                  onClick={() => handleMemberClick(row.original.id)}
+                                  onClick={() =>
+                                    handleMemberClick(row.original.id)
+                                  }
                                 >
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    {index + 1}
+                                  </td>
                                   {row.cells.map((cell) => (
                                     <td
                                       {...cell.getCellProps()}

@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useMemo } from "react";
 import Button from "../fields/Button";
-import { X, Plus } from "lucide-react";
+import { X } from "lucide-react";
 import RFQDetail from "./RFQDetail";
 import ResponseRFQ from "./ResponseRFQ";
 import UpdateStatus from "./UpdateStatus";
@@ -101,11 +101,7 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
 
         {/* RFQ Details and Response Form Section */}
         <section
-          className={`mb-8 gap-4 ${
-            userType === "client"
-              ? "flex flex-col w-full"
-              : "grid md:grid-cols-1 grid-cols-1 justify-between w-full"
-          }`}
+          className={`mb-8 gap-4 flex flex-col w-full`}
         >
           {/* Left: RFQ Details */}
           <div className="w-full"> 
@@ -123,7 +119,6 @@ const GetRFQ = ({ data, onClose, isOpen }) => {
                     : "bg-teal-600 hover:bg-teal-700"
                 }`}
               >
-                <Plus className="w-4 h-4" />
                 {showResponseForm ? "Close Response Form" : "Add Response"}
               </Button>
 

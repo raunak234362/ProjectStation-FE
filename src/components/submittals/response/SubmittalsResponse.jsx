@@ -8,15 +8,20 @@ import MultipleFileUpload from "../../fields/MultipleFileUpload";
 import Input from "../../fields/Input";
 import Button from "../../fields/Button";
 import Service from "../../../config/Service";
+import { CustomSelect } from "../..";
 
 const ResponseSubmittals = ({ onClose, submittalResponse, submittal }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
-  console.log("ResponseSubmittals component rendered with submittal ID:", submittal);
+  console.log(
+    "ResponseSubmittals component rendered with submittal ID:",
+    submittal
+  );
   const submittalID = submittal.id;
   const {
     handleSubmit,
     reset,
+    setValue,
     register,
     formState: { errors },
   } = useForm();
@@ -52,9 +57,11 @@ const ResponseSubmittals = ({ onClose, submittalResponse, submittal }) => {
   );
 
   return (
-    <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
+    <div className="w-full bg-white p-4 rounded-lg shadow-md">
       <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
-        <div className="text-lg font-semibold text-white">Response To Submittal</div>
+        <div className="text-lg font-semibold text-white">
+          Response To Submittal
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -63,6 +70,18 @@ const ResponseSubmittals = ({ onClose, submittalResponse, submittal }) => {
           onFilesChange={onFilesChange}
           files={files}
           accept="image/*,application/pdf,.doc,.docx,.pptx"
+        />
+        <CustomSelect
+          label="status"
+          name="status"
+          color="blue"
+          options={[
+            // { label: "Select Status", value: ""},
+            { label: "Approved", value: "APPROVED" },
+            { label: "Revision Required", value: "REVISION" },
+          ]}
+          {...register("status", { required: true })}
+          onChange={setValue}
         />
         <div>
           <Input
@@ -93,7 +112,5 @@ const ResponseSubmittals = ({ onClose, submittalResponse, submittal }) => {
     </div>
   );
 };
-
-
 
 export default ResponseSubmittals;

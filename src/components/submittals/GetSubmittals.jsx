@@ -5,7 +5,7 @@ import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import { X } from "lucide-react";
-import RFIDetail from "./SubmittalDetail";
+import SubmittalDetail from "./SubmittalDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 import ResponseSubmittals from "./response/SubmittalsResponse";
@@ -43,7 +43,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   const [submittalResponse, setSubmittalResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [showResponseForm, setShowResponseForm] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
   // ---- Fetch submittal details ----
@@ -101,7 +101,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         Header: "Status",
         accessor: (row) =>
           userType === "client"
-            ? row.responseState || "N/A"
+            ? row.status || "N/A"
             : row.wbtStatus || "N/A",
         id: "status",
       },
@@ -140,7 +140,9 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
       fetchSubmittalResponses();
     }
   }, [submittalId, isOpen, fetchSubmittals, fetchSubmittalResponses]);
-
+  const toggleResponseForm = () => {
+    setShowResponseForm((prev) => !prev);
+  };
   if (!isOpen) return null;
 
   if (loading || !submittal) {
@@ -177,25 +179,37 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         {/* Body */}
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           {/* Submittal Detail + Client Response Form */}
-          <div
-            className={`grid gap-4 ${
-              userType === "client"
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1"
-            }`}
-          >
-            <RFIDetail
+          <div className={`grid gap-4 `}>
+            <SubmittalDetail
               submittal={submittal}
               FileLinks={FileLinks}
               submittalId={submittalId}
             />
             {userType === "client" && (
-              <ResponseSubmittals
-                submittalResponse={submittalResponse}
-                submittal={submittal}
-                onClose={onClose}
-              />
+              <div className="flex flex-col gap-4">
+                <Button
+                  onClick={toggleResponseForm}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                    showResponseForm
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-teal-600 hover:bg-teal-700"
+                  }`}
+                >
+                  {showResponseForm ? "Close Response Form" : "Add Response"}
+                </Button>
+
+                {showResponseForm && (
+                  <div className="border border-gray-200 rounded-lg p-3 shadow-inner bg-gray-50">
+                    <ResponseSubmittals
+                      submittalResponse={submittalResponse}
+                      submittal={submittal}
+                      onClose={onClose}
+                    />
+                  </div>
+                )}
+              </div>
             )}
+           
           </div>
 
           {/* Responses Table */}
