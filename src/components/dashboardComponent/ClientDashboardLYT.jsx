@@ -18,6 +18,7 @@ import {
   Bell,
   Settings,
   ArrowRight,
+  DollarSign,
 } from "lucide-react";
 import "chart.js/auto";
 import { Bar, Pie } from "react-chartjs-2";
@@ -503,14 +504,14 @@ const ClientDashboardLYT = () => {
     setModal({ isOpen: false, selectedProject: null });
 
   return (
-    <div className="w-full h-[100vh] overflow-y-auto overflow-x-hidden">
+    <div className="w-full h-[100vh] md:overflow-y-hidden overflow-y-auto overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <div className="hidden md:flex items-center gap-4">
-              <div className="relative">
+              {/* <div className="relative">
                 <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                   <Bell className="w-5 h-5" />
                   {rfiData.count + submittalData.count > 0 && (
@@ -519,7 +520,7 @@ const ClientDashboardLYT = () => {
                     </span>
                   )}
                 </button>
-              </div>
+              </div> */}
               {/* <Button
               onClick={() => navigate("../rfq/add-rfq")}
               className="flex items-center gap-2"
@@ -541,8 +542,59 @@ const ClientDashboardLYT = () => {
       </header>
 
       <div className="w-full md:grid md:grid-cols-[70%,29%] gap-2 flex flex-col-reverse space-y-2">
-        <div className="p-2">
-          <Card className="p-1 h-[90vh] overflow-y-auto">
+        <div className="p-2 h-screen overflow-y-auto">
+          <Card className="mb-2 grid md:grid-cols-[33%,64%] grid-cols-1 gap-5 py-2">
+            <StatCard
+              title="Total Projects"
+              value={projectData.length}
+              activeTitle={`${
+                projectData.filter((p) => p.status === "ACTIVE").length
+              } Active Projects`}
+              completeTitle={`${
+                projectData.filter((p) => p.status === "COMPLETE").length
+              } Completed Projects`}
+              OnHoldTitle={`${
+                projectData.filter((p) => p.status === "ONHOLD").length
+              } On Hold Projects`}
+              icon={<Building2 className="w-4 h-4 text-blue-600" />}
+              color="bg-green-50"
+              progress={
+                projectData.length > 0
+                  ? (projectData.filter((p) => p.status === "COMPLETE").length /
+                      projectData.length) *
+                    100
+                  : 0
+              }
+            />
+            <div className="shadow-md rounded-lg p-5 flex items-center justify-center text-2xl font-bold text-orange-500 underline italic">
+              Feature Coming Soon
+            </div>
+            {/* <StatCard
+              title="Pending Invoices"
+              value='5'
+              activeTitle={`${
+                '2'
+              } Approval Invoices`}
+              completeTitle={`${
+                2
+              } Fabrication Invoices`}
+              OnHoldTitle={`${
+                projectData.filter((p) => p.status === "ONHOLD").length
+              } CO# Invoice`}
+              icon={<DollarSign className="w-4 h-4 text-green-600" />}
+              color="bg-blue-50"
+              progress={
+                projectData.length > 0
+                  ? (projectData.filter((p) => p.status === "COMPLETE").length /
+                      projectData.length) *
+                    100
+                  : 0
+              }
+            /> */}
+
+
+          </Card>
+          <Card className="p-1 mb-5 h-[80vh] overflow-y-hidden">
             <ClientAllProjects onViewClick={handleViewClick} />
           </Card>
         </div>
@@ -552,7 +604,7 @@ const ClientDashboardLYT = () => {
           </div>
           <div className="flex flex-col gap-2 ">
             <div>
-              <StatCard
+              {/* <StatCard
                 title="Total Projects"
                 value={projectData.length}
                 activeTitle={`${
@@ -574,7 +626,7 @@ const ClientDashboardLYT = () => {
                       100
                     : 0
                 }
-              />
+              /> */}
             </div>
             {/* <div>
               <StatCard

@@ -61,39 +61,54 @@ const ClientProjectDetail = ({
   // NEW: Calculate overall task completion %
   const getTaskCompletionPercentage = (tasks) => {
     if (!Array.isArray(tasks) || tasks.length === 0) return 0;
-    const completed = tasks.filter((task) => task.status === "COMPLETE").length;
+    const completedStatuses = [
+      "COMPLETE",
+      "VALIDATE_COMPLETE",
+      "COMPLETE_OTHER",
+    ];
+    const completed = tasks.filter((task) =>
+      completedStatuses.includes(task.status)
+    ).length;
+
     return Math.round((completed / tasks.length) * 100);
   };
 
   // Group tasks by milestone (subject + id) and compute completion percentage
   // Group tasks by milestone (subject + id) and compute completion percentage
- const getMilestoneStatus = (tasks) => {
-  if (!Array.isArray(tasks) || tasks.length === 0) return [];
+  const getMilestoneStatus = (tasks) => {
+    if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-  const groups = new Map();
+    const groups = new Map();
 
-  tasks.forEach((task) => {
-    // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
+    tasks.forEach((task) => {
+      // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
 
-    const ms = task.milestone || task.mileStone || {};
-    const id = task.milestone_id || task.mileStone_id || ms.id;
-    const subject = ms.subject || ms.Subject || ms.name || task.milestone_name;
+      const ms = task.milestone || task.mileStone || {};
+      const id = task.milestone_id || task.mileStone_id || ms.id;
+      const subject =
+        ms.subject || ms.Subject || ms.name || task.milestone_name;
 
-    if (!id && !subject) return; // ✅ only skip if both missing
+      if (!id && !subject) return; // ✅ only skip if both missing
 
-    const key = `${id || subject}`;
-    if (!groups.has(key)) groups.set(key, { id, subject: subject || "Unnamed Milestone", tasks: [] });
-    groups.get(key).tasks.push(task);
-  });
+      const key = `${id || subject}`;
+      if (!groups.has(key))
+        groups.set(key, {
+          id,
+          subject: subject || "Unnamed Milestone",
+          tasks: [],
+        });
+      groups.get(key).tasks.push(task);
+    });
 
-  return Array.from(groups.values()).map((group) => {
-    const total = group.tasks.length;
-    const completedCount = group.tasks.filter((t) => t.status === "COMPLETE").length;
-    const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-    return { ...group, total, completedCount, percentage };
-  });
-};
-
+    return Array.from(groups.values()).map((group) => {
+      const total = group.tasks.length;
+      const completedCount = group.tasks.filter(
+        (t) => t.status === "COMPLETE"
+      ).length;
+      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+      return { ...group, total, completedCount, percentage };
+    });
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not available";
@@ -135,10 +150,7 @@ const ClientProjectDetail = ({
             </h4>
             {getMilestoneStatus(projectData?.tasks).length > 0 ? (
               getMilestoneStatus(projectData?.tasks).map((ms) => (
-                <div
-                  key={ms.id}
-                  className="flex items-center gap-5 mb-1"
-                >
+                <div key={ms.id} className="flex items-center gap-5 mb-1">
                   {/* ✅ Show milestone subject */}
                   <span className="text-gray-800 text-sm font-semibold">
                     {ms.subject}

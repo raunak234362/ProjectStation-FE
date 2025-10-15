@@ -2229,7 +2229,7 @@ class Service {
   static async UpdateNotification(id){
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.get(`/api/notifications/read/${id}`, {
+      const response = await api.patch(`/api/notifications/read/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

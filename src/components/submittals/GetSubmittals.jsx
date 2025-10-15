@@ -160,9 +160,9 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   // ---- Main UI ----
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[90%] w-11/12 max-w-5xl rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white h-[90%] w-10/12  rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
+        <div className="sticky top-2 z-10 flex justify-between items-center p-2 mx-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
             <span className="font-bold">Subject:</span>{" "}
             {submittal?.subject || "N/A"}

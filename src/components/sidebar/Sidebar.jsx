@@ -31,7 +31,7 @@ const Sidebar = () => {
   const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />, roles: ["admin", "deputy-manager","department-manager","project-manager", "client", "user", "estimator", "sales", "estimator-head"] },
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin","deputy-manager", "sales", "department-manager"] },
-    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin","deputy-manager", "PMO","department-manager","project-manager", "client", "user", "estimator", "estimator-head"] },
+    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin","deputy-manager", "PMO","department-manager","project-manager","user", "estimator", "estimator-head"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin","deputy-manager", "sales", "client", "department-manager"] },
     // { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin"] },
     { label: "Estimations", to: "estimation", icon: <ChartCandlestick />, roles: ["admin","deputy-manager", "department-manager","user","sales", "estimator-head"] },

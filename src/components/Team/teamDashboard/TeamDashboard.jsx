@@ -7,34 +7,17 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useTable, useSortBy, useGlobalFilter } from "react-table";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
 import Service from "../../../config/Service";
-import EmployeeStatus from "../../dashboard/staff/admin/Team/EmployeeStatus";
-import DateFilter from "../../../util/DateFilter";
-import {
-  Clock,
-  CheckCircle,
-  ArrowUp,
-  ChevronUp,
-  ChevronDown,
-  FileDown,
-  FileText,
-} from "lucide-react";
-import Button from "../../fields/Button";
 import AddTeam from "./AddTeam";
 import GetTeamByID from "./GetTeamByID";
 import GetEmployee from "../GetEmployee";
-import jsPDF from "jspdf";
+import Button from "../../fields/Button";
+import DashboardHeader from "./DashboardHeader";
+import TeamsList from "./TeamsList";
+import TeamStatsCards from "./TeamStatsCards";
+import MonthlyEfficiencyChart from "./MonthlyEfficiencyChart";
+import TeamMembersTable from "./TeamMembersTable";
+import TaskDistribution from "./TaskDistribution";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -46,7 +29,6 @@ const TeamDashboard = () => {
   const [teamStats, setTeamStats] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [addTeam, setAddTeam] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -72,20 +54,20 @@ const TeamDashboard = () => {
   const token = useSelector((state) => state?.auth?.token);
   const staffData = useSelector((state) => state?.userData?.staffData);
   const teamData = useSelector((state) => state?.userData?.teamData?.data);
-  console.log("Selected Employee-------------", selectedEmployee);
+
   const handleAddTeam = useCallback(() => {
     setIsModalOpen(true);
-  });
+  }, []);
+
   const handleCloseAddTeam = useCallback(() => {
     setIsModalOpen(false);
-  });
+  }, []);
 
   // Fetch all teams
   useEffect(() => {
     const fetchTeams = async () => {
       try {
         setLoading(true);
-        // Assuming Service.allteams is available from your code
         const response = await Service.allteams(token);
         setTeams(response?.data);
         setFilteredTeams(response?.data);
@@ -109,17 +91,7 @@ const TeamDashboard = () => {
         const response = await Service.getTeamById(selectedTeam);
 
         if (response?.data) {
-          // Group members by role
-          const membersByRole = response.data.members.reduce((acc, member) => {
-            const role = member.role || "MEMBER";
-            if (!acc[role]) acc[role] = [];
-            acc[role].push(member);
-            return acc;
-          }, {});
-
           setTeamMembers(response.data.members);
-
-          // Calculate team stats
           calculateTeamStats(response.data.members);
         }
         setLoading(false);
@@ -131,14 +103,13 @@ const TeamDashboard = () => {
 
     fetchTeamData();
   }, [selectedTeam]);
-  console.log("Selected Team:", selectedTeam);
+
   // Calculate team statistics
   const calculateTeamStats = async (members) => {
     try {
       const memberStats = await Promise.all(
         members.map(async (member) => {
           try {
-            // Fetch individual member stats
             const response = await Service.getUsersStats(member.id);
             return response.data;
           } catch (error) {
@@ -151,10 +122,8 @@ const TeamDashboard = () => {
         })
       );
 
-      // Filter out null responses
       const validStats = memberStats.filter((stat) => stat !== null);
 
-      // Filter tasks based on date range
       const filteredStats = validStats.map((memberStat) => {
         const filteredTasks = filterTasksByDateRange(
           memberStat.tasks,
@@ -166,7 +135,6 @@ const TeamDashboard = () => {
         };
       });
 
-      // Calculate aggregated team stats
       const totalAssignedHours = filteredStats.reduce((total, member) => {
         const memberAssignedHours = member.tasks.reduce((sum, task) => {
           return sum + parseDurationToMinutes(task.duration || "00:00:00") / 60;
@@ -219,7 +187,6 @@ const TeamDashboard = () => {
         memberStats: filteredStats,
       });
 
-      // Calculate monthly efficiency data
       calculateMonthlyEfficiency(filteredStats);
     } catch (error) {
       console.error("Error calculating team stats:", error);
@@ -231,7 +198,6 @@ const TeamDashboard = () => {
     const monthlyData = {};
     const currentYear = new Date().getFullYear();
 
-    // Initialize monthly data
     for (let i = 0; i < 12; i++) {
       const monthName = new Date(currentYear, i, 1).toLocaleString("default", {
         month: "short",
@@ -244,20 +210,16 @@ const TeamDashboard = () => {
       };
     }
 
-    // Aggregate task data by month
     memberStats.forEach((member) => {
       member.tasks.forEach((task) => {
         const startDate = new Date(task.start_date || task.startDate);
         const month = startDate.getMonth();
 
-        // Only include tasks from current year
         if (startDate.getFullYear() === currentYear) {
-          // Add assigned hours
           const assignedHours =
             parseDurationToMinutes(task.duration || "00:00:00") / 60;
           monthlyData[month].assignedHours += assignedHours;
 
-          // Add worked hours
           const workedHours = (task.workingHourTask || []).reduce(
             (sum, entry) => sum + (entry.duration || 0) / 60,
             0
@@ -267,14 +229,12 @@ const TeamDashboard = () => {
       });
     });
 
-    // Calculate efficiency for each month
     Object.keys(monthlyData).forEach((month) => {
       const { assignedHours, workedHours } = monthlyData[month];
       monthlyData[month].efficiency =
         assignedHours > 0 ? Math.round((assignedHours / workedHours) * 100) : 0;
     });
 
-    // Convert to array for recharts
     const monthlyEfficiencyData = Object.values(monthlyData);
     setMonthlyEfficiency(monthlyEfficiencyData);
   };
@@ -337,14 +297,12 @@ const TeamDashboard = () => {
 
     let filtered = [...teams];
 
-    // Apply search term filter
     if (searchTerm) {
       filtered = filtered.filter((team) =>
         team.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Apply status filter if needed
     if (filterStatus !== "all") {
       filtered = filtered.filter((team) =>
         filterStatus === "active" ? team.is_active : !team.is_active
@@ -370,7 +328,6 @@ const TeamDashboard = () => {
   const handleMemberClick = (memberId) => {
     setSelectedEmployee(memberId);
   };
-  console.log("Selected Employee:", selectedEmployee);
 
   const handleCloseModal = () => {
     setSelectedEmployee(null);
@@ -429,6 +386,7 @@ const TeamDashboard = () => {
       };
     });
   }, [teamMembers, teamStats.memberStats]);
+
   const formatToHoursMinutes = (val) => {
     if (!val && val !== 0) return "00 hrs 00 mins";
     const hrs = Math.floor(val);
@@ -437,6 +395,7 @@ const TeamDashboard = () => {
       .toString()
       .padStart(2, "0")} mins`;
   };
+
   // Define columns for react-table
   const columns = useMemo(
     () => [
@@ -517,67 +476,6 @@ const TeamDashboard = () => {
     []
   );
 
-  // Set up react-table
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    state,
-    setGlobalFilter,
-  } = useTable(
-    {
-      columns,
-      data: tableData,
-      initialState: { sortBy: [{ id: "efficiency", desc: true }] },
-    },
-    useGlobalFilter,
-    useSortBy
-  );
-
-  // ✅ CSV Export
-  const exportToCSV = () => {
-    const headers = columns.map((col) => col.Header).join(",");
-    const csvRows = tableData.map((row) =>
-      [
-        row.name,
-        row.role,
-        formatToHoursMinutes(row.assignedHours),
-        formatToHoursMinutes(row.workedHours),
-        `${row.completedTasks}/${row.totalTasks}`,
-        `${row.efficiency}%`,
-      ].join(",")
-    );
-    const csvContent = [headers, ...csvRows].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "employee_efficiency_report.csv";
-    link.click();
-  };
-
-  // ✅ PDF Export
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Employee Efficiency Report", 14, 15);
-    doc.autoTable({
-      startY: 25,
-      head: [columns.map((col) => col.Header)],
-      body: tableData.map((row) => [
-        row.name,
-        row.role,
-        formatToHoursMinutes(row.assignedHours),
-        formatToHoursMinutes(row.workedHours),
-        `${row.completedTasks}/${row.totalTasks}`,
-        `${row.efficiency}%`,
-      ]),
-      styles: { fontSize: 10 },
-      theme: "grid",
-    });
-    doc.save("employee_efficiency_report.pdf");
-  };
-
   const handleViewClick = async (teamId) => {
     try {
       setSelectedTeam(teamId);
@@ -593,32 +491,13 @@ const TeamDashboard = () => {
 
   return (
     <div className="bg-gray-50 overflow-y-auto p-4 md:p-6">
-      {/* Dashboard Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Team Performance Dashboard
-        </h1>
-
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <div>
-            <Button onClick={handleAddTeam}>Add Team</Button>
-          </div>
-
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Search teams..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <DateFilter dateFilter={dateFilter} setDateFilter={setDateFilter} />
-          </div>
-        </div>
-      </div>
+      <DashboardHeader
+        onAddTeam={handleAddTeam}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        dateFilter={dateFilter}
+        onDateFilterChange={setDateFilter}
+      />
 
       {loading && !selectedTeam ? (
         <div className="flex flex-col items-center justify-center h-64">
@@ -627,41 +506,12 @@ const TeamDashboard = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Teams List */}
-          <div className="bg-white rounded-lg shadow p-4">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Teams</h2>
+          <TeamsList
+            filteredTeams={filteredTeams}
+            selectedTeam={selectedTeam}
+            onTeamSelect={handleTeamSelect}
+          />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredTeams && filteredTeams.length > 0 ? (
-                filteredTeams.map((team) => (
-                  <div
-                    key={team.id}
-                    className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
-                      selectedTeam === team.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200"
-                    }`}
-                    onClick={() => handleTeamSelect(team.id)}
-                  >
-                    <h3 className="font-medium text-gray-800">{team.name}</h3>
-                    <div className="flex justify-between text-gray-600">
-                      <div className="flex justify-between items-center mt-2 text-sm">
-                        <span className="text-gray-600">
-                          {team.members?.length || 0} members
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8 text-gray-500 italic">
-                  No teams found
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Selected Team Details */}
           {selectedTeam && (
             <div className="bg-white rounded-lg shadow">
               {loading ? (
@@ -687,367 +537,18 @@ const TeamDashboard = () => {
                     </Button>
                   </div>
 
-                  {/* Team Stats Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    {/* Hours Card */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
-                          <Clock className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <h4 className="font-medium text-gray-800">Hours</h4>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Assigned:</span>
-                          <span className="font-medium">
-                            {teamStats.totalAssignedHours || "0.00"} hrs
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Worked:</span>
-                          <span className="font-medium">
-                            {teamStats.totalWorkedHours || "0.00"} hrs
-                          </span>
-                        </div>
-
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full"
-                            style={{
-                              width: `${Math.min(
-                                100,
-                                teamStats.efficiency || 0
-                              )}%`,
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Tasks Card */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        </div>
-                        <h4 className="font-medium text-gray-800">Tasks</h4>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Total:</span>
-                          <span className="font-medium">
-                            {teamStats.totalTasks || 0}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Completed:</span>
-                          <span className="font-medium">
-                            {teamStats.completedTasks || 0}
-                          </span>
-                        </div>
-
-                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-green-500 rounded-full"
-                            style={{
-                              width: `${teamStats.completionRate || 0}%`,
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Efficiency Card */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mr-2">
-                          <ArrowUp className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <h4 className="font-medium text-gray-800">
-                          Efficiency
-                        </h4>
-                      </div>
-
-                      <div className="mt-2 text-center">
-                        <div className="text-3xl font-bold text-gray-800">
-                          {teamStats.efficiency || 0}%
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          Hours worked vs assigned
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Completion Rate Card */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center mb-2">
-                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        </div>
-                        <h4 className="font-medium text-gray-800">
-                          Completion Rate
-                        </h4>
-                      </div>
-
-                      <div className="mt-2 text-center">
-                        <div className="text-3xl font-bold text-gray-800">
-                          {teamStats.completionRate || 0}%
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1">
-                          Tasks completed vs total
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Monthly Efficiency Chart */}
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Monthly Efficiency
-                    </h3>
-                    <div className="bg-white border border-gray-200 rounded-lg p-4">
-                      <div className="h-[300px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={monthlyEfficiency}
-                            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="month" />
-                            <YAxis
-                              domain={[0, 100]}
-                              label={{
-                                value: "Efficiency %",
-                                angle: -90,
-                                position: "insideLeft",
-                              }}
-                            />
-                            <Tooltip
-                              formatter={(value) => [`${value}%`, "Efficiency"]}
-                              labelFormatter={(label) => `Month: ${label}`}
-                            />
-                            <Legend />
-                            <Line
-                              type="monotone"
-                              dataKey="efficiency"
-                              stroke="#8884d8"
-                              activeDot={{ r: 8 }}
-                              name="Efficiency"
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Team Members Table with React Table */}
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Team Members
-                    </h3>
-
-                    <div className="border border-gray-200 rounded-lg overflow-hidden">
-                      <div className="overflow-x-auto overflow-y-auto rounded-md border max-h-[70vh]">
-                        <table
-                          {...getTableProps()}
-                          className="min-w-full divide-y divide-gray-200"
-                        >
-                          <thead className="sticky top-0 bg-teal-200/80 z-10">
-                            {headerGroups.map((headerGroup) => (
-                              <tr
-                                {...headerGroup.getHeaderGroupProps()}
-                                key={headerGroup.id}
-                              >
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
-                                  S.No
-                                </th>
-                                {headerGroup.headers.map((column) => (
-                                  <th
-                                    {...column.getHeaderProps(
-                                      column.getSortByToggleProps()
-                                    )}
-                                    className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                                  >
-                                    <div className="flex items-center">
-                                      {column.render("Header")}
-                                      <span className="ml-1">
-                                        {column.isSorted ? (
-                                          column.isSortedDesc ? (
-                                            <ChevronDown className="h-4 w-4" />
-                                          ) : (
-                                            <ChevronUp className="h-4 w-4" />
-                                          )
-                                        ) : (
-                                          ""
-                                        )}
-                                      </span>
-                                    </div>
-                                  </th>
-                                ))}
-                              </tr>
-                            ))}
-                          </thead>
-                          <tbody
-                            {...getTableBodyProps()}
-                            className="bg-white divide-y divide-gray-200"
-                          >
-                            {rows.map((row, index) => {
-                              prepareRow(row);
-                              return (
-                                <tr
-                                  {...row.getRowProps()}
-                                  className="hover:bg-gray-50 cursor-pointer"
-                                  key={row.id}
-                                  onClick={() =>
-                                    handleMemberClick(row.original.id)
-                                  }
-                                >
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    {index + 1}
-                                  </td>
-                                  {row.cells.map((cell) => (
-                                    <td
-                                      {...cell.getCellProps()}
-                                      className="px-6 py-4 whitespace-nowrap"
-                                    >
-                                      {cell.render("Cell")}
-                                    </td>
-                                  ))}
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                      <button
-                        onClick={exportToCSV}
-                        className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm"
-                      >
-                        <FileDown size={16} />
-                        Export CSV
-                      </button>
-                      
-                    </div>
-                  </div>
-
-                  {/* Task Distribution */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Task Status Distribution
-                    </h3>
-
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      {teamStats.totalTasks > 0 ? (
-                        <div className="space-y-4">
-                          {/* Completed Tasks */}
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium text-gray-700">
-                                Completed
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {teamStats.completedTasks} (
-                                {Math.round(
-                                  (teamStats.completedTasks /
-                                    teamStats.totalTasks) *
-                                    100
-                                )}
-                                %)
-                              </span>
-                            </div>
-                            <div className="w-full h-2.5 bg-gray-200 rounded-full">
-                              <div
-                                className="h-full bg-green-500 rounded-full"
-                                style={{
-                                  width: `${
-                                    (teamStats.completedTasks /
-                                      teamStats.totalTasks) *
-                                    100
-                                  }%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* In Progress Tasks */}
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium text-gray-700">
-                                In Progress
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {teamStats.inProgressTasks} (
-                                {Math.round(
-                                  (teamStats.inProgressTasks /
-                                    teamStats.totalTasks) *
-                                    100
-                                )}
-                                %)
-                              </span>
-                            </div>
-                            <div className="w-full h-2.5 bg-gray-200 rounded-full">
-                              <div
-                                className="h-full bg-blue-500 rounded-full"
-                                style={{
-                                  width: `${
-                                    (teamStats.inProgressTasks /
-                                      teamStats.totalTasks) *
-                                    100
-                                  }%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Other Tasks */}
-                          <div>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-sm font-medium text-gray-700">
-                                Other
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {teamStats.totalTasks -
-                                  teamStats.completedTasks -
-                                  teamStats.inProgressTasks}{" "}
-                                (
-                                {Math.round(
-                                  ((teamStats.totalTasks -
-                                    teamStats.completedTasks -
-                                    teamStats.inProgressTasks) /
-                                    teamStats.totalTasks) *
-                                    100
-                                )}
-                                %)
-                              </span>
-                            </div>
-                            <div className="w-full h-2.5 bg-gray-200 rounded-full">
-                              <div
-                                className="h-full bg-gray-500 rounded-full"
-                                style={{
-                                  width: `${
-                                    ((teamStats.totalTasks -
-                                      teamStats.completedTasks -
-                                      teamStats.inProgressTasks) /
-                                      teamStats.totalTasks) *
-                                    100
-                                  }%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500 italic">
-                          No task data available
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <TeamStatsCards teamStats={teamStats} />
+                  <MonthlyEfficiencyChart
+                    monthlyEfficiency={monthlyEfficiency}
+                  />
+                  <TeamMembersTable
+                    tableData={tableData}
+                    columns={columns}
+                    onMemberClick={handleMemberClick}
+                    formatToHoursMinutes={formatToHoursMinutes}
+                    getEfficiencyColorClass={getEfficiencyColorClass}
+                  />
+                  <TaskDistribution teamStats={teamStats} />
                 </div>
               )}
             </div>
@@ -1063,10 +564,10 @@ const TeamDashboard = () => {
         />
       )}
 
-      {/* Employee Modal */}
       {selectedEmployee && (
         <GetEmployee employee={selectedEmployee} onClose={handleCloseModal} />
       )}
+
       {isModalOpen && <AddTeam onClose={handleCloseAddTeam} />}
     </div>
   );

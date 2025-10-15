@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import AllProjects from "../project/AllProjects";
 import ActionCenter from "./ActionCenter";
+import NotificationsList from "./NotificationList";
 
 const WBTDashboard = () => {
   const userType = sessionStorage.getItem("userType");
@@ -25,6 +26,7 @@ const WBTDashboard = () => {
   const fabricators = useSelector(
     (state) => state?.fabricatorData?.fabricatorData || []
   );
+  const [notification, setNotification] = useState([]);
   const [dashboardCounts, setDashboardCounts] = useState();
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,6 +64,14 @@ const WBTDashboard = () => {
       }
     };
     fetchDashboardCount();
+  }, []);
+  useEffect(() => {
+    const fetchNotification = async () => {
+      const notification = await Service.fetchNotification();
+      setNotification(notification);
+      console.log("Notification:", notification);
+    };
+    fetchNotification();
   }, []);
   console.log("Dashboard Counts:", dashboardCounts);
 
@@ -401,9 +411,7 @@ const WBTDashboard = () => {
               Export CSV
             </Button>
           </div>
-    {
-      userType === "staff"
-    }
+          {userType === "staff"}
           {/* Summary Cards */}
           {isLoading ? (
             renderSummarySkeleton()
@@ -477,6 +485,9 @@ const WBTDashboard = () => {
                     <PieChart className="w-6 h-6 text-amber-500" />
                   </div>
                 </div>
+              </div>
+              <div>
+                <NotificationsList notifications={notification} />
               </div>
             </div>
           )}
