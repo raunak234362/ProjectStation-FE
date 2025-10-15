@@ -27,11 +27,14 @@ import {
   ArrowUp,
   ChevronUp,
   ChevronDown,
+  FileDown,
+  FileText,
 } from "lucide-react";
 import Button from "../../fields/Button";
 import AddTeam from "./AddTeam";
 import GetTeamByID from "./GetTeamByID";
 import GetEmployee from "../GetEmployee";
+import jsPDF from "jspdf";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -426,7 +429,14 @@ const TeamDashboard = () => {
       };
     });
   }, [teamMembers, teamStats.memberStats]);
-
+  const formatToHoursMinutes = (val) => {
+    if (!val && val !== 0) return "00 hrs 00 mins";
+    const hrs = Math.floor(val);
+    const mins = Math.round((val - hrs) * 60);
+    return `${hrs.toString().padStart(2, "0")} hrs ${mins
+      .toString()
+      .padStart(2, "0")} mins`;
+  };
   // Define columns for react-table
   const columns = useMemo(
     () => [
@@ -450,14 +460,18 @@ const TeamDashboard = () => {
         Header: "Assigned Hours",
         accessor: "assignedHours",
         Cell: ({ value }) => (
-          <span className="text-sm text-gray-500">{value} hrs</span>
+          <span className="text-sm text-gray-500">
+            {formatToHoursMinutes(value)}
+          </span>
         ),
       },
       {
         Header: "Worked Hours",
         accessor: "workedHours",
         Cell: ({ value }) => (
-          <span className="text-sm text-gray-500">{value} hrs</span>
+          <span className="text-sm text-gray-500">
+            {formatToHoursMinutes(value)}
+          </span>
         ),
       },
       {
@@ -521,6 +535,48 @@ const TeamDashboard = () => {
     useGlobalFilter,
     useSortBy
   );
+
+  // ✅ CSV Export
+  const exportToCSV = () => {
+    const headers = columns.map((col) => col.Header).join(",");
+    const csvRows = tableData.map((row) =>
+      [
+        row.name,
+        row.role,
+        formatToHoursMinutes(row.assignedHours),
+        formatToHoursMinutes(row.workedHours),
+        `${row.completedTasks}/${row.totalTasks}`,
+        `${row.efficiency}%`,
+      ].join(",")
+    );
+    const csvContent = [headers, ...csvRows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "employee_efficiency_report.csv";
+    link.click();
+  };
+
+  // ✅ PDF Export
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text("Employee Efficiency Report", 14, 15);
+    doc.autoTable({
+      startY: 25,
+      head: [columns.map((col) => col.Header)],
+      body: tableData.map((row) => [
+        row.name,
+        row.role,
+        formatToHoursMinutes(row.assignedHours),
+        formatToHoursMinutes(row.workedHours),
+        `${row.completedTasks}/${row.totalTasks}`,
+        `${row.efficiency}%`,
+      ]),
+      styles: { fontSize: 10 },
+      theme: "grid",
+    });
+    doc.save("employee_efficiency_report.pdf");
+  };
 
   const handleViewClick = async (teamId) => {
     try {
@@ -840,7 +896,7 @@ const TeamDashboard = () => {
                             {...getTableBodyProps()}
                             className="bg-white divide-y divide-gray-200"
                           >
-                            {rows.map((row,index) => {
+                            {rows.map((row, index) => {
                               prepareRow(row);
                               return (
                                 <tr
@@ -868,6 +924,14 @@ const TeamDashboard = () => {
                           </tbody>
                         </table>
                       </div>
+                      <button
+                        onClick={exportToCSV}
+                        className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm"
+                      >
+                        <FileDown size={16} />
+                        Export CSV
+                      </button>
+                      
                     </div>
                   </div>
 
