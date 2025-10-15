@@ -2225,6 +2225,22 @@ class Service {
     }
   }
 
+  //route to update the status of Notification
+  static async UpdateNotification(id){
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.get(`/api/notifications/read/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.log("Error in fetching Notification: ", error);
+      throw error;
+    }
+  }
+
   // Ping server
   // static async ping() {
   //   try {
