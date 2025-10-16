@@ -1147,21 +1147,36 @@ class Service {
   }
 
   //view in admin
-  // static async allSentCO() {
-  //   try {
-  //     const token = sessionStorage.getItem("token");
-  //     const response = await api.get(`/api/CO/sent`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/form-data",
-  //       },
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     console.log("Error fetching CO:", error);
-  //     throw error;
-  //   }
-  // }
+  static async allSentCO() {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/CO/sents`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching CO:", error);
+      throw error;
+    }
+  }
+  static async allReceivedCO() {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/CO/receives`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching CO:", error);
+      throw error;
+    }
+  }
 
   static async getRFIByProjectId(projectId) {
     try {

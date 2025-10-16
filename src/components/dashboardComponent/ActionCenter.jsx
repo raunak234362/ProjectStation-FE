@@ -51,7 +51,6 @@ const Tabs = ({ tabs, activeTab, onChange, className = "" }) => (
   </div>
 );
 
-// 🧩 Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
   return (
@@ -77,27 +76,33 @@ const ActionCenter = () => {
   const [rfiList, setRFIList] = useState([]);
   const [submittalList, setSubmittalList] = useState([]);
   const [rfqList, setRFQList] = useState([]);
+  const [coList, setCOList] = useState([]);
 
   const [itemType, setItemType] = useState("rfi");
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 🧠 Fetch all items
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [rfiRes, subRes] = await Promise.all([
+      const [rfiRes, subRes, coRes] = await Promise.all([
         Service.inboxRFI(),
         Service.reciviedSubmittal(),
+        Service.allReceivedCO(),
       ]);
+
       let rfqDetail;
       if (userType === "client") {
         rfqDetail = await Service.sentRFQ();
       } else {
         rfqDetail = await Service.inboxRFQ();
       }
+
       setRFIList(rfiRes?.data || []);
       setSubmittalList(subRes?.data || []);
       setRFQList(rfqDetail || []);
+      setCOList(coRes?.data || []);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Failed to load dashboard data");
@@ -106,11 +111,11 @@ const ActionCenter = () => {
     }
   };
 
-  
   useEffect(() => {
     fetchData();
   }, []);
 
+  // ✅ Pending filters
   const pendingItems = {
     rfi: rfiList.filter(
       (item) =>
@@ -123,28 +128,29 @@ const ActionCenter = () => {
         (Array.isArray(item.submittalsResponse) &&
           item.submittalsResponse.length === 0)
     ),
-    rfq : rfqList.filter(
+    rfq: rfqList.filter(
       (item) =>
         Array.isArray(item.response) &&
         item.response.length > 0 &&
         item.response.some(
-          (res) => Array.isArray(res.childResponses) && res.childResponses.length === 0
+          (res) =>
+            Array.isArray(res.childResponses) && res.childResponses.length === 0
         )
     ),
-    
-    co: [],
+    co: coList.filter(
+      (item) =>
+        !item?.coResponses ||
+        (Array.isArray(item.coResponses) && item.coResponses.length === 0)
+    ),
   };
 
-
   const handleItemClick = (item, type) => {
-    console.log(type);
     setSelectedItem({ ...item, type });
     setIsModalOpen(true);
   };
 
   const renderModalContent = () => {
     if (!selectedItem) return null;
-    console.log(selectedItem, "=-----------------=");
 
     switch (selectedItem.type) {
       case "rfi":
@@ -156,11 +162,29 @@ const ActionCenter = () => {
           />
         );
       case "submittals":
-        return <GetSubmittals submittalId={selectedItem.id} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}/>;
+        return (
+          <GetSubmittals
+            submittalId={selectedItem.id}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
       case "rfq":
-        return <GetRFQ data={selectedItem} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}/>;
+        return (
+          <GetRFQ
+            data={selectedItem}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
       case "co":
-        return <GetCo id={selectedItem.id} isOpen={isModalOpen} onClose={()=>setIsModalOpen(false)}/>;
+        return (
+          <GetCo
+            id={selectedItem.id}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
       default:
         return null;
     }
@@ -175,10 +199,10 @@ const ActionCenter = () => {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="font-medium text-gray-900 text-sm line-clamp-1">
-            {item?.subject || "No Subject"}
+            {item?.subject || item?.title || item?.remarks || "No Subject"}
           </h3>
           <p
-            className="text-xs text-gray-600 mt-1"
+            className="text-xs text-gray-600 mt-1 line-clamp-2"
             dangerouslySetInnerHTML={{
               __html: item?.description || "No description",
             }}
@@ -191,22 +215,21 @@ const ActionCenter = () => {
         </div>
         <Badge variant="warning">Pending</Badge>
       </div>
-
-      <div className="flex items-center justify-between mt-3">
-        <div className="text-xs text-gray-500">
-          {item?.createdAt ? new Date(item.createdAt).toLocaleString() : "No date"}
-        </div>
+      <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+        {item?.createdAt
+          ? new Date(item.createdAt).toLocaleString()
+          : item?.sentOn
+          ? new Date(item.sentOn).toLocaleString()
+          : item?.date
+          ? new Date(item.date).toLocaleString()
+          : "No date"}
       </div>
     </div>
   );
 
   const renderEmptyState = () => (
     <div className="text-center py-8 text-gray-500">
-      {itemType === "rfi" ? (
-        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-      ) : (
-        <FileText className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-      )}
+      <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
       <p>No pending {itemType} items</p>
     </div>
   );
@@ -239,8 +262,7 @@ const ActionCenter = () => {
       id: "submittals",
       label: `Submittals (${pendingItems.submittals.length})`,
     },
-    { id: "co", label: `Change Order` },
-    { id: "invoice", label: `Invoices` },
+    { id: "co", label: `Change Orders (${pendingItems.co.length})` },
   ];
 
   return (
@@ -269,7 +291,6 @@ const ActionCenter = () => {
             </div>
           </Card>
 
-          {/* Modal */}
           <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             {renderModalContent()}
           </Modal>

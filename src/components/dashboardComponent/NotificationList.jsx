@@ -44,9 +44,16 @@ const NotificationsList = ({ notifications = [] }) => {
               className="border border-gray-200 rounded-lg p-3 shadow-sm hover:bg-gray-50 transition-colors flex items-center justify-between"
             >
               <div>
-                <p className="text-sm text-gray-800 font-medium">
-                  {n.payload?.message || "No message available"}
-                </p>
+                {n.payload?.type === "GroupMessages" ? (
+                  <p className="text-sm text-blue-600 font-medium">
+                    Group: {n.payload?.content || "No group message"}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-800 font-medium">
+                    {n.payload?.message || "No message available"}
+                  </p>
+                )}
+
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(n.createdAt).toLocaleString()}
                 </p>

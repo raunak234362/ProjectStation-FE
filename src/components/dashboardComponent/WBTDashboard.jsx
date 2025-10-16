@@ -417,8 +417,8 @@ const WBTDashboard = () => {
             renderSummarySkeleton()
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between">
+              <div className="flex justify-between items-centerp-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+                <div className="flex items-center justify-between flex-col">
                   <div>
                     <p className="text-sm font-medium text-gray-500">
                       Total Projects
@@ -430,13 +430,6 @@ const WBTDashboard = () => {
                       Completed: {dashboardCounts.totalCompleteProject}
                     </p>
                   </div>
-                  <div className="p-3 bg-blue-50 rounded-full">
-                    <LayoutGrid className="w-6 h-6 text-blue-500" />
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-500">
                       Active Projects
@@ -448,11 +441,12 @@ const WBTDashboard = () => {
                       On-Hold: {dashboardCounts.totalOnHoldProject}
                     </p>
                   </div>
-                  <div className="p-3 bg-green-50 rounded-full">
-                    <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  </div>
                 </div>
+                  <div className="p-3 bg-blue-50 rounded-full">
+                    <LayoutGrid className="w-6 h-6 text-blue-500" />
+                  </div>
               </div>
+              
               <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between">
                   <div>
