@@ -9,11 +9,22 @@ const ListOfCO = ({ coData, fetchCO }) => {
 
   const data = useMemo(() => coData, [coData]);
 
+  const truncateWords = (text, limit = 10) => {
+    if (!text) return "";
+    const words = String(text).trim().split(/\s+/);
+    return words.length > limit
+      ? words.slice(0, limit).join(" ") + "..."
+      : words.join(" ");
+  };
+
   const columns = useMemo(
     () => [
-      { Header: "CO No.", accessor: "changeOrder" },
       { Header: "Subject", accessor: "remarks" },
-      { Header: "Description", accessor: "description" },
+      {
+        Header: "Description",
+        accessor: "description",
+        Cell: ({ value }) => truncateWords(value, 10),
+      },
       {
         Header: "Date",
         accessor: "sentOn",
@@ -21,7 +32,7 @@ const ListOfCO = ({ coData, fetchCO }) => {
       },
       { Header: "Status", accessor: "status" },
     ],
-    [fetchCO]
+    []
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -45,6 +56,7 @@ const ListOfCO = ({ coData, fetchCO }) => {
               {...headerGroup.getHeaderGroupProps()}
               key={headerGroup.id || headerGroupIdx}
             >
+              <th>S.no</th>
               {headerGroup.headers.map((column, colIdx) => (
                 <th
                   {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -75,6 +87,7 @@ const ListOfCO = ({ coData, fetchCO }) => {
                   className="hover:bg-gray-100 cursor-pointer transition"
                   onClick={() => handleRowClick(row.original)}
                 >
+                  <td>{row.index + 1}</td>
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}

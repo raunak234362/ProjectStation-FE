@@ -9,15 +9,22 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
   const [selectedElement, setSelectedElement] = useState(null);
   const [coTableData, setCoTableData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const data = useMemo(() => coTableData || [], [coTableData]);
+
   const coID = selectedCO?.id;
+
+  const truncateWords = (text, limit = 20) => {
+    if (!text) return "";
+    const words = String(text).trim().split(/\s+/);
+    return words.length > limit
+      ? words.slice(0, limit).join(" ") + "..."
+      : words.join(" ");
+  };
+
   const fetchTableData = async () => {
     try {
       setLoading(true);
       const response = await Service.fetchCOTable(coID);
-      console.log("Table Data:", response.coRow);
       setCoTableData(response.coRow || []);
-
       await fetchCO();
     } catch (error) {
       console.error("Error fetching table data:", error);
@@ -26,27 +33,28 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
     }
   };
 
-  // Set loading to false when data loads/changes
   useEffect(() => {
-    setLoading(false);
     fetchTableData();
-  }, [selectedCO]); // or [data] if you prefer
-  //To Edit and open the specific Element detail
+  }, [selectedCO]);
+
   const handleElementView = useCallback((data) => {
     setSelectedElement(data);
-  });
-  console.log("selectedElement", coTableData);
+  }, []);
+
   const columns = useMemo(
     () => [
       {
-        Header: "S.No",
-        accessor: (row, i) => i + 1,
-        id: "sno",
+        Header: "Description",
+        accessor: "description",
+        Cell: ({ value }) => truncateWords(value, 20),
       },
-      { Header: "Description", accessor: "description" },
       { Header: "Reference Document / Drawing", accessor: "referenceDoc" },
       { Header: "Element Name", accessor: "elements" },
-      { Header: "Element Quantity", accessor: "QtyNo" },
+      {
+        Header: "Element Quantity",
+        accessor: "QtyNo",
+        Cell: ({ value }) => value || 0,
+      },
       {
         Header: "Hours",
         accessor: "hours",
@@ -60,13 +68,43 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
           value !== undefined && value !== null ? `$ ${value}` : "$0",
       },
     ],
-    [fetchCO]
+    []
   );
+
+  const data = useMemo(() => coTableData || [], [coTableData]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data }, useSortBy);
 
-  const renderSkeletonRows = (count = 1) => {
+  // Calculate totals
+  const totalQty = useMemo(
+    () =>
+      coTableData.reduce(
+        (sum, item) => sum + (Number(item.QtyNo) || 0),
+        0
+      ),
+    [coTableData]
+  );
+
+  const totalHours = useMemo(
+    () =>
+      coTableData.reduce(
+        (sum, item) => sum + (Number(item.hours) || 0),
+        0
+      ),
+    [coTableData]
+  );
+
+  const totalCost = useMemo(
+    () =>
+      coTableData.reduce(
+        (sum, item) => sum + (Number(item.cost) || 0),
+        0
+      ),
+    [coTableData]
+  );
+
+  const renderSkeletonRows = (count = 6) => {
     return Array.from({ length: count }).map((_, rowIdx) => (
       <tr key={rowIdx} className="animate-pulse">
         {columns.map((_, colIdx) => (
@@ -83,7 +121,7 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
       <div className="overflow-x-auto rounded-md border max-h-[80vh]">
         <table
           {...getTableProps()}
-          className="min-w-[800px] w-full border-collapse text-sm text-center"
+          className="min-w-[900px] w-full border-collapse text-sm text-center"
         >
           <thead className="sticky top-0 z-10 bg-teal-200">
             {headerGroups.map((headerGroup, headerGroupIdx) => (
@@ -91,6 +129,7 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
                 key={headerGroup.id || headerGroupIdx}
                 {...headerGroup.getHeaderGroupProps()}
               >
+                <th className="px-4 py-2 border">S.No</th>
                 {headerGroup.headers.map((column, colIdx) => (
                   <th
                     key={column.id || colIdx}
@@ -106,15 +145,15 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
           </thead>
           <tbody {...getTableBodyProps()}>
             {loading ? (
-              renderSkeletonRows(8)
+              renderSkeletonRows(6)
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-4 text-center">
+                <td colSpan={columns.length + 1} className="py-4 text-center">
                   No Projects Found
                 </td>
               </tr>
             ) : (
-              rows.map((row) => {
+              rows.map((row, index) => {
                 prepareRow(row);
                 return (
                   <tr
@@ -123,6 +162,7 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
                     className="hover:bg-gray-100 cursor-pointer transition"
                     onClick={() => handleElementView(row.original.id)}
                   >
+                    <td className="px-4 py-2 border">{index + 1}</td>
                     {row.cells.map((cell) => (
                       <td
                         key={cell.column.id || cell.getCellProps().key}
@@ -137,6 +177,29 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
               })
             )}
           </tbody>
+
+          {/* 🟢 Summary Row */}
+          {!loading && rows.length > 0 && (
+            <tfoot className="bg-gray-100 font-semibold">
+              <tr>
+                <td
+                  colSpan={4}
+                  className="text-right px-4 py-2 border text-gray-800"
+                >
+                  Total:
+                </td>
+                <td className="px-2 py-2 border text-blue-700">
+                  {totalQty.toLocaleString()}
+                </td>
+                <td className="px-2 py-2 border text-green-700">
+                  {totalHours.toLocaleString()} hrs
+                </td>
+                <td className="px-4 py-2 border text-indigo-700">
+                  $ {totalCost.toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
     </div>
