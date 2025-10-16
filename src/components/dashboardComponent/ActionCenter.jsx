@@ -180,9 +180,9 @@ const ActionCenter = () => {
       case "co":
         return (
           <GetCo
-            id={selectedItem.id}
-            isOpen={isModalOpen}
+            initialSelectedCO={selectedItem}
             onClose={() => setIsModalOpen(false)}
+            fetchCO={fetchData}
           />
         );
       default:
