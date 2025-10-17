@@ -14,6 +14,7 @@ import ResponseCard from "./details/ResponseCard";
 const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
   const [selectedCO, setSelectedCO] = useState(initialSelectedCO);
   const userType = sessionStorage.getItem("userType");
+  const [showResponseForm, setShowResponseForm] = useState(false);
   // When initialSelectedCO changes, sync state
   useEffect(() => {
     setSelectedCO(initialSelectedCO);
@@ -47,9 +48,13 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
     }
   };
 
+  const toggleResponseForm = () => {
+    setShowResponseForm((prev) => !prev);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white h-[90vh] overflow-y-auto p-2 md:p-1 rounded-lg shadow-lg w-11/12 md:w-10/12">
+      <div className="bg-white h-[90vh] overflow-y-hidden p-2 md:p-1 rounded-lg shadow-lg w-11/12 md:w-10/12">
         <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
             <span className="font-bold">Subject:</span>{" "}
@@ -63,14 +68,8 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <div
-            className={`grid gap-4 ${
-              userType === "client"
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1"
-            }`}
-          >
+        <div className="px-6 pt-5 pb-6 overflow-y-auto h-[80vh] space-y-6">
+          <div className={`grid gap-4 `}>
             <CoDetail
               selectedCO={selectedCO}
               fetchCO={refreshSelectedCO} // Paimport React from 'react'ss refresh to CoDetail
@@ -80,9 +79,33 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
                 <Button onClick={handleApprove}>Approve & Procceed</Button>
               </div>
             )}
+
             {userType === "client" && (
-              <ClientResponse coId={selectedCO.id} responseId={selectedCO.id} />
+              <div className="flex flex-col gap-4">
+                <Button
+                  onClick={toggleResponseForm}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                    showResponseForm
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-teal-600 hover:bg-teal-700"
+                  }`}
+                >
+                  {showResponseForm ? "Close Response Form" : "Add Response"}
+                </Button>
+
+                {showResponseForm && (
+                  <div className="border border-gray-200 rounded-lg p-3 shadow-inner bg-gray-50">
+                    <ClientResponse
+                      coId={selectedCO.id}
+                      responseId={selectedCO.id}
+                    />
+                  </div>
+                )}
+              </div>
             )}
+            {/* {userType === "client" && (
+              <ClientResponse coId={selectedCO.id} responseId={selectedCO.id} />
+            )} */}
           </div>
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (

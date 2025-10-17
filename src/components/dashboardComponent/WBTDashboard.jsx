@@ -416,7 +416,7 @@ const WBTDashboard = () => {
           {isLoading ? (
             renderSummarySkeleton()
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <div className="flex justify-between items-centerp-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between flex-col">
                   <div>
@@ -480,9 +480,9 @@ const WBTDashboard = () => {
                   </div>
                 </div>
               </div>
-              <div>
+              {/* <div>
                 <NotificationsList notifications={notification} />
-              </div>
+              </div> */}
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
