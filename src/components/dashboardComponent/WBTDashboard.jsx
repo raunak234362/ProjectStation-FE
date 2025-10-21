@@ -417,7 +417,7 @@ const WBTDashboard = () => {
             renderSummarySkeleton()
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              <div className="flex justify-between items-centerp-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
+              <div className="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between flex-col">
                   <div>
                     <p className="text-sm font-medium text-gray-500">
@@ -442,11 +442,13 @@ const WBTDashboard = () => {
                     </p>
                   </div>
                 </div>
-                  <div className="p-3 bg-blue-50 rounded-full">
+                <div className="  flex justify-center items-center">
+                  <div className="bg-blue-50 rounded-full p-2">
                     <LayoutGrid className="w-6 h-6 text-blue-500" />
                   </div>
+                </div>
               </div>
-              
+
               <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
                 <div className="flex items-center justify-between">
                   <div>

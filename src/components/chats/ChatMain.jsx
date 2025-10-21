@@ -296,7 +296,7 @@ const ChatMain = ({ activeChat, setActiveChat }) => {
             placeholder="Type a message (Shift + Enter for newline)"
             className="flex-1 resize-none border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring"
           />
-          <Button size="icon" onClick={handleMessage} className="text-green-500">
+          <Button size="icon" onClick={handleMessage} >
             <Send size={24} />
           </Button>
         </form>
