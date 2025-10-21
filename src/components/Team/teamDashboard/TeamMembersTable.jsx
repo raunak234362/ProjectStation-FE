@@ -16,7 +16,7 @@ const TeamMembersTable = ({ tableData, columns, onMemberClick, formatToHoursMinu
     {
       columns,
       data: tableData,
-      initialState: { sortBy: [{ id: "efficiency", desc: true }] },
+      initialState: { sortBy: [{ id: "name", desc: false }] },
     },
     useGlobalFilter,
     useSortBy

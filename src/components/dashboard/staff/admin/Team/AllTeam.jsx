@@ -93,7 +93,7 @@ const AllTeam = () => {
                   className="px-5 py-2 text-left cursor-pointer"
                   onClick={() => handleSort("name")}
                 >
-                  S.no
+                  Sl.no
                 </th>
                 <th
                   className="px-5 py-2 text-left cursor-pointer"

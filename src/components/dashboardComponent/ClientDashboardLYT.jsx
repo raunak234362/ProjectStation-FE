@@ -566,9 +566,9 @@ const ClientDashboardLYT = () => {
                   : 0
               }
             />
-            <div className="shadow-md rounded-lg p-5 flex items-center justify-center text-2xl font-bold text-orange-500 underline italic">
+            {/* <div className="shadow-md rounded-lg p-5 flex items-center justify-center text-2xl font-bold text-orange-500 underline italic">
               Feature Coming Soon
-            </div>
+            </div> */}
             {/* <StatCard
               title="Pending Invoices"
               value='5'

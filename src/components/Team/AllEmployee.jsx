@@ -18,12 +18,12 @@ const GlobalFilter = ({ globalFilter, setGlobalFilter }) => (
 );
 
 const AllEmployees = () => {
-  const departments = useSelector((state) => state?.userData?.departmentData) ;
+  const departments = useSelector((state) => state?.userData?.departmentData);
   const staffData = useSelector((state) => state?.userData?.staffData);
 
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-console.log("Selected Employee Data:", selectedEmployee);
+  console.log("Selected Employee Data:", selectedEmployee);
   const data = useMemo(() => {
     return staffData.map((staff, index) => ({
       sno: index + 1,
@@ -38,10 +38,6 @@ console.log("Selected Employee Data:", selectedEmployee);
 
   const columns = useMemo(
     () => [
-      {
-        Header: "S.No",
-        accessor: "sno",
-      },
       {
         Header: "Employee Code",
         accessor: "emp_code",
@@ -80,7 +76,7 @@ console.log("Selected Employee Data:", selectedEmployee);
   };
 
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
+    <div className="bg-white rounded-lg md:w-full w-[90vw]">
       <div className=" p-4">
         <GlobalFilter
           globalFilter={state.globalFilter}
@@ -96,6 +92,9 @@ console.log("Selected Employee Data:", selectedEmployee);
           <thead className="sticky top-0 bg-teal-200/80 z-10">
             {headerGroups.map((headerGroup) => (
               <tr {...headerGroup.getHeaderGroupProps()}>
+                <th className="px-4 py-2 font-semibold border whitespace-nowrap">
+                  Sl.No
+                </th>
                 {headerGroup.headers.map((column) => (
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -116,7 +115,7 @@ console.log("Selected Employee Data:", selectedEmployee);
                 </td>
               </tr>
             ) : (
-              rows.map((row) => {
+              rows.map((row,index) => {
                 prepareRow(row);
                 return (
                   <tr
@@ -124,6 +123,7 @@ console.log("Selected Employee Data:", selectedEmployee);
                     className="hover:bg-blue-gray-100 border"
                     onClick={() => handleViewClick(row.original.actions)}
                   >
+                    <td className="px-4 py-2 border">{index + 1}</td>
                     {row.cells.map((cell) => (
                       <td
                         {...cell.getCellProps()}

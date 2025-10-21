@@ -56,7 +56,7 @@ const ListOfCO = ({ coData, fetchCO }) => {
               {...headerGroup.getHeaderGroupProps()}
               key={headerGroup.id || headerGroupIdx}
             >
-              <th>S.no</th>
+              <th>Sl.no</th>
               {headerGroup.headers.map((column, colIdx) => (
                 <th
                   {...column.getHeaderProps(column.getSortByToggleProps())}

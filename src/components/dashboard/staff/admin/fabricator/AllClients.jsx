@@ -101,7 +101,7 @@ const AllClients = () => {
                 className="px-2 py-1 cursor-pointer"
                 // onClick={() => handleSort('fabricator.name')}
               >
-                S.no{" "}
+                Sl.no{" "}
                 {sortConfig.key === "s.no" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>

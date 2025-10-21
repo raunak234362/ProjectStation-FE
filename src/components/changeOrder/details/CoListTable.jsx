@@ -129,7 +129,7 @@ const CoListTable = ({ selectedCO, fetchCO }) => {
                 key={headerGroup.id || headerGroupIdx}
                 {...headerGroup.getHeaderGroupProps()}
               >
-                <th className="px-4 py-2 border">S.No</th>
+                <th className="px-4 py-2 border">Sl.No</th>
                 {headerGroup.headers.map((column, colIdx) => (
                   <th
                     key={column.id || colIdx}

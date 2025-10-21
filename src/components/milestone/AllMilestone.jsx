@@ -66,11 +66,7 @@ const AllMilestone = ({ milestoneData }) => {
 
   const columns = useMemo(
     () => [
-      {
-        Header: "S.No",
-        accessor: (row, i) => i + 1,
-        id: "sno",
-      },
+      
       {
         Header: "Subject",
         accessor: "subject",

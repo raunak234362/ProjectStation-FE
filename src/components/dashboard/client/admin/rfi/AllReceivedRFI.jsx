@@ -50,7 +50,7 @@ const AllReceivedRFI = () => {
           <table className="min-w-full text-sm text-center border-collapse md:text-lg rounded-xl">
             <thead>
               <tr className="bg-teal-200/70">
-                <th className="px-2 py-1">S.No</th>
+                <th className="px-2 py-1">Sl.No</th>
                 <th className="px-2 py-1">Project Name</th>
                 <th className="px-2 py-1">Mail ID</th>
                 <th className="px-2 py-1">Subject/Remarks</th>

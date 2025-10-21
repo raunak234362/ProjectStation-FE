@@ -416,75 +416,82 @@ const WBTDashboard = () => {
           {isLoading ? (
             renderSummarySkeleton()
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              <div className="flex justify-between items-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between flex-col">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {/* Total Projects Card */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <div className="flex flex-col gap-2">
                   <div>
-                    <p className="text-sm font-medium text-gray-500">
+                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                       Total Projects
                     </p>
-                    <h3 className="text-2xl font-bold text-gray-800">
+                    <h3 className="text-xl font-extrabold text-gray-800 mt-1">
                       {dashboardCounts.totalProject}
                     </h3>
-                    <p className="text-xs text-gray-500">
-                      Completed: {dashboardCounts.totalCompleteProject}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Active Projects
-                    </p>
-                    <h3 className="text-2xl font-bold text-gray-800">
-                      {dashboardCounts.totalActiveProjects}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      On-Hold: {dashboardCounts.totalOnHoldProject}
+                    <p className="text-xs text-gray-500 mt-1">
+                      Completed:{" "}
+                      <span className="font-semibold ">
+                        {dashboardCounts.totalCompleteProject}
+                      </span>
                     </p>
                   </div>
                 </div>
-                <div className="  flex justify-center items-center">
-                  <div className="bg-blue-50 rounded-full p-2">
-                    <LayoutGrid className="w-6 h-6 text-blue-500" />
+
+                <div className="flex justify-center items-center">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                      Active Projects
+                    </p>
+                    <h3 className="text-xl font-extrabold text-gray-800 mt-1">
+                      {dashboardCounts.totalActiveProjects}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      On Hold:{" "}
+                      <span className="font-semibold text-gray-500">
+                        {dashboardCounts.totalOnHoldProject}
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Total Tasks
-                    </p>
-                    <h3 className="text-2xl font-bold text-gray-800">
-                      {dashboardCounts.totalNumberOfTasks}
-                    </h3>
-                    <p className="text-xs text-gray-500">
-                      Completed: {dashboardCounts.noOfCompleteTask}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-purple-50 rounded-full">
-                    <CheckCircle2 className="w-6 h-6 text-purple-500" />
-                  </div>
+              {/* Total Tasks Card */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <div>
+                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    Total Tasks
+                  </p>
+                  <h3 className="text-3xl font-extrabold text-gray-800 mt-1">
+                    {dashboardCounts.totalNumberOfTasks}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Completed:{" "}
+                    <span className="font-semibold text-gray-500">
+                      {dashboardCounts.noOfCompleteTask}
+                    </span>
+                  </p>
+                </div>
+                <div className="p-3 bg-purple-100 rounded-2xl shadow-inner">
+                  <CheckCircle2 className="w-8 h-8 text-purple-600" />
                 </div>
               </div>
-              <div className="p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">
-                      Employees
-                    </p>
-                    <h3 className="text-2xl font-bold text-gray-800">
-                      {dashboardCounts?.employeeCount}
-                    </h3>
-                  </div>
-                  <div className="p-3 bg-amber-50 rounded-full">
-                    <PieChart className="w-6 h-6 text-amber-500" />
-                  </div>
+
+              {/* Employees Card */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-br from-teal-50 to-white border border-teal-100 rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300">
+                <div>
+                  <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    Employees
+                  </p>
+                  <h3 className="text-3xl font-extrabold text-gray-800 mt-1">
+                    {dashboardCounts?.employeeCount}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Team Members Count
+                  </p>
+                </div>
+                <div className="p-3 bg-amber-100 rounded-2xl shadow-inner">
+                  <PieChart className="w-8 h-8 text-amber-500" />
                 </div>
               </div>
-              {/* <div>
-                <NotificationsList notifications={notification} />
-              </div> */}
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
