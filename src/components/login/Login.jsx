@@ -28,12 +28,14 @@ const Login = () => {
       if (!user?.token) throw new Error("Invalid Credentials");
 
       const token = user.token;
-
+      const userDetail = await Service.getCurrentUser(token);
+      console.log(userDetail?.data?.is_firstLogin,"-=========-")
       // Store session data
       sessionStorage.setItem("token", token);
-      userData.value=user
+      userData.value = user;
       dispatch(authLogin(user));
-      navigate("/dashboard");
+      if (userDetail?.data?.is_firstLogin) navigate("/change-password/");
+      else navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
       alert(
@@ -43,7 +45,6 @@ const Login = () => {
       );
     }
   };
-
 
   return (
     <div className="relative">
