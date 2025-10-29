@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 
 import { useState } from "react";
-import AddRFQ from "../../components/rfq/AddRFQ";
 import AllRFQ from "../../components/rfq/AllRFQ";
+import AddInvoice from "../../components/invoices/AddInvoice";
 
 const RFQ = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);
@@ -15,34 +15,34 @@ const RFQ = () => {
           <h1 className="text-2xl py-2 font-bold text-white">Invoice Detail</h1>
           <div className="flex space-x-4 overflow-x-auto">
             <button
-              onClick={() => setActiveTab("addRFQ")}
+              onClick={() => setActiveTab("addInvoice")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "addRFQ"
+                activeTab === "addInvoice"
                   ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                   : "md:text-base text-sm bg-white"
               }`}
             >
-              Invoice Projects
+              Add Projects Invoice
             </button>
             <button
-              onClick={() => setActiveTab("allRFQ")}
+              onClick={() => setActiveTab("allInvoice")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "allRFQ"
+                activeTab === "allInvoice"
                   ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                   : "md:text-base text-sm bg-white"
               }`}
             >
-              View Invoices
+              All Invoices
             </button>
           </div>
         </div>
         <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
-          {activeTab === "addRFQ" && (
+          {activeTab === "addInvoice" && (
             <div>
-              <AddRFQ />
+              <AddInvoice />
             </div>
           )}
-          {activeTab === "InvoiceRemainder" && (
+          {activeTab === "allInvoice" && (
             <div>
               {" "}
               <AllRFQ />{" "}
