@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import AllRFQ from "../../components/rfq/AllRFQ";
-import AddInvoice from "../../components/invoices/AddInvoice";
+import InvoiceForm from "../../components/invoices/InvoiceForm";
 
 const RFQ = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);
@@ -39,7 +39,7 @@ const RFQ = () => {
         <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
           {activeTab === "addInvoice" && (
             <div>
-              <AddInvoice />
+              <InvoiceForm />
             </div>
           )}
           {activeTab === "allInvoice" && (

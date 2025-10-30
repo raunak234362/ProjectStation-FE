@@ -2241,7 +2241,7 @@ class Service {
   }
 
   //route to update the status of Notification
-  static async UpdateNotification(id){
+  static async UpdateNotification(id) {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.patch(`/api/notifications/read/${id}`, {
@@ -2274,6 +2274,35 @@ class Service {
   //     return false;
   //   }
   // }
+
+  static async AddInvoice(invoiceData) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(`/api/invoice/`, invoiceData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+      
+      return response?.data
+    } catch (error) {
+      console.log(error, "Error while adding invoice");
+    }
+  }
+  static async AllInvoice() {
+    try {
+      const response = await api.get(`/api/invoice`, {
+        headers: {
+           Authorization: `Bearer ${token}`,
+        }
+      });
+      console.log(response);
+    } catch (error) {
+      console.log(error, "Error while adding invoice");
+    }
+  }
 }
 
 export default Service;
