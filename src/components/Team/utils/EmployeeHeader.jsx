@@ -4,8 +4,8 @@ import Button from "../../fields/Button";
 
 const EmployeeHeader = ({ onClose }) => {
   return (
-    <div className="flex flex-row justify-between items-center mb-6">
-      <h2 className="text-lg font-bold bg-teal-400 px-3 py-2 rounded-lg shadow-md text-white">
+    <div className="sticky top-0 z-10 flex md:flex-row flex-col items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
+      <h2 className="text-lg font-bold text-white">
         Employee Status
       </h2>
       <Button

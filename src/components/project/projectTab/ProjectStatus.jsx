@@ -499,7 +499,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 {[
                   { key: "projectDetail", label: "Project Details" },
                   { key: "overview", label: "Overview" },
-                  { key: "timeline", label: "Timeline" },
+                  // { key: "timeline", label: "Timeline" },
                   { key: "team", label: "Team" },
                   { key: "milestone", label: "Milestones" },
                   { key: "RFI", label: "RFI" },

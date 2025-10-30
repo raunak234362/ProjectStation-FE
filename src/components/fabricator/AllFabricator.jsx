@@ -10,7 +10,9 @@ import Service from "../../config/Service.js";
 import { loadFabricator } from "../../store/fabricatorSlice.js";
 
 const AllFabricator = () => {
-  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData);
+  const fabricators = useSelector(
+    (state) => state?.fabricatorData?.fabricatorData
+  );
   const [filteredFabricators, setFilteredFabricators] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({ country: "", state: "", city: "" });
@@ -44,9 +46,15 @@ const AllFabricator = () => {
     let result = fabricators?.filter((fab) => {
       const searchMatch =
         fab?.fabName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.state?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.country?.toLowerCase().includes(searchQuery.toLowerCase());
+        fab?.headquaters?.city
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        fab?.headquaters?.state
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        fab?.headquaters?.country
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase());
 
       const filterMatch =
         (!filters.country || fab.headquaters?.country === filters.country) &&
@@ -77,45 +85,38 @@ const AllFabricator = () => {
   };
 
   // Columns for react-table
-  const columns = useMemo(() => [
-    {
-      Header: "S.No",
-      accessor: (row, i) => i + 1,
-      id: "sno",
-    },
-    {
-      Header: "Name",
-      accessor: "fabName",
-    },
-    {
-      Header: "City",
-      accessor: (row) => row?.headquaters?.city,
-      id: "city",
-    },
-    {
-      Header: "State",
-      accessor: (row) => row?.headquaters?.state,
-      id: "state",
-    },
-    {
-      Header: "Country",
-      accessor: (row) => row?.headquaters?.country,
-      id: "country",
-    },
-  ], []);
+  const columns = useMemo(
+    () => [
+      {
+        Header: "Name",
+        accessor: "fabName",
+      },
+      {
+        Header: "City",
+        accessor: (row) => row?.headquaters?.city,
+        id: "city",
+      },
+      {
+        Header: "State",
+        accessor: (row) => row?.headquaters?.state,
+        id: "state",
+      },
+      {
+        Header: "Country",
+        accessor: (row) => row?.headquaters?.country,
+        id: "country",
+      },
+    ],
+    []
+  );
 
   const tableInstance = useTable(
     { columns, data: filteredFabricators },
     useSortBy
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = tableInstance;
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
   const renderSkeletonRows = (count = 10) => {
     return Array.from({ length: count }).map((_, rowIdx) => (
@@ -151,13 +152,20 @@ const AllFabricator = () => {
               onChange={handleFilterChange}
               className="border p-2 rounded"
             >
-              <option value="">Filter by {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
+              <option value="">
+                Filter by{" "}
+                {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
+              </option>
               {Array.from(
-                new Set(fabricators?.map((fab) => fab?.headquaters?.[filterKey]))
+                new Set(
+                  fabricators?.map((fab) => fab?.headquaters?.[filterKey])
+                )
               )
                 .filter(Boolean)
                 .map((val) => (
-                  <option key={val} value={val}>{val}</option>
+                  <option key={val} value={val}>
+                    {val}
+                  </option>
                 ))}
             </select>
           ))}
@@ -170,9 +178,15 @@ const AllFabricator = () => {
             className="min-w-[800px] w-full border-collapse text-sm text-center"
           >
             <thead className="sticky top-0 bg-teal-200/80 z-10">
-              {headerGroups.map(headerGroup => (
-                <tr {...headerGroup.getHeaderGroupProps()} className="bg-teal-200/70">
-                  {headerGroup.headers.map(column => (
+              {headerGroups.map((headerGroup) => (
+                <tr
+                  {...headerGroup.getHeaderGroupProps()}
+                  className="bg-teal-200/70"
+                >
+                  <th className="px-4 py-2 font-semibold border whitespace-nowrap">
+                    S.No
+                  </th>
+                  {headerGroup.headers.map((column) => (
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
                       className="px-2 py-1 cursor-pointer"
@@ -194,14 +208,20 @@ const AllFabricator = () => {
                   </td>
                 </tr>
               ) : (
-                rows.map((row) => {
+                rows.map((row, index) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()}
-                    onClick={() => handleViewClick(row.original.id)}
-                    className="hover:bg-gray-100">
+                    <tr
+                      {...row.getRowProps()}
+                      onClick={() => handleViewClick(row.original.id)}
+                      className="hover:bg-gray-100"
+                    >
+                       <td className="px-4 py-2 border">{index + 1}</td>
                       {row.cells.map((cell) => (
-                        <td {...cell.getCellProps()} className="px-4 py-2 border">
+                        <td
+                          {...cell.getCellProps()}
+                          className="px-4 py-2 border"
+                        >
                           {cell.render("Cell")}
                         </td>
                       ))}

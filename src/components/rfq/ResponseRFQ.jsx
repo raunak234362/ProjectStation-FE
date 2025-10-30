@@ -46,7 +46,7 @@ const ResponseRFQ = ({ onClose, rfqID }) => {
   );
 
   return (
-    <div className="w-full max-w-3xl bg-white p-4 rounded-lg shadow-md">
+    <div className="w-full bg-white p-4 rounded-lg shadow-md">
       <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
         <div className="text-lg font-semibold text-white">Response To RFQ</div>
       </div>

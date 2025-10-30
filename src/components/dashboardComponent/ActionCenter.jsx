@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { AlertCircle, FileText } from "lucide-react";
+import { AlertCircle, FileText, X } from "lucide-react";
 import Service from "../../config/Service";
+import GetRFI from "../rfi/GetRFI";
+import GetSubmittals from "../submittals/GetSubmittals";
+import GetRFQ from "../rfq/GetRFQ";
+import GetCo from "../changeOrder/GetCo";
 
-// Custom UI Components
 const Card = ({ children, className = "" }) => (
   <div
     className={`bg-white rounded-xl border border-gray-200 shadow-sm ${className}`}
@@ -48,6 +51,23 @@ const Tabs = ({ tabs, activeTab, onChange, className = "" }) => (
   </div>
 );
 
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-xl shadow-lg w-11/12 md:w-3/4 lg:w-1/2 relative p-5">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
+        >
+          <X size={20} />
+        </button>
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const ActionCenter = () => {
   const userType = sessionStorage.getItem("userType");
   const [isLoading, setIsLoading] = useState(true);
@@ -56,26 +76,33 @@ const ActionCenter = () => {
   const [rfiList, setRFIList] = useState([]);
   const [submittalList, setSubmittalList] = useState([]);
   const [rfqList, setRFQList] = useState([]);
+  const [coList, setCOList] = useState([]);
 
   const [itemType, setItemType] = useState("rfi");
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 🧠 Fetch all items
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [rfiRes, subRes] = await Promise.all([
+      const [rfiRes, subRes, coRes] = await Promise.all([
         Service.inboxRFI(),
         Service.reciviedSubmittal(),
+        Service.allReceivedCO(),
       ]);
+
       let rfqDetail;
       if (userType === "client") {
         rfqDetail = await Service.sentRFQ();
       } else {
         rfqDetail = await Service.inboxRFQ();
       }
-      console.log("RFQ Response:", rfqDetail);
+
       setRFIList(rfiRes?.data || []);
       setSubmittalList(subRes?.data || []);
       setRFQList(rfqDetail || []);
+      setCOList(coRes?.data || []);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Failed to load dashboard data");
@@ -84,51 +111,98 @@ const ActionCenter = () => {
     }
   };
 
-  console.log("RFI List:", rfiList);
-  console.log("Submittal List:", submittalList);
-  console.log("RFQ List:", rfqList);
   useEffect(() => {
     fetchData();
   }, []);
 
+  // ✅ Pending filters
   const pendingItems = {
-    // RFI items with no response or empty array
     rfi: rfiList.filter(
       (item) =>
         !item?.rfiresponse ||
         (Array.isArray(item.rfiresponse) && item.rfiresponse.length === 0)
     ),
-
-    // Submittals with no response or empty array
     submittals: submittalList.filter(
       (item) =>
         !item?.submittalsResponse ||
         (Array.isArray(item.submittalsResponse) &&
           item.submittalsResponse.length === 0)
     ),
-
-    // Example RFQ handling
     rfq: rfqList.filter(
-      (item) => Array.isArray(item.response) && item.response.length === 0
+      (item) =>
+        Array.isArray(item.response) &&
+        item.response.length > 0 &&
+        item.response.some(
+          (res) =>
+            Array.isArray(res.childResponses) && res.childResponses.length === 0
+        )
     ),
-
-    co: [], // Change Order placeholder
+    co: coList.filter(
+      (item) =>
+        !item?.coResponses ||
+        (Array.isArray(item.coResponses) && item.coResponses.length === 0)
+    ),
   };
 
-  console.log("Pending Items:", pendingItems);
+  const handleItemClick = (item, type) => {
+    setSelectedItem({ ...item, type });
+    setIsModalOpen(true);
+  };
+
+  const renderModalContent = () => {
+    if (!selectedItem) return null;
+
+    switch (selectedItem.type) {
+      case "rfi":
+        return (
+          <GetRFI
+            rfiId={selectedItem.id}
+            isOpen={true}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
+      case "submittals":
+        return (
+          <GetSubmittals
+            submittalId={selectedItem.id}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
+      case "rfq":
+        return (
+          <GetRFQ
+            data={selectedItem}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
+        );
+      case "co":
+        return (
+          <GetCo
+            initialSelectedCO={selectedItem}
+            onClose={() => setIsModalOpen(false)}
+            fetchCO={fetchData}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   const renderItemCard = (item, type) => (
     <div
       key={item.id}
+      onClick={() => handleItemClick(item, type)}
       className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer"
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <h3 className="font-medium text-gray-900 text-sm line-clamp-1">
-            {item?.subject || "No Subject"}
+            {item?.subject || item?.title || item?.remarks || "No Subject"}
           </h3>
           <p
-            className="text-xs text-gray-600 mt-1"
+            className="text-xs text-gray-600 mt-1 line-clamp-2"
             dangerouslySetInnerHTML={{
               __html: item?.description || "No description",
             }}
@@ -141,22 +215,21 @@ const ActionCenter = () => {
         </div>
         <Badge variant="warning">Pending</Badge>
       </div>
-
-      <div className="flex items-center justify-between mt-3">
-        <div className="text-xs text-gray-500">
-          {item?.date ? new Date(item.date).toLocaleString() : "No date"}
-        </div>
+      <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+        {item?.createdAt
+          ? new Date(item.createdAt).toLocaleString()
+          : item?.sentOn
+          ? new Date(item.sentOn).toLocaleString()
+          : item?.date
+          ? new Date(item.date).toLocaleString()
+          : "No date"}
       </div>
     </div>
   );
 
   const renderEmptyState = () => (
     <div className="text-center py-8 text-gray-500">
-      {itemType === "rfi" ? (
-        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-      ) : (
-        <FileText className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-      )}
+      <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
       <p>No pending {itemType} items</p>
     </div>
   );
@@ -183,13 +256,13 @@ const ActionCenter = () => {
   }
 
   const tabItems = [
+    { id: "rfq", label: `RFQ (${pendingItems.rfq.length})` },
     { id: "rfi", label: `RFI (${pendingItems.rfi.length})` },
     {
       id: "submittals",
       label: `Submittals (${pendingItems.submittals.length})`,
     },
-    { id: "co", label: `Change Order (0)` },
-    { id: "rfq", label: `RFQ (${pendingItems.rfq.length})` },
+    { id: "co", label: `Change Orders (${pendingItems.co.length})` },
   ];
 
   return (
@@ -197,25 +270,31 @@ const ActionCenter = () => {
       {isLoading ? (
         renderActionCenterSkeleton()
       ) : (
-        <Card className="p-3">
-          <h2 className="text-base font-semibold text-gray-900 mb-2">
-            Action Center
-          </h2>
-          <hr />
-          <Tabs
-            tabs={tabItems}
-            activeTab={itemType}
-            onChange={setItemType}
-            className="mb-4"
-          />
-          <div className="space-y-3 h-[40vh] overflow-y-auto">
-            {pendingItems[itemType]?.length
-              ? pendingItems[itemType].map((item) =>
-                  renderItemCard(item, itemType)
-                )
-              : renderEmptyState()}
-          </div>
-        </Card>
+        <>
+          <Card className="p-3">
+            <h2 className="text-base font-semibold text-gray-900 mb-2">
+              Action Center
+            </h2>
+            <hr />
+            <Tabs
+              tabs={tabItems}
+              activeTab={itemType}
+              onChange={setItemType}
+              className="mb-4"
+            />
+            <div className="space-y-3 h-[40vh] overflow-y-auto">
+              {pendingItems[itemType]?.length
+                ? pendingItems[itemType].map((item) =>
+                    renderItemCard(item, itemType)
+                  )
+                : renderEmptyState()}
+            </div>
+          </Card>
+
+          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+            {renderModalContent()}
+          </Modal>
+        </>
       )}
     </SkeletonTheme>
   );

@@ -35,7 +35,7 @@ const DashboardView = () => {
             className={`fixed md:static flex flex-col md:bg-opacity-0 bg-white w-64 z-20 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
               } md:translate-x-0 md:w-64`}
           >
-            <div className="flex items-center justify-between pl-2">
+            <div className="flex items-center justify-between pl-2 z-50">
               <Sidebar />
             </div>
           </div>

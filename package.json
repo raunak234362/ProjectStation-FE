@@ -28,6 +28,8 @@
     "https": "^1.0.0",
     "jodit": "^4.6.2",
     "jodit-react": "^5.2.19",
+    "jspdf": "^3.0.3",
+    "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.475.0",
     "luxon": "^3.6.1",
     "react": "^18.3.1",

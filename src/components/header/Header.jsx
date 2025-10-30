@@ -3,9 +3,9 @@
 import { GiHamburgerMenu } from 'react-icons/gi'
 import { FaCaretLeft } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
-import LOGO from '../../../assets/logo.png'
+import LOGO from '../../assets/logo.png'
 import { useEffect, useState } from 'react'
-import Service from '../../../config/Service'
+import Service from '../../config/Service'
 
 const Header = ({ sidebarOpen, toggleSidebar }) => {
   const data = useSelector((state) => state.userData.userData)

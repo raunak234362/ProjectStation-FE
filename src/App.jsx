@@ -23,7 +23,6 @@ import NotificationReceiver from "./util/NotificationReceiver";
 import DashboardView from "./pages/dashboard/DashboardView";
 import getUserType from "./util/getUserType";
 import InstallPWAButton from "./util/InstallPWAButton";
-import { userData } from "./signals";
 
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,15 +63,15 @@ const App = () => {
   const fetchUser = async () => {
     try {
       const response = await Service.getCurrentUser(token);
-      const userDetail = response.data;
-      const userType = getUserType(userDetail);
-      userData.value = userDetail;
-      dispatch(setUserData(userDetail));
-      sessionStorage.setItem("userId", userDetail.id);
-      sessionStorage.setItem("username", userDetail.username);
+      const userData = response.data;
+      const userType = getUserType(userData);
+
+      dispatch(setUserData(userData));
+      sessionStorage.setItem("userId", userData.id);
+      sessionStorage.setItem("username", userData.username);
       sessionStorage.setItem("userType", userType);
 
-      const userId = userDetail.id;
+      const userId = userData.id;
       setUserId(userId);
 
       connectSocket(userId);
@@ -84,17 +83,13 @@ const App = () => {
       }
 
       if (
-        ["admin", "department-manager", "project-manager", "sales"]?.includes(
-          userType
-        )
+        ["admin", "department-manager", "project-manager","sales"]?.includes(userType)
       ) {
         const fabricator = await Service.allFabricator(token);
         dispatch(loadFabricator(fabricator));
       }
       if (
-        ["admin", "department-manager", "project-manager", "sales"]?.includes(
-          userType
-        )
+        ["admin", "department-manager", "project-manager","sales"]?.includes(userType)
       ) {
         const client = await Service.allClient(token);
         dispatch(showClient(client));
@@ -105,7 +100,6 @@ const App = () => {
     }
   };
 
-  console.log(userData,"================UserData from signal===============")
   useEffect(() => {
     fetchAllTeams();
     fetchAllStaff();

@@ -44,6 +44,7 @@ function MultipleFileUpload({ onFilesChange }) {
               >
                 <span className="text-sm text-gray-800">{file.name}</span>
                 <button
+                 type="button"
                   onClick={() => removeFile(index)}
                   className="text-red-500 hover:text-red-700 focus:outline-none"
                 >

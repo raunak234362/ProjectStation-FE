@@ -1147,21 +1147,36 @@ class Service {
   }
 
   //view in admin
-  // static async allSentCO() {
-  //   try {
-  //     const token = sessionStorage.getItem("token");
-  //     const response = await api.get(`/api/CO/sent`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/form-data",
-  //       },
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     console.log("Error fetching CO:", error);
-  //     throw error;
-  //   }
-  // }
+  static async allSentCO() {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/CO/sents`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching CO:", error);
+      throw error;
+    }
+  }
+  static async allReceivedCO() {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.get(`/api/CO/receives`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error fetching CO:", error);
+      throw error;
+    }
+  }
 
   static async getRFIByProjectId(projectId) {
     try {
@@ -2214,6 +2229,22 @@ class Service {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.get(`/api/notifications/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.log("Error in fetching Notification: ", error);
+      throw error;
+    }
+  }
+
+  //route to update the status of Notification
+  static async UpdateNotification(id){
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.patch(`/api/notifications/read/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

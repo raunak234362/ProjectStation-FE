@@ -121,9 +121,15 @@ const ClientAllProjects = () => {
   // Calculate project progress consistently
   const calculateProjectProgress = (project) => {
     if (project?.tasks && Array.isArray(project.tasks)) {
-      const completedTasks = project.tasks.filter(
-        (task) => task?.status === "COMPLETE"
+      const completedStatuses = [
+        "COMPLETE",
+        "VALIDATE_COMPLETE",
+        "COMPLETE_OTHER",
+      ];
+      const completedTasks = project.tasks.filter((task) =>
+        completedStatuses.includes(task?.status)
       ).length;
+
       const totalTasks = project.tasks.length;
       return {
         completedTasks,
@@ -296,14 +302,14 @@ const ClientAllProjects = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow h-fit overflow-y-auto">
+    <div className="bg-white rounded-lg shadow h-fit overflow-y-hidden">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="mb-4 text-lg font-medium text-gray-900 sm:mb-0">
+      <div className=" border-b border-gray-200  items-center">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-5 h-fit">
+          <h2 className="text-lg font-medium text-gray-900 sm:mb-0">
             Projects
           </h2>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+          <div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-4">
             {/* Search */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -329,11 +335,8 @@ const ClientAllProjects = () => {
                 >
                   <option value="all">All Status</option>
                   <option value="ACTIVE">Active</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="COMPLETE">Complete</option>
-                  <option value="ASSIGNED">Assigned</option>
-                  <option value="IN_REVIEW">In Review</option>
-                  <option value="ON_HOLD">On Hold</option>
+                  <option value="COMPLETE">Completed</option>
+                  <option value="ONHOLD">On Hold</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
                   <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -369,7 +372,7 @@ const ClientAllProjects = () => {
       </div>
 
       {/* Project List */}
-      <div className="p-4">
+      <div className="p-2 h-[75vh] overflow-y-auto">
         {filteredAndSortedProjects.length === 0 ? (
           <div className=" text-center">
             <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
@@ -383,16 +386,16 @@ const ClientAllProjects = () => {
             </p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 max-md:grid-cols-2 lg:grid-cols-3">
             {filteredAndSortedProjects.map((project) => (
               <div
                 key={project.id}
                 onClick={() => handleRowClick(project.id)}
                 className="cursor-pointer overflow-hidden bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="p-6">
+                <div className="p-3">
                   <div className="flex items-start justify-between">
-                    <h3 className="mb-1 text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-gray-900">
                       {project.name}
                     </h3>
                     <StatusBadge status={project.status} />
@@ -435,12 +438,7 @@ const ClientAllProjects = () => {
                     <span className="ml-1">{formatDate(project.endDate)}</span>
                   </div>
                 </div>
-                <div className="flex justify-between px-6 py-3 bg-gray-50">
-                  <div className="text-sm text-gray-500">
-                    <Building2 className="inline w-4 h-4 mr-1" />
-                    {project.fabricator?.fabName}
-                  </div>
-                </div>
+               
               </div>
             ))}
           </div>

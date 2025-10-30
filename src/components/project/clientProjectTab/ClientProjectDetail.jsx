@@ -61,39 +61,54 @@ const ClientProjectDetail = ({
   // NEW: Calculate overall task completion %
   const getTaskCompletionPercentage = (tasks) => {
     if (!Array.isArray(tasks) || tasks.length === 0) return 0;
-    const completed = tasks.filter((task) => task.status === "COMPLETE").length;
+    const completedStatuses = [
+      "COMPLETE",
+      "VALIDATE_COMPLETE",
+      "COMPLETE_OTHER",
+    ];
+    const completed = tasks.filter((task) =>
+      completedStatuses.includes(task.status)
+    ).length;
+
     return Math.round((completed / tasks.length) * 100);
   };
 
   // Group tasks by milestone (subject + id) and compute completion percentage
   // Group tasks by milestone (subject + id) and compute completion percentage
- const getMilestoneStatus = (tasks) => {
-  if (!Array.isArray(tasks) || tasks.length === 0) return [];
+  const getMilestoneStatus = (tasks) => {
+    if (!Array.isArray(tasks) || tasks.length === 0) return [];
 
-  const groups = new Map();
+    const groups = new Map();
 
-  tasks.forEach((task) => {
-    // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
+    tasks.forEach((task) => {
+      // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
 
-    const ms = task.milestone || task.mileStone || {};
-    const id = task.milestone_id || task.mileStone_id || ms.id;
-    const subject = ms.subject || ms.Subject || ms.name || task.milestone_name;
+      const ms = task.milestone || task.mileStone || {};
+      const id = task.milestone_id || task.mileStone_id || ms.id;
+      const subject =
+        ms.subject || ms.Subject || ms.name || task.milestone_name;
 
-    if (!id && !subject) return; // ✅ only skip if both missing
+      if (!id && !subject) return; // ✅ only skip if both missing
 
-    const key = `${id || subject}`;
-    if (!groups.has(key)) groups.set(key, { id, subject: subject || "Unnamed Milestone", tasks: [] });
-    groups.get(key).tasks.push(task);
-  });
+      const key = `${id || subject}`;
+      if (!groups.has(key))
+        groups.set(key, {
+          id,
+          subject: subject || "Unnamed Milestone",
+          tasks: [],
+        });
+      groups.get(key).tasks.push(task);
+    });
 
-  return Array.from(groups.values()).map((group) => {
-    const total = group.tasks.length;
-    const completedCount = group.tasks.filter((t) => t.status === "COMPLETE").length;
-    const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-    return { ...group, total, completedCount, percentage };
-  });
-};
-
+    return Array.from(groups.values()).map((group) => {
+      const total = group.tasks.length;
+      const completedCount = group.tasks.filter(
+        (t) => t.status === "COMPLETE"
+      ).length;
+      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
+      return { ...group, total, completedCount, percentage };
+    });
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not available";
@@ -135,10 +150,7 @@ const ClientProjectDetail = ({
             </h4>
             {getMilestoneStatus(projectData?.tasks).length > 0 ? (
               getMilestoneStatus(projectData?.tasks).map((ms) => (
-                <div
-                  key={ms.id}
-                  className="flex items-center gap-5 mb-1"
-                >
+                <div key={ms.id} className="flex items-center gap-5 mb-1">
                   {/* ✅ Show milestone subject */}
                   <span className="text-gray-800 text-sm font-semibold">
                     {ms.subject}
@@ -176,27 +188,27 @@ const ClientProjectDetail = ({
         />
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column */}
             <div className="space-y-4">
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Description
                 </h4>
                 <div
-                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal"
+                  className="text-gray-700 w-full text-sm md:text-base whitespace-normal text-right sm:text-left"
                   dangerouslySetInnerHTML={{
                     __html: projectData?.description || "N/A",
                   }}
                 />
               </div>
+
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Status
                 </h4>
-                <div className="flex items-center gap-2">
-                  {projectData?.status || "Not available"}
-                </div>
+
+                {projectData?.status || "Not available"}
               </div>
+
               <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">
                   Department
@@ -206,54 +218,28 @@ const ClientProjectDetail = ({
                 </p>
               </div>
               <div>
+                <h4 className="text-sm font-medium text-gray-500 mb-1">
+                  Project Manager
+                </h4>
+                <p className="text-gray-800 font-semibold">
+                  {projectData?.manager
+                    ? `${projectData?.manager?.f_name || ""} ${
+                        projectData?.manager?.l_name || ""
+                      }`
+                    : "Not available"}
+                </p>
+              </div>
+              <div>
                 <h4 className="text-sm font-medium text-gray-500 mb-1">Team</h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.team?.name || "Not available"}
                 </p>
               </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Project Manager
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.manager?.f_name ||
-                  projectData?.manager?.m_name ||
-                  projectData?.manager?.l_name
-                    ? `${projectData?.manager?.f_name || ""} ${
-                        projectData?.manager?.m_name || ""
-                      } ${projectData?.manager?.l_name || ""}`.trim()
-                    : "Not available"}
-                </p>
-              </div>
             </div>
 
-            {/* Right Column */}
             <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Estimated Hours
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.estimatedHours || "Not available"}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Stage
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.stage || "Not available"}
-                </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-medium text-gray-500 mb-1">
-                  Tools
-                </h4>
-                <p className="text-gray-800 font-semibold">
-                  {projectData?.tools || "Not available"}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">
                     Start Date
@@ -264,90 +250,100 @@ const ClientProjectDetail = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">
-                    End Date
+                    Approval Date
+                  </h4>
+                  <p className="text-gray-800 font-semibold">
+                    {formatDate(projectData?.approvalDate)}
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500 mb-1">
+                    Submission Date
                   </h4>
                   <p className="text-gray-800 font-semibold">
                     {formatDate(projectData?.endDate)}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
-                <div className="font-medium text-gray-800">
-                  Connection Design Scope:
-                </div>
+              <div className="grid grid-rows-2 gap-5">
+                {/* Connection Design Scope */}
                 <div>
-                  <div>Main: </div>
-                  <div>
-                    {projectData?.connectionDesign ? (
-                      <span className="text-green-600 font-semibold">
-                        Required
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Not Required
-                      </span>
-                    )}
+                  <h2 className="text-sm font-medium text-gray-800 mb-1">
+                    Connection Design Scope
+                  </h2>
+                  <div className="flex flex-row space-x-5 mt-2 w-full">
+                    {/* Main Design */}
+                    <div>
+                      <h4
+                        className={`text-sm font-medium mb-1  ${
+                          projectData?.connectionDesign
+                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                        }`}
+                      >
+                        Main Design
+                      </h4>
+                    </div>
+
+                    {/* Misc Design */}
+                    <div>
+                      <h4
+                        className={`text-sm font-medium mb-1  ${
+                          projectData?.miscDesign
+                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                        }`}
+                      >
+                        Misc Design
+                      </h4>
+                    </div>
+
+                    {/* Customer Design */}
+                    <div>
+                      <h4
+                        className={`text-sm font-medium mb-1  ${
+                          projectData?.customerDesign
+                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                        }`}
+                      >
+                        Connection Design
+                      </h4>
+                    </div>
                   </div>
                 </div>
+
+                {/* Detailing Scope */}
                 <div>
-                  <div>MISC: </div>
-                  <div>
-                    {projectData?.miscDesign ? (
-                      <span className="text-green-600 font-semibold">
-                        Required
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Not Required
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div>Custom: </div>
-                  <div>
-                    {projectData?.customerDesign ? (
-                      <span className="text-green-600 font-semibold">
-                        Required
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Not Required
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
-                <div className="font-medium text-gray-800">
-                  Detailing Scope:
-                </div>
-                <div>
-                  <div>Main: </div>
-                  <div>
-                    {projectData?.detailingMain ? (
-                      <span className="text-green-600 font-semibold">
-                        Required
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Not Required
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <div>MISC: </div>
-                  <div>
-                    {projectData?.detailingMisc ? (
-                      <span className="text-green-600 font-semibold">
-                        Required
-                      </span>
-                    ) : (
-                      <span className="text-red-600 font-semibold">
-                        Not Required
-                      </span>
-                    )}
+                  <h2 className="text-sm font-medium text-gray-800 mb-1">
+                    Detailing Scope
+                  </h2>
+                  <div className="flex flex-row space-x-5 mt-2 w-full">
+                    {/* Main Steel */}
+                    <div>
+                      <h4
+                        className={`text-sm font-medium mb-1  ${
+                          projectData?.detailingMain
+                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                        }`}
+                      >
+                        Main Steel
+                      </h4>
+                    </div>
+
+                    {/* Miscellaneous Steel */}
+                    <div>
+                      <h4
+                        className={`text-sm font-medium mb-1  ${
+                          projectData?.detailingMisc
+                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                        }`}
+                      >
+                        Miscellaneous Steel
+                      </h4>
+                    </div>
                   </div>
                 </div>
               </div>

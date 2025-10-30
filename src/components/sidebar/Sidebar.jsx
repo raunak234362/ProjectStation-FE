@@ -31,12 +31,12 @@ const Sidebar = () => {
   const navItems = [
     { label: "Dashboard", to: "/dashboard", icon: <LayoutDashboard />, roles: ["admin", "deputy-manager","department-manager","project-manager", "client", "user", "estimator", "sales", "estimator-head"] },
     { label: "Fabricator", to: "fabricator", icon: <Building2 />, roles: ["admin","deputy-manager", "sales", "department-manager"] },
-    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin","deputy-manager", "department-manager","project-manager", "client", "user", "estimator", "estimator-head"] },
+    { label: "Project", to: "project", icon: <SquareKanban />, roles: ["admin","deputy-manager", "PMO","department-manager","project-manager","user", "estimator", "estimator-head"] },
     { label: "RFQ", to: "rfq", icon: <MessageSquareQuote />, roles: ["admin","deputy-manager", "sales", "client", "department-manager"] },
     // { label: "Sales", to: "sales", icon: <ChartCandlestick />, roles: ["admin"] },
     { label: "Estimations", to: "estimation", icon: <ChartCandlestick />, roles: ["admin","deputy-manager", "department-manager","user","sales", "estimator-head"] },
     { label: "Manage Team", to: "team", icon: <Database />, roles: ["admin","deputy-manager", "department-manager", "project-manager", "human-resource"] },
-    { label: "Invoices", to: "invoices", icon: <Database />, roles: ["admin", "pmo"] },
+    { label: "Invoices", to: "invoices", icon: <Database />, roles: ["admin", "PMO"] },
     { label: "Chats", to: "chats", icon: <MessageSquare />, roles: ["admin","deputy-manager", "department-manager", "project-manager", "user", "human-resource", "estimator-head"] },
     { label: "Profile", to: "profile", icon: <CgProfile />, roles: ["admin","deputy-manager", "user", "client", "estimator", "sales", "project-manager", "department-manager", "human-resource", "estimator-head"] },
   ];

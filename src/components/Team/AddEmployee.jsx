@@ -122,8 +122,8 @@ const AddEmployee = () => {
   };
 
   return (
-    <div className="flex justify-center w-full text-black rounded-md bg-white md:px-10  px-2 py-3 ">
-      <div className="w-full h-full overflow-y-auto ">
+    <div className="flex justify-center w-full  h-[88vh] overflow-y-hidden  text-black rounded-md bg-white md:px-10  px-2 py-3 ">
+      <div className="w-full h-[90vh] overflow-y-hidden">
         <form onSubmit={handleSubmit(addStaff)}>
           <div className="px-2 py-2 font-bold text-white rounded-lg bg-teal-500/50">
             User Informations:
@@ -241,7 +241,7 @@ const AddEmployee = () => {
                 {...register("email")}
               />
             </div>
-            <div className="flex flex-col items-center w-full gap-2 my-2 md:flex-row">
+            <div className="flex flex-col items-center w-full gap-2 my-2 md:flex-row z-50 bottom-2 h-[20%]">
               <div className="md:w-[10%] w-full">
                 <CustomSelect
                   label="Country Code:"
