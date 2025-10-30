@@ -29,6 +29,7 @@ const GetFabricator = ({ fabricator }) => {
             <div className="space-y-6">
                 <div className="bg-gray-100 p-4 rounded-lg shadow-sm">
                     <h3 className="text-lg font-semibold mb-3">Fabricator Details</h3>
+                    <Button onClick={() => setShowEditModal(true)}>Edit Fabricator</Button>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {renderInfo("Website", fabricator?.website ? (
                             <a href={fabricator.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">

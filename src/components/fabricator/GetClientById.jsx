@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import Service from "../../config/Service";
 import { useEffect, useState } from "react";
+import Button from "../fields/Button";
 
 const GetClientById = ({ clientId, onClose }) => {
   const clientID = clientId || "";
@@ -16,6 +17,16 @@ const GetClientById = ({ clientId, onClose }) => {
       throw error;
     }
   };
+
+  const handleDeleteClient = async () => {
+    try {
+      await Service.deleteClient(clientID);
+      onClose();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+    }
+  };
+
   useEffect(() => {
     fetchClientById();
   }, [clientID]);
@@ -66,6 +77,9 @@ const GetClientById = ({ clientId, onClose }) => {
               </div>
             </div>
           </div>
+        </div>
+        <div>
+          <Button onClick={handleDeleteClient}>Delete Client</Button>
         </div>
       </div>
     </div>

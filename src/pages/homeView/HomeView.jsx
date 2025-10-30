@@ -1,34 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import {
-  ClientDashboard,
   SalesDashboard,
   WBTDashboard,
 } from "../../components";
+import getUserType from "../../util/getUserType.jsx";
+import { useSignals } from "@preact/signals-react/runtime";
+import { userData as userSignal } from "../../signals";
+import ClientDashboardLYT from "../../components/dashboardComponent/ClientDashboardLYT.jsx";
 
 const HomeView = () => {
-  const [userType, setUserType] = useState(() =>
-    sessionStorage.getItem("userType")
-  );
+  useSignals();
+  const user = useSelector((state) => state?.userData?.userData);
+  const [fallbackUserType, setFallbackUserType] = useState(() => sessionStorage.getItem("userType"));
 
+  // Keep a fallback from sessionStorage (for refresh), but prefer Redux/signal
   useEffect(() => {
-    // Immediately update userType when component mounts
-    setUserType(sessionStorage.getItem("userType"));
-
-    // Optional: Keep the focus event listener for real-time updates
-    const handleFocus = () => {
-      setUserType(sessionStorage.getItem("userType"));
-    };
-    window.addEventListener("focus", handleFocus);
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
+    setFallbackUserType(sessionStorage.getItem("userType"));
   }, []);
+
+  const resolvedUserType = useMemo(() => {
+    if (user && Object.keys(user || {}).length) return getUserType(user);
+    if (userSignal?.value && Object.keys(userSignal.value || {}).length) return getUserType(userSignal.value);
+    return fallbackUserType;
+  }, [user, userSignal.value, fallbackUserType]);
+
+  if (!resolvedUserType) {
+    // Render nothing or a lightweight placeholder until we know the userType
+    return <div className="w-full" />;
+  }
 
   return (
     <div className="w-full">
-      {userType === "client" && <ClientDashboard />}
-      {userType === "sales" && <SalesDashboard />}
-      {userType !== "client" && userType !== "sales" && <WBTDashboard />}
+      {resolvedUserType === "client" && <ClientDashboardLYT />}
+      {resolvedUserType === "sales" && <SalesDashboard />}
+      {resolvedUserType !== "client" && resolvedUserType !== "sales" && <WBTDashboard />}
     </div>
   );
 };

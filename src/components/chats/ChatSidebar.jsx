@@ -1,34 +1,38 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react"
-import AddGroupModal from "./AddGroupModal"
-import { MdGroupAdd } from "react-icons/md"
+import { useState } from "react";
+import AddGroupModal from "./AddGroupModal";
+import { MdGroupAdd } from "react-icons/md";
 import { TiUserAdd } from "react-icons/ti";
 import Button from "../fields/Button";
-const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, setUnreadChatIds }) => {
+const ChatSidebar = ({
+  activeChat,
+  recentChats,
+  setActiveChat,
+  unreadChatIds,
+  setUnreadChatIds,
+}) => {
   // const [activeChat, setActiveChat] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPrivateChatOpen, setIsPrivateChatOpen] = useState(false);
 
   const handleSelectChat = (chat) => {
     setActiveChat(chat);
-    setUnreadChatIds(prev => prev.filter(id => id !== chat.group.id));
+    setUnreadChatIds((prev) => prev.filter((id) => id !== chat.group.id));
   };
-
 
   const handleAddGroupView = () => {
     setIsModalOpen(true);
-  }
+  };
   const handleCloseModal = () => {
     setIsModalOpen(false);
-  }
+  };
 
   const handlePrivateChat = () => {
-    setIsPrivateChatOpen(true)
-  }
+    setIsPrivateChatOpen(true);
+  };
   const handleClosePrivateChat = () => {
-    setIsPrivateChatOpen(false)
-  }
-
+    setIsPrivateChatOpen(false);
+  };
 
   return (
     <div className="flex flex-col justify-between h-full bg-white shadow-lg rounded-lg overflow-hidden">
@@ -66,23 +70,34 @@ const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, se
           {recentChats?.map((chats) => (
             <div
               key={chats.id}
-              className={`flex items-center p-3 border-b border-t rounded-xl border-teal-500 cursor-pointer hover:bg-teal-100 ${activeChat?.group?.id === chats?.group?.id ? "bg-teal-100" : ""}`}
-              onClick={() => handleSelectChat(chats)}  // <-- updated to use the handler
+              className={`flex items-center p-3 border-b border-t rounded-xl border-teal-500 cursor-pointer hover:bg-teal-100 ${
+                activeChat?.group?.id === chats?.group?.id ? "bg-teal-100" : ""
+              }`}
+              onClick={() => handleSelectChat(chats)} // <-- updated to use the handler
             >
               <div className="ml-3 flex-1">
                 <div className="flex justify-between items-center">
                   <h3 className="font-medium">{chats?.group?.name}</h3>
                   <span className="text-xs text-gray-800">
-                    {chats.updatedAt ? new Date(chats.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                    {chats.updatedAt
+                      ? new Date(chats.updatedAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : ""}
                   </span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-sm text-gray-700 truncate w-40">{chats.lastMessage}</p>
-                  {(unreadChatIds.includes(chats.group.id) || chats.unread > 0) && activeChat?.group?.id !== chats.group.id && (
-                    <span className="bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      ●
-                    </span>
-                  )}
+                  <p className="text-sm text-gray-700 truncate w-40">
+                    {chats.lastMessage}
+                  </p>
+                  {(unreadChatIds.includes(chats.group.id) ||
+                    chats.unread > 0) &&
+                    activeChat?.group?.id !== chats.group.id && (
+                      <span className="bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        ●
+                      </span>
+                    )}
                 </div>
               </div>
             </div>
@@ -91,31 +106,19 @@ const ChatSidebar = ({ activeChat, recentChats, setActiveChat, unreadChatIds, se
       </div>
       {/* Add group button */}
       <div className="p-4 sticky flex bottom-0 justify-between border-t border-gray-200 bg-white items-center">
-
-
         <Button variant="outline" size="xs" onClick={handlePrivateChat}>
           <TiUserAdd />
-
         </Button>
         <Button variant="outline" size="sm" onClick={handleAddGroupView}>
           <MdGroupAdd />
         </Button>
       </div>
       {/* Modal for adding group */}
-      {isModalOpen && (
-        <AddGroupModal
-          onClose={handleCloseModal}
-        />
-      )}
+      {isModalOpen && <AddGroupModal onClose={handleCloseModal} />}
 
-
-      {isPrivateChatOpen && (
-        <AddGroupModal
-          onClose={handleClosePrivateChat}
-        />
-      )}
+      {isPrivateChatOpen && <AddGroupModal onClose={handleClosePrivateChat} />}
     </div>
-  )
-}
+  );
+};
 
-export default ChatSidebar
+export default ChatSidebar;

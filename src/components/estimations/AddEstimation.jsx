@@ -9,6 +9,7 @@ import ErrorMsg from "../../util/ErrorMsg";
 import { Button, CustomSelect, MultipleFileUpload } from "..";
 import toast from "react-hot-toast";
 import JoditEditor from "jodit-react";
+import { estimationsSignal } from "../../signals";
 
 const AddEstimation = () => {
   const {
@@ -106,6 +107,9 @@ const AddEstimation = () => {
     };
     try {
       const response = await Service.addEstimation(estData);
+      const created = response?.data || null;
+      // Update the list signal so tables re-render without refresh
+      estimationsSignal.value = [created || estData, ...(estimationsSignal.value || [])];
       toast.success("Estimation added successfully!");
     } catch (error) {
       console.error("Error adding estimation:", error);

@@ -13,7 +13,7 @@ const RFQ = () => {
       <div className="flex flex-col w-full h-full">
         <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
           <h1 className="text-2xl py-2 font-bold text-white">
-            Projects Detail
+            RFQ Detail
           </h1>
           <div className="flex space-x-4 overflow-x-auto">
             <button

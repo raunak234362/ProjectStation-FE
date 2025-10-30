@@ -3,22 +3,29 @@ import { useEffect, useState, useCallback } from "react";
 import SendCO from "./SendCO";
 import Service from "../../config/Service";
 import ListOfCO from "./ListOfCO";
+import { useSignals } from "@preact/signals-react/runtime";
+import { coList, coLoading, coError, setCOs } from "../../signals";
 
 const CO = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState("allCO");
   const userType = sessionStorage.getItem("userType");
-  const [coData, setCoData] = useState([]);
+  useSignals();
   const projectID = projectData.id;
 
   // Fetch CO data from backend
   const fetchCO = useCallback(async () => {
     try {
+      coLoading.value = true;
       const response = await Service.getListOfAllCOByProjectId(projectID);
-      setCoData(response.data);
-
+      setCOs(response.data);
+      coError.value = null;
       console.log("Fetched CO Data:", response.data);
     } catch (error) {
       console.error("Error fetching CO data:", error);
+      setCOs([]);
+      coError.value = "Failed to fetch CO";
+    } finally {
+      coLoading.value = false;
     }
   }, [projectID]);
 
@@ -31,7 +38,7 @@ const CO = ({ projectData }) => {
       <div className="flex flex-col w-full h-full">
         <div className="px-3 flex flex-col justify-between items-start border-b rounded-md ">
           <div className="flex space-x-4 overflow-x-auto">
-            {userType === "client" ? null : (
+            {userType === "client" || userType === "staff" ? null : (
               <button
                 onClick={() => setActiveTab("sendCO")}
                 className={`py-3 px-1 border-b-2 font-medium text-sm ${
@@ -62,13 +69,12 @@ const CO = ({ projectData }) => {
             </div>
           )}
           {activeTab === "allCO" && (
-            // Adding key forces remount on data length change which ensures re-render
-            <div key={coData.length}>
+            <div key={(coList.value || []).length}>
               <ListOfCO
                 coData={
                   userType === "client"
-                    ? coData.filter((co) => co.isAproovedByAdmin === true)
-                    : coData
+                    ? (coList.value || []).filter((co) => co.isAproovedByAdmin === true)
+                    : (coList.value || [])
                 }
                 fetchCO={fetchCO}
               />

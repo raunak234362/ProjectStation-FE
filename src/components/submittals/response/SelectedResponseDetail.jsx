@@ -2,7 +2,7 @@
 const SelectedResponseDetail = ({ responseDetail }) => {
   console.log("SelectedResponseDetail component rendered with responseDetail:", responseDetail);
   return (
-    <div className="bg-gray-100 rounded-md p-4">
+    <div className="bg-gray-100 rounded-md p-4 h-fit">
       <h3 className="text-lg font-semibold">Description</h3>
       <p className=" text-gray-600">
         {responseDetail?.description || "No description available."}
@@ -13,7 +13,7 @@ const SelectedResponseDetail = ({ responseDetail }) => {
           responseDetail.files.map((file) => (
             <a
               key={file.id}
-              href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfqResponse/${
+              href={`${import.meta.env.VITE_BASE_URL}/api/Submittals/submittalsResponse/${
                 responseDetail.id
               }/${file.id}`}
               target="_blank"
@@ -29,13 +29,9 @@ const SelectedResponseDetail = ({ responseDetail }) => {
       </ul>
       <h4 className="text-md font-semibold">Status</h4>
       <p className=" text-gray-600">
-        {responseDetail?.wbtStatus || "No status available."}
+        {responseDetail?.status || "No status available."}
       </p>
-      <h4 className="text-md font-semibold">Received At</h4>
-      <p className=" text-gray-600">
-        {responseDetail?.createdAt || "No creation date available."}
-      </p>
-    
+          
     </div>
   );
 };

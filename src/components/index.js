@@ -8,7 +8,7 @@ import SalesDashboard from "./dashboardComponent/SalesDashboard.jsx";
 import MainContent from "./dashboard/main/MainContent";
 import ChangePassword from "./dashboard/main/ChangePassword";
 import Sidebar from "./sidebar/Sidebar.jsx";
-import Header from "./dashboard/header/Header";
+import Header from "./header/Header.jsx";
 
 //Project
 import AddProject from "./project/AddProject.jsx";

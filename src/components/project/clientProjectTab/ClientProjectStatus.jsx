@@ -8,13 +8,27 @@ import ClientProjectDetail from "./ClientProjectDetail";
 import RFI from "../../rfi/RFI";
 import Submittals from "../../submittals/Submittals";
 import CO from "../../changeOrder/CO";
+import RenderFiles from "../RenderFiles";
+import AddFiles from "../projectTab/AddFiles";
 
 const ClientProjectStatus = ({ projectId, onClose }) => {
   const [projectData, setProjectData] = useState(null);
   const [activeTab, setActiveTab] = useState("projectDetail");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [isAddFilesModalOpen, setIsAddFilesModalOpen] = useState(false);
+  const handleAddFilesClose = () => setIsAddFilesModalOpen(false);
   const id = projectId;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not available";
+    const date = new Date(dateString);
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const yyyy = date.getFullYear();
+    return `${mm}-${dd}-${yyyy}`;
+  };
 
   const fetchProjectByID = async () => {
     setLoading(true);
@@ -29,16 +43,24 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
       setLoading(false);
     }
   };
+  const fetchFilesByProjectId = async () => {
+    const response = await Service.getFilesByProjectId(projectId);
+    console.log("Fetched Files:", response.data);
+    setFiles(response.data);
+  };
+
+  const handleAddFilesClick = () => setIsAddFilesModalOpen(true);
 
   console.log("Project Data:", projectData);
   useEffect(() => {
     if (projectId) {
       fetchProjectByID(projectId);
+      fetchFilesByProjectId(projectId);
     }
   }, [projectId]);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
+      <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-11/12">
         <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
           {" "}
           <div className="text-lg text-white">
@@ -57,6 +79,7 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
           <div className="flex overflow-x-auto">
             {[
               { key: "projectDetail", label: "Project Details" },
+              { key: "DesignDrawings", label: "Project Document" },
               // { key: "overview", label: "Overview" },
               { key: "RFI", label: "RFI" },
               { key: "Submittals", label: "Submittals" },
@@ -79,15 +102,25 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
         {activeTab === "projectDetail" && (
           <ClientProjectDetail projectData={projectData} />
         )}
-        {activeTab === "RFI" && (
-          <RFI projectData={projectData} />
+        {activeTab === "RFI" && <RFI projectData={projectData} />}
+        {activeTab === "Submittals" && <Submittals projectData={projectData} />}
+        {activeTab === "DesignDrawings" && (
+          <RenderFiles
+            files={files}
+            onAddFilesClick={handleAddFilesClick}
+            formatDate={formatDate}
+          />
         )}
-        {activeTab === "Submittals" && (
-          <Submittals projectData={projectData} />
-        )}
-        {activeTab === "CO" && (
-          <CO projectData={projectData} />
-        )}
+        {activeTab === "CO" && <CO projectData={projectData} />}
+        {isAddFilesModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <AddFiles
+            projectId={projectId}
+            onUpdate={fetchProjectByID}
+            onClose={handleAddFilesClose}
+          />
+        </div>
+      )}
       </div>
     </div>
   );

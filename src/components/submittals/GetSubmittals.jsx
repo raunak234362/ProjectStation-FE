@@ -5,13 +5,14 @@ import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import { X } from "lucide-react";
-import RFIDetail from "./SubmittalDetail";
+import SubmittalDetail from "./SubmittalDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 import ResponseSubmittals from "./response/SubmittalsResponse";
 
-const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
-  const baseURL = import.meta.env.VITE_BASE_URL;
+// ---------------- FileLinks ----------------
+const FileLinks = ({ files, submittalId, isResponse = false, responseId }) => {
+  const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/$/, "");
 
   if (!Array.isArray(files) || files.length === 0) {
     return <span className="text-sm text-gray-500">Not available</span>;
@@ -19,8 +20,8 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
 
   return files.map((file, index) => {
     const fileUrl = isResponse
-      ? `${baseURL}/api/RFI/rfi/response/viewfile/${responseId}/${file.id}`
-      : `${baseURL}/api/RFI/rfi/viewfile/${rfiId}/${file.id}`;
+      ? `${baseURL}/api/Submittals/submittals/${responseId}/${file.id}`
+      : `${baseURL}/api/Submittals/submittals/${submittalId}/${file.id}`;
 
     return (
       <a
@@ -36,21 +37,20 @@ const FileLinks = ({ files, rfiId, isResponse = false, responseId = null }) => {
   });
 };
 
+// ---------------- GetSubmittals ----------------
 const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
-  console.log("Fetched Submittals ID-------:", submittalId);
-  const submittalID = submittalId;
   const [submittal, setSubmittal] = useState(null);
   const [submittalResponse, setSubmittalResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showResponseForm, setShowResponseForm] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
+  // ---- Fetch submittal details ----
   const fetchSubmittals = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await Service.getSentSubmittals(submittalID);
-      // setSubmittal(response);
-      console.log("Fetched Submittals:", response);
+      const response = await Service.getSentSubmittals(submittalId);
       setSubmittal((prev) => {
         const newData = response;
         if (JSON.stringify(prev) !== JSON.stringify(newData)) {
@@ -59,15 +59,14 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         return prev;
       });
     } catch (error) {
-      toast.error("Failed to fetch RFI");
-      console.error("Error fetching RFI:", error);
+      toast.error("Failed to fetch Submittal");
+      console.error("Error fetching Submittal:", error);
     } finally {
       setLoading(false);
     }
   }, [submittalId]);
 
-  console.log("GetSubmittals component rendered with submittalId:", submittal);
-
+  // ---- Fetch responses for this submittal ----
   const fetchSubmittalResponses = useCallback(async () => {
     try {
       const response = await Service.fetchRFIResponseById(submittalId);
@@ -79,20 +78,12 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         return prev;
       });
     } catch (error) {
-      toast.error("Failed to fetch RFI responses");
-      console.error("Error fetching RFI responses:", error);
+      toast.error("Failed to fetch Submittal responses");
+      console.error("Error fetching responses:", error);
     }
   }, [submittalId]);
 
-  const handleViewModalOpen = useCallback((rfiResponseData) => {
-    console.log("Opening modal for response ID:", rfiResponseData);
-    setSelectedResponseId(rfiResponseData);
-  }, []);
-
-  const handleViewModalClose = useCallback(() => {
-    setSelectedResponseId(null);
-  }, []);
-
+  // ---- Table columns ----
   const columns = useMemo(
     () => [
       {
@@ -108,11 +99,10 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
       },
       {
         Header: "Status",
-        accessor: (row) => {
-          return userType === "client"
-            ? row.responseState
-            : row.wbtStatus || "N/A";
-        },
+        accessor: (row) =>
+          userType === "client"
+            ? row.status || "N/A"
+            : row.wbtStatus || "N/A",
         id: "status",
       },
       {
@@ -120,9 +110,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         accessor: "id",
         Cell: ({ row }) => (
           <Button
-            onClick={() => {
-              handleViewModalOpen(row.original);
-            }}
+            onClick={() => setSelectedResponseId(row.original)}
             className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-1 px-2 rounded"
           >
             View
@@ -131,34 +119,32 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         disableSortBy: true,
       },
     ],
-    [userType, handleViewModalOpen]
+    [userType]
   );
 
-  console.log("Submittal Responses:", submittal);
-
+  // ---- Table data ----
   const tableData = useMemo(() => {
     if (Array.isArray(submittal?.submittalsResponse)) {
       return submittal.submittalsResponse;
     }
-    console.warn(
-      "❗ Expected array for submittalsResponse, got:",
-      submittal?.submittalsResponse
-    );
     return [];
   }, [submittal?.submittalsResponse]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data: tableData }, useSortBy);
 
+  // ---- Fetch data when modal opens ----
   useEffect(() => {
     if (isOpen && submittalId) {
       fetchSubmittals();
       fetchSubmittalResponses();
     }
   }, [submittalId, isOpen, fetchSubmittals, fetchSubmittalResponses]);
+  const toggleResponseForm = () => {
+    setShowResponseForm((prev) => !prev);
+  };
   if (!isOpen) return null;
 
-  console.log("Submittal Responses:", submittal);
   if (loading || !submittal) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -171,10 +157,12 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
     );
   }
 
+  // ---- Main UI ----
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[90%] w-11/12 max-w-5xl rounded-lg shadow-lg overflow-hidden">
-        <div className="sticky top-0 z-10 flex justify-between items-center p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
+      <div className="bg-white h-[90%] w-10/12  rounded-lg shadow-lg overflow-hidden">
+        {/* Header */}
+        <div className="sticky top-2 z-10 flex justify-between items-center p-2 mx-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
             <span className="font-bold">Subject:</span>{" "}
             {submittal?.subject || "N/A"}
@@ -188,28 +176,43 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
           </button>
         </div>
 
+        {/* Body */}
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
-          <div
-            className={`grid gap-4 ${
-              userType === "client"
-                ? "grid-cols-1 md:grid-cols-2"
-                : "grid-cols-1"
-            }`}
-          >
-            <RFIDetail
+          {/* Submittal Detail + Client Response Form */}
+          <div className={`grid gap-4 `}>
+            <SubmittalDetail
               submittal={submittal}
               FileLinks={FileLinks}
-              submittalId={submittalID}
+              submittalId={submittalId}
             />
             {userType === "client" && (
-              <ResponseSubmittals
-                submittalResponse={submittalResponse}
-                submittal={submittal}
-                onClose={onClose}
-              />
+              <div className="flex flex-col gap-4">
+                <Button
+                  onClick={toggleResponseForm}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
+                    showResponseForm
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-teal-600 hover:bg-teal-700"
+                  }`}
+                >
+                  {showResponseForm ? "Close Response Form" : "Add Response"}
+                </Button>
+
+                {showResponseForm && (
+                  <div className="border border-gray-200 rounded-lg p-3 shadow-inner bg-gray-50">
+                    <ResponseSubmittals
+                      submittalResponse={submittalResponse}
+                      submittal={submittal}
+                      onClose={onClose}
+                    />
+                  </div>
+                )}
+              </div>
             )}
+           
           </div>
 
+          {/* Responses Table */}
           <section>
             <h3 className="px-3 py-2 mt-3 font-bold text-white bg-teal-400 rounded-lg shadow-md md:text-2xl">
               Submittals Responses
@@ -285,9 +288,11 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
           </section>
         </div>
       </div>
+
+      {/* Response Modal */}
       {selectedResponseId && (
         <ResponseFromClient
-          handleViewModalClose={handleViewModalClose}
+          handleViewModalClose={() => setSelectedResponseId(null)}
           responseData={selectedResponseId}
         />
       )}

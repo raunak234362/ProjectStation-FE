@@ -202,7 +202,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 name="status"
                 options={[
                   { label: "ACTIVE", value: "ACTIVE" },
-                  { label: "ON-HOLD", value: "ON-HOLD" },
+                  { label: "ON-HOLD", value: "ONHOLD" },
                   { label: "INACTIVE", value: "INACTIVE" },
                   { label: "DELAY", value: "DELAY" },
                   { label: "REOPEN", value: "REOPEN" },
@@ -260,7 +260,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
             </div>
           </form>
         </div>
-        <AddFiles onUpdate={onUpdate} projectId={project?.id} />
+        {/* <AddFiles onUpdate={onUpdate} projectId={project?.id} /> */}
       </div>
     </div>
   );

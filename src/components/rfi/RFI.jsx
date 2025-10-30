@@ -12,7 +12,7 @@ const RFI = ({ projectData }) => {
       <div className="flex flex-col w-full h-full">
         <div className="px-3 flex flex-col justify-between items-start border-b rounded-md ">
           <div className="flex space-x-4 overflow-x-auto">
-            {userType === "client" ? null : (
+            {userType === "client" || userType === "staff" ? null : (
               <button
                 onClick={() => setActiveTab("addRFI")}
                 className={`py-3 px-1 border-b-2 font-medium text-sm ${

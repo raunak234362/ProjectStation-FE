@@ -3,21 +3,22 @@ import { AllEstimations } from "../../components";
 import Estimations from "../../components/estimations/Estimations";
 import AddEstimation from "../../components/estimations/AddEstimation";
 import Service from "../../config/Service";
+import { estimationsSignal } from "../../signals";
 
 const EstimationView = () => {
-  const [activeTab, setActiveTab] = useState("Estimations");
-  const [estimationData, setEstimationData] = useState(null);
-//   const userType = sessionStorage.getItem("userType");
+  const [activeTab, setActiveTab] = useState("allEstimation");
+  // The list is stored in estimationsSignal for real-time updates
+  const userType = sessionStorage.getItem("userType");
   const fetchEstimationData = async () => {
     try {
       const response = await Service.allEstimations();
-      setEstimationData(response.data);
+      estimationsSignal.value = response?.data || [];
     } catch (error) {
       console.error("Error fetching estimation data:", error);
     }
   };
 
-  console.log("Estimation Data:", estimationData);
+  console.log("Estimation Data:", estimationsSignal.value);
   useEffect(() => {
     fetchEstimationData();
   }, []);
@@ -30,7 +31,7 @@ const EstimationView = () => {
             Estimation Dashboard
           </h1>
           <div className="flex space-x-2 overflow-x-auto">
-            <button
+            {/* <button
               onClick={() => setActiveTab("Estimations")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
                 activeTab === "Estimations"
@@ -39,17 +40,19 @@ const EstimationView = () => {
               }`}
             >
               Estimations
-            </button>
-            <button
-              onClick={() => setActiveTab("addEstimation")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "addEstimation"
-                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                  : "md:text-base text-sm bg-white"
-              }`}
-            >
-              Add Estimation
-            </button>
+            </button> */}
+            {userType === "estimator-head" ? null : (
+              <button
+                onClick={() => setActiveTab("addEstimation")}
+                className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
+                  activeTab === "addEstimation"
+                    ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                    : "md:text-base text-sm bg-white"
+                }`}
+              >
+                Add Estimation
+              </button>
+            )}
             <button
               onClick={() => setActiveTab("allEstimation")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
@@ -75,7 +78,7 @@ const EstimationView = () => {
           )}
           {activeTab === "allEstimation" && (
             <div>
-              <AllEstimations estimationData={estimationData} />
+              <AllEstimations />
             </div>
           )}
         </div>

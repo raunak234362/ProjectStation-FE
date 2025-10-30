@@ -14,7 +14,7 @@ const AddGroupModal = ({ onClose }) => {
     const [loading, setLoading] = useState(false);
     const [memberOptions, setMemberOptions] = useState([]);
 
-    const staffData = useSelector((state) => state?.userData?.staffData);
+    const staffData = useSelector((state) => state?.userData?.staffData) || [];
 
     const {
         register,
@@ -25,6 +25,7 @@ const AddGroupModal = ({ onClose }) => {
         getValues,
         formState: { errors },
     } = useForm();
+
 
     useEffect(() => {
         const options = staffData
@@ -86,6 +87,7 @@ const AddGroupModal = ({ onClose }) => {
                     </Button>
                 </div>
 
+
                 {step === 1 && (
                     <form onSubmit={handleSubmit(handleGroupCreate)}>
                         <div>
@@ -131,6 +133,7 @@ const AddGroupModal = ({ onClose }) => {
                         </Button>
                     </form>
                 )}
+
 
             </div>
         </div>

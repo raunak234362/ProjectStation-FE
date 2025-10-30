@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 // src/util/NotificationReceiver.jsx
 import { useEffect } from "react";
-import toast from "react-hot-toast";
 import socket from "../socket";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const NotificationReceiver = () => {
   const staffData = useSelector((state) => state?.userData?.staffData);
@@ -49,7 +49,7 @@ const NotificationReceiver = () => {
       const message = msg?.content || "New group message.";
 
       showBrowserNotification(title, message);
-      toast.info(message, { position: "top-right" });
+      toast.toString(message, { position: "top-right" });
       // update your group chat UI
     });
 

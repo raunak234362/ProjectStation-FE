@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import SendCoTable from "./SendCoTable";
+import { prependCO } from "../../signals";
 
 const SendCO = ({ projectData, fetchCO }) => {
   // Step 1 form
@@ -75,6 +76,11 @@ const SendCO = ({ projectData, fetchCO }) => {
       const response = await Service.addCO(coData);
       console.log("CO created successfully:", response);
       toast.success("CO created successfully");
+      // Optimistically update the CO list
+      const created = response?.data?.data || response?.data || null;
+      if (created) {
+        prependCO(created);
+      }
       // Move to step 2
       setDataCO(response.data);
       setStep(2);
@@ -169,6 +175,20 @@ const SendCO = ({ projectData, fetchCO }) => {
                     size="lg"
                     color="blue"
                     {...register("description")}
+                  />
+                </div>
+                <div className="my-2">
+                  <CustomSelect
+                    label="Stage"
+                    name="stage"
+                    options={[
+                      { label: "RFI", value: "RFI" },
+                      { label: "IFA", value: "IFA" },
+                      { label: "IFC", value: "IFC" },
+                    ]}
+                    defaultValue={project?.projectStatus}
+                    {...register("stage")}
+                    onChange={setValue}
                   />
                 </div>
               </div>

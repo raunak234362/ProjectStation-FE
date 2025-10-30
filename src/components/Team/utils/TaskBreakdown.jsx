@@ -7,7 +7,25 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
   const toggleExpand = (index) => {
     setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
-
+  const formatDurationToHoursMinutes = (duration) => {
+    if (!duration) return "00 hrs 00 mins";
+  
+    const [hours, minutes] = duration.split(":").map(Number);
+    const formattedHours = hours.toString().padStart(2, "0");
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+  
+    return `${formattedHours} hrs ${formattedMinutes} mins`;
+  };
+  
+  const formatToHoursMinutes = (val) => {
+    if (!val && val !== 0) return "00 hrs 00 mins";
+    const hrs = Math.floor(val);
+    const mins = Math.round((val - hrs) * 60);
+    return `${hrs.toString().padStart(2, "0")} hrs ${mins
+      .toString()
+      .padStart(2, "0")} mins`;
+  };
+  
   // Sort tasks by created_on date in descending order (newest first)
   const sortedTasks = [...tasks].sort((a, b) => {
     return new Date(b.created_on) - new Date(a.created_on);
@@ -56,6 +74,8 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                             ? "bg-green-100 text-green-800"
                             : task.status === "IN_PROGRESS"
                             ? "bg-blue-100 text-blue-800"
+                            : task.status === "ASSIGNED"
+                            ? "bg-orange-100 text-orange-800"
                             : task.status === "IN_REVIEW"
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-gray-100 text-gray-800"
@@ -65,12 +85,7 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                       </span>
                       <span className="text-xs text-gray-500 mt-1">
                         Total Assigned Hours:{" "}
-                        {task.duration
-                          ? (
-                              parseDurationToMinutes(task.duration) / 60
-                            ).toFixed(2)
-                          : 0}{" "}
-                        hrs
+                        {formatDurationToHoursMinutes(task.duration)}
                       </span>
                       {(() => {
                         const assignedMinutes = task.duration
@@ -92,7 +107,7 @@ const TasksBreakdown = ({ tasks, parseDurationToMinutes }) => {
                               isOverLimit ? "text-red-600" : "text-gray-500"
                             }`}
                           >   
-                            Total Working Hours: {workingHours} hrs
+                            Total Working Hours: {formatToHoursMinutes(workingHours)}
                           </span>
                         );
                       })()}

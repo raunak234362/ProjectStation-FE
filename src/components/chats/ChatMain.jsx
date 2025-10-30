@@ -1,14 +1,16 @@
-/* eslint-disable react/prop-types */
+
 /* eslint-disable no-unused-vars */
+/* eslint-disable react/prop-types */
 import { Smile, Paperclip, Mic, Send } from "lucide-react"
 import ChatHead from "./ChatHead"
 import { useForm } from "react-hook-form"
 import { useSelector } from "react-redux"
 import { useEffect, useState, useRef } from "react"
-import socket from "../../socket"
-import Service from "../../config/Service"
-import ChatBG from "../../assets/CHATBG.webp"
 import Button from "../fields/Button"
+import Input from "../fields/Input"
+import socket from "../../socket"
+import ChatBG from "../../assets/CHATBG.webp"
+import Service from "../../config/Service"
 
 const ChatMain = ({ activeChat, setActiveChat }) => {
   const [recentChats, setRecentChats] = useState([])
@@ -74,7 +76,7 @@ const ChatMain = ({ activeChat, setActiveChat }) => {
         currentLine = []
       }
     })
-    if (currentLine.length) lines.push(currentLine.join(" "))
+    if (currentLine?.length) lines?.push(currentLine?.join(" "))
 
     return lines.map((line, idx) => {
       if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
@@ -192,7 +194,6 @@ const ChatMain = ({ activeChat, setActiveChat }) => {
     // IMPORTANT: Do NOT scroll on pagination
   }, [currentConversation?.messages, isFirstLoad, isLiveMessage]);
 
-
   useEffect(() => {
     const container = scrollContainerRef.current
     if (!container) return
@@ -295,7 +296,7 @@ const ChatMain = ({ activeChat, setActiveChat }) => {
             placeholder="Type a message (Shift + Enter for newline)"
             className="flex-1 resize-none border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring"
           />
-          <Button size="icon" onClick={handleMessage} className="bg-teal-500 text-white hover:bg-teal-600 rounded-full p-2">
+          <Button size="icon" onClick={handleMessage} >
             <Send size={24} />
           </Button>
         </form>

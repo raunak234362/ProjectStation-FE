@@ -5,9 +5,11 @@ import EditCoDetail from "./EditCoDetail";
 import { openCoListTableInNewTab } from "../../../util/coTableUtils";
 
 const InfoItem = ({ label, value }) => (
-  <div className="flex flex-col">
-    <span className="font-medium text-gray-700">{label}:</span>
-    <span className="text-gray-600">{value || "Not available"}</span>
+  <div className="flex flex-col w-full">
+    <span className="text-sm font-semibold text-gray-500 uppercase">
+      {label}
+    </span>
+    <span className="mt-1 text-gray-700">{value || "Not available"}</span>
   </div>
 );
 
@@ -21,69 +23,120 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
 
   const handleCloseEdit = useCallback(() => {
     setEditTab(false);
-    fetchCO(); // Refresh details after closing edit form
+    fetchCO(); // Refresh details after editing
   }, [fetchCO]);
 
+  const statusClass =
+    selectedCO?.status?.toLowerCase() === "approved"
+      ? "bg-green-100 text-green-700"
+      : selectedCO?.status?.toLowerCase() === "pending"
+      ? "bg-yellow-100 text-yellow-700"
+      : "bg-gray-100 text-gray-700";
+
   return (
-    <div className="w-full bg-white p-4 rounded-lg shadow-md">
-      <div className="sticky top-0 z-10 flex flex-row items-center justify-between p-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-md">
-        <h3 className="text-lg font-semibold text-white">
-          Change Order Request Details
-        </h3>
-        {userType !== "client" && <Button onClick={handleEdit}>Edit</Button>}
+    <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+      {/* Header */}
+      <div className="z-10 flex items-center justify-between p-4 bg-gradient-to-r from-teal-500 via-teal-400 to-teal-200 rounded-xl shadow-md mb-6">
+        <div className="flex flex-row items-center gap-5">
+          <div className="text-xl font-bold text-white tracking-wide">
+            Change Order Request
+          </div>
+          <div className="text-sm text-white/90">
+            {selectedCO?.sentOn
+              ? new Date(selectedCO.sentOn).toLocaleString()
+              : "N/A"}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span
+            className={`px-4 py-1 rounded-full text-sm font-semibold capitalize ${statusClass}`}
+          >
+            {selectedCO?.status || "N/A"}
+          </span>
+          {userType !== "client" && (
+            <Button
+              onClick={handleEdit}
+              className="bg-white text-teal-600 hover:bg-gray-100 font-semibold px-4 py-2 rounded-lg shadow-sm"
+            >
+              Edit
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-3">
+
+      {/* Content Grid */}
+      <div className="grid gap-6 md:grid-cols-2">
         <InfoItem label="Subject" value={selectedCO?.remarks} />
-        <InfoItem label="Description" value={selectedCO?.description} />
-        <InfoItem label="Change Order No." value={selectedCO?.changeOrder} />
         <InfoItem
           label="Point of Contact"
-          value={`${selectedCO?.Recipients?.f_name} ${selectedCO?.Recipients?.l_name}`}
+          value={
+            selectedCO?.Recipients
+              ? `${selectedCO?.Recipients?.f_name} ${selectedCO?.Recipients?.l_name}`
+              : "Not available"
+          }
         />
-        <InfoItem label="Sent Date" value={selectedCO?.sentOn} />
-        <InfoItem label="Status" value={selectedCO?.status} />
+      
         <InfoItem
           label="Approved"
           value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"}
         />
-        <div className="flex justify-between">
-          <span className="font-medium text-sm text-gray-700">Files:</span>
-          <div className="flex flex-wrap justify-end gap-2 max-w-[60%]">
+
+        {/* Description Section */}
+        <div className="flex flex-col gap-2 md:col-span-2">
+          <span className="text-sm font-semibold text-gray-500 uppercase">
+            Description:
+          </span>
+          <div
+            className="text-gray-700 text-sm md:text-base leading-relaxed p-3 bg-gray-50 rounded-lg border border-gray-200"
+            dangerouslySetInnerHTML={{
+              __html: selectedCO?.description || "N/A",
+            }}
+          />
+        </div>
+
+        {/* Files Section */}
+        <div className="flex flex-col gap-2 md:col-span-2">
+          <span className="text-sm font-semibold text-gray-500 uppercase">
+            Files:
+          </span>
+          <div className="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
             {selectedCO?.files?.length ? (
               selectedCO.files.map((file) => (
-                <ul key={file.id}>
-                  <a
-                    href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
-                      selectedCO.id
-                    }/${file.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 underline hover:text-blue-800"
-                  >
-                    {file.originalName || "Unnamed File"}
-                  </a>
-                </ul>
+                <a
+                  key={file.id}
+                  href={`${import.meta.env.VITE_BASE_URL}/api/co/viewfile/${
+                    selectedCO.id
+                  }/${file.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-teal-600 underline hover:text-teal-800"
+                >
+                  {file.originalName || "Unnamed File"}
+                </a>
               ))
             ) : (
               <span className="text-gray-400 text-sm">No files attached</span>
             )}
           </div>
         </div>
-        <div>
+
+        {/* CO Reference Link */}
+        <div className="md:col-span-2">
           <button
             onClick={() => openCoListTableInNewTab(selectedCO)}
-            className="text-teal-500 hover:underline text-lg"
+            className="text-teal-500 hover:underline text-sm font-semibold"
           >
-            Click to view Change Order Reference List
+            View Change Order Reference List
           </button>
         </div>
       </div>
 
+      {/* Edit Modal */}
       {userType !== "client" && editTab && (
         <EditCoDetail
           selectedCO={selectedCO}
           fetchCO={fetchCO}
-          onClose={handleCloseEdit} // On close, refetch selectedCO to update display
+          onClose={handleCloseEdit}
         />
       )}
     </div>

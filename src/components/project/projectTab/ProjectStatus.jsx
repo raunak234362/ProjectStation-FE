@@ -11,10 +11,12 @@ import { RFI, Submittals } from "../../index";
 import Service from "../../../config/Service";
 import CO from "../../changeOrder/CO";
 import Notes from "../../notes/Notes";
+import Milestone from "../../milestone/Milestone";
 
 const ProjectStatus = ({ projectId, onClose }) => {
   const [activeTab, setActiveTab] = useState("projectDetail");
   const [projectData, setProjectData] = useState(null);
+  const [files, setFiles] = useState([]);
   const [filteredData, setFilteredData] = useState(null);
   const [sortBy, setSortBy] = useState("stage_date");
   const [dateFilter, setDateFilter] = useState({
@@ -66,13 +68,13 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const filteredTaskData = useMemo(() => {
     if (userType === "department-manager") {
       return taskData
-      .filter((task) => task?.id === projectId) // <-- actual condition
-      .flatMap((task) =>
-        (task.tasks || []).map((subTask) => ({
-          ...subTask,
-          projectId,
-        }))
-      );
+        .filter((task) => task?.id === projectId) // <-- actual condition
+        .flatMap((task) =>
+          (task.tasks || []).map((subTask) => ({
+            ...subTask,
+            projectId,
+          }))
+        );
     }
     return taskData;
   }, [taskData, userType, projectId]);
@@ -304,7 +306,8 @@ const ProjectStatus = ({ projectId, onClose }) => {
           }
 
           return true;
-        } catch (error) {useEffect
+        } catch (error) {
+          useEffect;
           console.error("Error in date filtering:", error, { dateFilter });
           return true;
         }
@@ -434,6 +437,18 @@ const ProjectStatus = ({ projectId, onClose }) => {
     BREAK: "#EF4444",
   };
 
+  const fetchFilesByProjectId = async () => {
+    const response = await Service.getFilesByProjectId(projectId);
+    console.log("Fetched Files:", response.data);
+    setFiles(response.data);
+  };
+
+  useEffect(() => {
+    if (projectId) {
+      fetchFilesByProjectId(projectId);
+    }
+  }, [projectId]);
+
   // Handle type expansion for TimeLine
   const toggleTypeExpansion = useCallback((type) => {
     setExpandedTypes((prev) => ({
@@ -484,8 +499,9 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 {[
                   { key: "projectDetail", label: "Project Details" },
                   { key: "overview", label: "Overview" },
-                  { key: "timeline", label: "Timeline" },
+                  // { key: "timeline", label: "Timeline" },
                   { key: "team", label: "Team" },
+                  { key: "milestone", label: "Milestones" },
                   { key: "RFI", label: "RFI" },
                   { key: "Submittals", label: "Submittals" },
                   { key: "CO", label: "CO#" },
@@ -510,6 +526,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
               <GetProject
                 projectId={projectId}
                 onClose={onClose}
+                files={files}
                 projectData={projectData}
                 fetchProjectByID={fetchProjectByID}
               />
@@ -548,12 +565,22 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 statusColors={statusColors}
               />
             )}
+            {activeTab === "milestone" && (
+              <Milestone
+                projectId={projectId}
+                onClose={onClose}
+                projectData={projectData}
+                fetchProjectByID={fetchProjectByID}
+              />
+            )}
             {activeTab === "RFI" && <RFI projectData={projectData} />}
             {activeTab === "Submittals" && (
               <Submittals projectData={projectData} />
             )}
             {activeTab === "CO" && <CO projectData={projectData} />}
-            {activeTab === "Notes" && <Notes projectData={projectData} projectId={projectId}/>}
+            {activeTab === "Notes" && (
+              <Notes projectData={projectData} projectId={projectId} />
+            )}
           </>
         )}
       </div>

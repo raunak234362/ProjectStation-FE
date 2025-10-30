@@ -4,20 +4,27 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useTable, useSortBy } from "react-table";
 import Service from "../../config/Service";
 import GetRFI from "./GetRFI";
+import { useSignals } from "@preact/signals-react/runtime";
+import { rfiList, rfiLoading, rfiError, setRFIs } from "../../signals";
 
 const AllRFI = ({ projectData }) => {
-    const [rfiData, setRfiData] = useState([]);
+    useSignals();
     const [selectedRFI, setSelectedRFI] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const projectId = projectData?.id;
 
     const fetchRFIByProjectId = async () => {
         try {
+            rfiLoading.value = true;
             const response = await Service.getRFIByProjectId(projectId);
-            setRfiData(response.data || []);
+            setRFIs(response.data || []);
+            rfiError.value = null;
         } catch (error) {
             console.error("Error fetching RFIs:", error);
-            setRfiData([]);
+            setRFIs([]);
+            rfiError.value = "Failed to fetch RFIs";
+        } finally {
+            rfiLoading.value = false;
         }
     };
 
@@ -25,7 +32,7 @@ const AllRFI = ({ projectData }) => {
         if (projectId) fetchRFIByProjectId();
     }, [projectId]);
 
-    const data = useMemo(() => rfiData, [rfiData]);
+    const data = useMemo(() => rfiList.value, [rfiList.value]);
 
     const columns = useMemo(
         () => [
@@ -37,10 +44,6 @@ const AllRFI = ({ projectData }) => {
             {
                 Header: "Subject",
                 accessor: "subject",
-            },
-            {
-                Header: "Description",
-                accessor: "description",
             },
             {
                 Header: "Date",
@@ -62,9 +65,9 @@ const AllRFI = ({ projectData }) => {
                 accessor: "status",
                 Cell: ({ value }) =>
                     value ? (
-                        <span className="text-green-600 font-semibold">Active</span>
+                        <span className="text-red-600 font-semibold">Not Replied</span>
                     ) : (
-                        <span className="text-red-500 font-semibold">Inactive</span>
+                        <span className="text-green-500 font-semibold">Replied</span>
                     ),
             },
         ],

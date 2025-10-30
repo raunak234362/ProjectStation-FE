@@ -40,10 +40,7 @@ const AllSubmittals = ({ projectData }) => {
                 Header: "Subject",
                 accessor: "subject",
             },
-            {
-                Header: "Description",
-                accessor: "description",
-            },
+            
             {
                 Header: "Date",
                 accessor: "date",
@@ -64,9 +61,9 @@ const AllSubmittals = ({ projectData }) => {
                 accessor: "status",
                 Cell: ({ value }) =>
                     value ? (
-                        <span className="text-green-600 font-semibold">Active</span>
+                        <span className="text-red-600 font-semibold">Not Replied</span>
                     ) : (
-                        <span className="text-red-500 font-semibold">Inactive</span>
+                        <span className="text-green-500 font-semibold">Replied</span>
                     ),
             },
         ],
@@ -82,7 +79,6 @@ const AllSubmittals = ({ projectData }) => {
     } = useTable({ columns, data }, useSortBy);
 
     const handleRowClick = useCallback((submittal) => {
-        console.log("Clicked Submittal:", submittal);
         setSelectedSubmittal(submittal);
         setIsModalOpen(true);
     }, []);

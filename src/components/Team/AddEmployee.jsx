@@ -37,22 +37,18 @@ const AddEmployee = () => {
   }));
 
   const manager = watch("is_manager");
-  console.log(manager);
+  // console.log(manager);
 
   const departmentManager = watch("is_department_manager");
-  console.log(departmentManager);
+  // console.log(departmentManager);
 
-  const addStaff = async (data) => {
+  const addStaff = async (data, event) => {
+    event.preventDefault(); // Prevent default form submission
     if (departmentManager) {
       setValue("is_manager", true);
       setValue("is_staff", true);
       const is_manager = watch("is_manager");
       const is_staff = watch("is_staff");
-      if (data.password !== data.cnf_password) {
-        setShowalert(true);
-        return;
-      }
-      clearErrors("cnf_password");
       const phoneNumber = `${data.country_code}${data.phone}`;
       const updatedData = {
         ...data,
@@ -77,11 +73,6 @@ const AddEmployee = () => {
       setValue("is_staff", false);
       const is_manager = watch("is_manager");
       const is_staff = watch("is_staff");
-      console.log(data);
-      if (data.password !== data.cnf_password) {
-        setShowalert(true);
-        return;
-      }
       clearErrors("cnf_password");
       const phoneNumber = `${data.country_code}${data.phone}`;
       const updatedData = {
@@ -103,7 +94,6 @@ const AddEmployee = () => {
         console.error("Error adding employee:", error);
       }
     } else {
-      console.log(data);
       if (data.password !== data.cnf_password) {
         setShowalert(true);
         return;
@@ -132,8 +122,8 @@ const AddEmployee = () => {
   };
 
   return (
-    <div className="flex justify-center w-full text-black rounded-md bg-white md:px-10  px-2 py-3 ">
-      <div className="w-full h-full overflow-y-auto ">
+    <div className="flex justify-center w-full  h-[88vh] overflow-y-hidden  text-black rounded-md bg-white md:px-10  px-2 py-3 ">
+      <div className="w-full h-[90vh] overflow-y-hidden">
         <form onSubmit={handleSubmit(addStaff)}>
           <div className="px-2 py-2 font-bold text-white rounded-lg bg-teal-500/50">
             User Informations:
@@ -251,7 +241,7 @@ const AddEmployee = () => {
                 {...register("email")}
               />
             </div>
-            <div className="flex flex-col items-center w-full gap-2 my-2 md:flex-row">
+            <div className="flex flex-col items-center w-full gap-2 my-2 md:flex-row z-50 bottom-2 h-[20%]">
               <div className="md:w-[10%] w-full">
                 <CustomSelect
                   label="Country Code:"
@@ -305,7 +295,10 @@ const AddEmployee = () => {
           )} */}
 
           <div className="w-full my-5">
-            <Button type="submit" className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold">
+            <Button
+              type="submit"
+              className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            >
               Submit
             </Button>
           </div>

@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import { Button } from "../../../../index";
 import Service from "../../../../../config/Service";
 import GetSentSubmittals from "./GetSentSubmittals";
+import { useSignals } from "@preact/signals-react/runtime";
+import { submittalsList, submittalsLoading, submittalsError, setSubmittals } from "../../../../../signals";
 
 // Utility function to get nested values safely
 const getNestedValue = (obj, path) => {
@@ -12,7 +14,7 @@ const getNestedValue = (obj, path) => {
 };
 
 const AllSubmittals = () => {
-  const [submittals, setSubmittals] = useState([]);
+  useSignals();
   const [selectedSubmittals, setSelectedSubmittals] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredSubmittals, setFilteredSubmittals] = useState([]);
@@ -26,12 +28,19 @@ const AllSubmittals = () => {
 
   const fetchSubmittals = async () => { 
     try {
+      submittalsLoading.value = true;
       const response = await Service.sentSubmittal()
       console.log(response.data)
       setSubmittals(response.data);
       setFilteredSubmittals(response.data);
+      submittalsError.value = null;
     } catch (error) {
       console.error(error)
+      setSubmittals([]);
+      setFilteredSubmittals([]);
+      submittalsError.value = "Failed to fetch submittals";
+    } finally {
+      submittalsLoading.value = false;
     }
 
   }
@@ -132,8 +141,8 @@ const AllSubmittals = () => {
 
   useEffect(() => {
     fetchSubmittals()
-    filterAndSort(submittals, searchTerm, filters);
-  }, [searchTerm, filters]);
+    filterAndSort(submittalsList.value, searchTerm, filters);
+  }, [searchTerm, filters, submittalsList.value]);
 
   return (
     <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
@@ -157,7 +166,7 @@ const AllSubmittals = () => {
             <option value="">Filter by Project</option>
             {[
               ...new Set(
-                submittals?.map(
+                (submittalsList.value || []).map(
                   (sub) => sub?.fabricator?.project?.name || sub?.project?.name
                 )
               ),

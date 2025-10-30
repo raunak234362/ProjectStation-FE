@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import { useMemo, useState } from "react";
@@ -13,11 +12,12 @@ const AllClients = ({ fabricator }) => {
   const filteredClientData = useMemo(
     () =>
       (clientData || []).filter(
-        (client) => client?.fabricatorId === fabricator?.id
+        (client) =>
+          client?.fabricatorId === fabricator?.id &&
+          !client?.is_disabled
       ),
     [clientData, fabricator]
   );
-
   const handleViewClick = (clientId) => {
     setSelectedClient(clientId);
   };

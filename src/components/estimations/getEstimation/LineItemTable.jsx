@@ -1,38 +1,184 @@
 /* eslint-disable react/prop-types */
-const LineItemTable = ({ items }) => {
+import { useState, useMemo, useEffect } from "react";
+import { useTable, useSortBy } from "react-table";
+import EditLineItemModal from "./EditLineItemModal";
+
+const LineItemTable = ({ items, onEdit }) => {
+  const [editItem, setEditItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Enable edit only for certain user types
+  const handleEditable = () => {
+    const response = sessionStorage.getItem("userType");
+    return response === "admin" || response === "estimator-head";
+  };
+
+  const openEditModal = (item) => {
+    console.log("Opening edit modal for item:", item);
+    setEditItem(item);
+    setIsModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsModalOpen(false);
+    setEditItem(null);
+  };
+
+  const handleSave = (id, updatedData) => {
+    onEdit(id, updatedData);
+  };
+
+  // ✅ Add stable index (S.No.) to items
+  const data = useMemo(() => {
+    return (items || []).map((item, idx) => ({
+      ...item,
+      sno: idx + 1,
+    }));
+  }, [items]);
+
+  // ✅ Define table columns
+  const columns = useMemo(() => {
+    const baseCols = [
+      { Header: "#", accessor: "sno", disableSortBy: true }, // Fixed S.No.
+      { Header: "Scope of Work", accessor: "scopeOfWork" },
+      { Header: "Quantity", accessor: "quantity" },
+      { Header: "Hours/Qty", accessor: "hoursPerQty" },
+      { Header: "Total Hours", accessor: "totalHours" },
+      { Header: "Remarks", accessor: "remarks" },
+    ];
+
+    if (handleEditable()) {
+      baseCols.push({
+        Header: "Actions",
+        accessor: "actions",
+        disableSortBy: true,
+        Cell: ({ row }) => (
+          <button
+            onClick={() => openEditModal(row.original)}
+            className="text-teal-700 hover:text-teal-900 font-medium"
+          >
+            Edit
+          </button>
+        ),
+      });
+    }
+
+    return baseCols;
+  }, []);
+
+  // ✅ Table setup
+  const tableInstance = useTable({ columns, data }, useSortBy);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
+
+  // ✅ Simulate loading until items are ready
+  useEffect(() => {
+    if (items && items.length > 0) {
+      setLoading(false);
+    } else {
+      setLoading(false); // still stop loader even if empty
+    }
+  }, [items]);
+
   if (!items || items.length === 0) {
     return <div className="text-gray-600">No Line Items Available</div>;
   }
 
+  // ✅ Skeleton rows
+  const renderSkeletonRows = (count = 8) => {
+    return Array.from({ length: count }).map((_, rowIdx) => (
+      <tr key={rowIdx} className="animate-pulse">
+        {columns.map((col, colIdx) => (
+          <td key={colIdx} className="px-4 py-2 border">
+            {col.accessor !== "actions" ? (
+              <div className="h-4 bg-gray-300 rounded w-full"></div>
+            ) : (
+              <div className="h-6 w-12 bg-gray-200 rounded mx-auto"></div>
+            )}
+          </td>
+        ))}
+      </tr>
+    ));
+  };
+
   return (
-    <div className="mt-6 h-[50vh] overflow-y-auto">
-      <h2 className="text-xl font-bold text-teal-700 mb-3">Line Items</h2>
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full text-sm text-left border-collapse">
-          <thead className="bg-gray-100 text-gray-800">
-            <tr>
-              <th className="border px-3 py-2">#</th>
-              <th className="border px-3 py-2">Scope of Work</th>
-              <th className="border px-3 py-2">Quantity</th>
-              <th className="border px-3 py-2">Hours/Qty</th>
-              <th className="border px-3 py-2">Total Hours</th>
-              <th className="border px-3 py-2">Remarks</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={item.id} className="even:bg-gray-50">
-                <td className="border px-3 py-2">{idx + 1}</td>
-                <td className="border px-3 py-2">{item.scopeOfWork}</td>
-                <td className="border px-3 py-2">{item.quantity ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.hoursPerQty ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.totalHours ?? "N/A"}</td>
-                <td className="border px-3 py-2">{item.remarks || "-"}</td>
+    <div className="mt-6 h-[50vh] ">
+      <div>
+        <h2 className="text-xl font-bold text-teal-700 mb-3">Line Items</h2>
+        <button className="text-teal-700 hover:text-teal-900 font-medium" onClick={() => openEditModal(null)}>Add Line Item</button>
+      </div>
+      <div className="overflow-x-auto rounded-md border max-h-[80vh]">
+        <table
+          {...getTableProps()}
+          className="min-w-[800px] w-full border-collapse text-sm text-left"
+        >
+          {/* Header */}
+          <thead className="sticky top-0 z-10 bg-teal-200">
+            {headerGroups.map((headerGroup, headerGroupIdx) => (
+              <tr
+                key={headerGroup.id || headerGroupIdx}
+                {...headerGroup.getHeaderGroupProps()}
+              >
+                {headerGroup.headers.map((column, colIdx) => (
+                  <th
+                    key={column.id || colIdx}
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                    className="px-4 py-2 font-semibold border whitespace-nowrap cursor-pointer select-none"
+                  >
+                    {column.render("Header")}
+                    {column.isSorted ? (column.isSortedDesc ? " ↓" : " ↑") : ""}
+                  </th>
+                ))}
               </tr>
             ))}
+          </thead>
+
+          {/* Body */}
+          <tbody {...getTableBodyProps()}>
+            {loading ? (
+              renderSkeletonRows(8)
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="py-4 text-center">
+                  No Projects Found
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    {...row.getRowProps()}
+                    key={row.id || row.index}
+                    className="hover:bg-gray-50 transition"
+                  >
+                    {row.cells.map((cell) => (
+                      <td
+                        key={cell.column.id || cell.getCellProps().key}
+                        {...cell.getCellProps()}
+                        className="px-4 py-2 border"
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {editItem && (
+        <EditLineItemModal
+          item={editItem}
+          isOpen={isModalOpen}
+          onClose={closeEditModal}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };

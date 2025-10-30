@@ -4,8 +4,12 @@
 import { useMemo, useState } from "react";
 import { useTable, useSortBy } from "react-table";
 import GetEstimation from "./getEstimation/GetEstimation";
+import { useSignals } from "@preact/signals-react/runtime";
+import { estimationsSignal } from "../../signals";
 
-const AllEstimations = ({ estimationData }) => {
+const AllEstimations = () => {
+  useSignals();
+  const estimationData = estimationsSignal.value;
   console.log("All Estimations Data:", estimationData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEstimation, setSelectedEstimation] = useState(null);

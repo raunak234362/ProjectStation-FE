@@ -2,6 +2,14 @@
 import { Clock, FileText, CheckCircle, Target } from "lucide-react";
 
 const StatsOverview = ({ stats }) => {
+  const formatToHoursMinutes = (val) => {
+    if (!val && val !== 0) return "00 hrs 00 mins";
+    const hrs = Math.floor(val);
+    const mins = Math.round((val - hrs) * 60);
+    return `${hrs.toString().padStart(2, "0")} hrs ${mins
+      .toString()
+      .padStart(2, "0")} mins`;
+  };
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Hours Assigned vs Worked */}
@@ -14,7 +22,7 @@ const StatsOverview = ({ stats }) => {
           <div className="flex justify-between mb-1">
             <span className="text-xs text-gray-500">Assigned</span>
             <span className="text-xs font-medium">
-              {stats?.totalAssignedHours || 0} hrs
+              {formatToHoursMinutes(stats?.totalAssignedHours) || 0} 
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -35,7 +43,7 @@ const StatsOverview = ({ stats }) => {
           <div className="flex justify-between mt-1">
             <span className="text-xs text-gray-500">Worked</span>
             <span className="text-xs font-medium">
-              {stats?.totalWorkedHours || 0} hrs
+              {formatToHoursMinutes(stats?.totalWorkedHours) || 0}
             </span>
           </div>
         </div>

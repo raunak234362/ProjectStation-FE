@@ -46,7 +46,7 @@ const SelectedResponseSend = ({ rfiID, responseId }) => {
       <form onSubmit={handleSubmit(onSubmitWithFiles)} className="w-full">
         <div>
           <h2 className="pb-2 mb-6 text-2xl font-extrabold text-teal-600 border-b border-teal-300">
-            Send Quation Response
+            Send RFI Response
           </h2>
           <div className="w-full mb-4">
             <label className="block mt-2 text-sm font-medium text-gray-700">

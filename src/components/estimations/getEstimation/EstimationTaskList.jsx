@@ -4,13 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import Service from "../../../config/Service";
 import { useTable, useSortBy } from "react-table";
 import EstimationTaskDetail from "./EstimationTaskDetail";
+import { useSignals } from "@preact/signals-react/runtime";
+import { estimationSignal } from "../../../signals";
 
-const EstimationTaskList = ({estimation}) => {
-  const estimationTask = estimation.tasks ;
-  console.log("Estimation Tasks:", estimationTask);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedEstimation, setSelectedEstimation] = useState(null);
-  const [tasks, setTasks] = useState([]);
+const EstimationTaskList = () => {
+  useSignals();
+  const est = estimationSignal.value;
+  const estimationTask = est?.tasks || [];
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const columns = useMemo(
     () => [
@@ -60,17 +61,9 @@ const EstimationTaskList = ({estimation}) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data }, useSortBy);
 
-
-  const handleViewClick = (estID) => {
-    console.log("Viewing Estimation:", estID);
-    setSelectedEstimation(estID);
-    setIsModalOpen(true);
+  const handleViewClick = (task) => {
+    setSelectedTask(task);
   };
-
-  // const handleModalClose = () => {
-  //   setSelectedEstimation(null);
-  //   setIsModalOpen(false);
-  // };
 
   return (
     <div>
@@ -142,8 +135,8 @@ const EstimationTaskList = ({estimation}) => {
           )}
         </tbody>
       </table>
-      {selectedEstimation && (
-       <EstimationTaskDetail estimation={selectedEstimation} />
+      {selectedTask && (
+        <EstimationTaskDetail task={selectedTask} onClose={() => setSelectedTask(null)} />
       )}
     </div>
   );
