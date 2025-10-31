@@ -2297,8 +2297,10 @@ class Service {
         headers: {
            Authorization: `Bearer ${token}`,
         }
+      
       });
       console.log(response);
+      return response.data;
     } catch (error) {
       console.log(error, "Error while adding invoice");
     }

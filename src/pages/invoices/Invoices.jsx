@@ -3,6 +3,7 @@
 import { useState } from "react";
 import AllRFQ from "../../components/rfq/AllRFQ";
 import InvoiceForm from "../../components/invoices/InvoiceForm";
+import AllInvoice from "../../components/invoices/AllInvoice";
 
 const RFQ = () => {
   //   console.log("RFQ Component Rendered with projectData:", projectData);
@@ -45,7 +46,7 @@ const RFQ = () => {
           {activeTab === "allInvoice" && (
             <div>
               {" "}
-              <AllRFQ />{" "}
+              <AllInvoice />{" "}
             </div>
           )}
         </div>
