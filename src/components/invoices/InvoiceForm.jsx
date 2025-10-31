@@ -157,6 +157,7 @@ const InvoiceForm = () => {
      fabricatorId: invoiceData.fabricatorId,
      customerName: customer?.fabName,
      contactName: client?.f_name,
+     clientId: client?.clientId,
      address: invoiceData.address, // ✅ plain string
      stateCode: invoiceData.stateCode,
      GSTIN: invoiceData.GSTIN,
