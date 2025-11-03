@@ -21,6 +21,7 @@ import EstimationView from "../pages/estimation/EstimationView.jsx";
 import CoListTable from "../components/changeOrder/details/CoListTable.jsx";
 import CoListTablePage from "../pages/coListTable/CoListTablePage.jsx";
 import Invoice from "../pages/invoices/Invoices.jsx";
+import BankAccounts from "../pages/bankAccounts/BankAccounts.jsx";
 
 //For Sales-Admin
 // import {Dashboard as SalesDashboard} from './components/dashboard/staff/sales/dashboard/Dashboard.jsx'
@@ -71,21 +72,24 @@ const routes = [
             element: <Invoice />,
           },
           {
+            path: "bank-accounts",
+            element:<BankAccounts/>
+          },
+          {
             path: "rfq",
             element: <RFQ />,
           },
           {
-            path:"estimation",
-            element:<EstimationView/>
-          }
+            path: "estimation",
+            element: <EstimationView />,
+          },
         ],
       },
-      
     ],
   },
   {
-    path:"/co-table",
-    element:<CoListTablePage />
+    path: "/co-table",
+    element: <CoListTablePage />,
   },
 
   { path: "*", element: <ErrorBoundary /> },

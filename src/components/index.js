@@ -22,7 +22,7 @@ import AddClient from "./fabricator/AddClient.jsx";
 import GetFabricator from "./fabricator/GetFabricator.jsx";
 import AllFabricator from "./fabricator/AllFabricator.jsx";
 //Team
-import ManageTeam from "../pages/Team/ManageTeam.jsx"
+import ManageTeam from "../pages/Team/ManageTeam.jsx";
 import AddEmployee from "./Team/AddEmployee";
 import AllEmployees from "./Team/AllEmployee";
 import AllDepartment from "./Team/AllDepartment";
@@ -49,13 +49,17 @@ import CustomSelect from "./fields/Select";
 import Toggle from "./fields/Toggle";
 import MultipleFileUpload from "./fields/MultipleFileUpload";
 
+import AllBankAccounts from "./bankAccounts/AllBankAccounts.jsx";
+import AddBankAccount from "./bankAccounts/AddBankAccount.jsx";
 //utils
 import ReusableTable from "../util/ReusableTable.jsx";
 import DateFilter from "../util/DateFilter.jsx";
 export {
   Button,
   WBTDashboard,
+  AllBankAccounts,
   ClientDashboard,
+  AddBankAccount,
   SalesDashboard,
   Input,
   ManageTeam,

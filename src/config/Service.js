@@ -2285,8 +2285,8 @@ class Service {
         },
       });
       console.log(response);
-      
-      return response?.data
+
+      return response?.data;
     } catch (error) {
       console.log(error, "Error while adding invoice");
     }
@@ -2295,14 +2295,85 @@ class Service {
     try {
       const response = await api.get(`/api/invoice`, {
         headers: {
-           Authorization: `Bearer ${token}`,
-        }
-      
+          Authorization: `Bearer ${token}`,
+        },
       });
       console.log(response);
       return response.data;
     } catch (error) {
       console.log(error, "Error while adding invoice");
+    }
+  }
+  static async InvoiceByID(id) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "error while fetching the invoice");
+    }
+  }
+  // static async AddBankData(bankData) {
+  //   const token = sessionStorage.getItem("token");
+  //   try {
+  //     const response = await api.post(`/api/invoice/${id}/account`, bankData, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     console.log(response.data);
+
+  //     return response?.data;
+  //   } catch (error) {
+  //     console.log(error, "Error while adding bankdetails");
+  //   }
+  // }
+  static async AddBankAccount(payload) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.post(`/api/invoice/accountInfo`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error adding bank account:", error);
+      throw error;
+    }
+  }
+  static async FetchAllBanks() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice/accounts/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "failed to load the all the bank accounts ");
+      throw error;
+    }
+  }
+  static async FetchBankById(id) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice//account/${id}/account`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "failed to load the bank detail ");
+      throw error;
     }
   }
 }

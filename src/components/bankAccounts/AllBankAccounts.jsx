@@ -3,113 +3,102 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useTable, useSortBy } from "react-table";
 import { Button } from "../index.js";
 import Service from "../../config/Service.js";
-import GetInvoice from "./GetInvoice.jsx";
+import GetBankAccount from "./GetBankAccount.jsx"; 
 
-const AllInvoice = () => {
-  const [invoiceData, setInvoiceData] = useState([]);
-  const [filteredInvoices, setFilteredInvoices] = useState([]);
+const AllBankAccounts = () => {
+  const [bankData, setBankData] = useState([]);
+  const [filteredBanks, setFilteredBanks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
+
+  // optional (for future modal)
+  const [selectedBank, setSelectedBank] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const getAllInvoices = async () => {
+  // ✅ Fetch all bank accounts
+  const getAllBanks = async () => {
     try {
-      const response = await Service.AllInvoice();
-      console.log("Invoices fetched:", response);
-      setInvoiceData(response?.data || []);
-      setFilteredInvoices(response?.data || []);
+      const response = await Service.FetchAllBanks();
+      console.log("All Banks fetched:", response);
+      setBankData(response?.data || []);
+      setFilteredBanks(response?.data || []);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching invoices:", error);
+      console.error("Error fetching bank accounts:", error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("Component Mounted → Fetching invoices...");
-    getAllInvoices();
+    console.log("Component Mounted → Fetching Bank Accounts...");
+    getAllBanks();
   }, []);
 
+  // ✅ Search filter
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setFilteredInvoices(invoiceData);
+      setFilteredBanks(bankData);
       return;
     }
 
-    const result = invoiceData.filter(
-      (inv) =>
-        inv.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inv.contactName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inv.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+    const result = bankData.filter(
+      (bank) =>
+        bank.bankInfo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.beneficiaryInfo
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        bank.accountNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bank.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    setFilteredInvoices(result);
-  }, [searchQuery, invoiceData]);
+    setFilteredBanks(result);
+  }, [searchQuery, bankData]);
 
   const handleSearch = (e) => setSearchQuery(e.target.value);
 
+  // ✅ (Optional) Modal handler
   const handleViewClick = (id) => {
-    setSelectedInvoice(id);
+    setSelectedBank(id);
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
-    setSelectedInvoice(null);
+    setSelectedBank(null);
     setIsModalOpen(false);
   };
 
+  // ✅ Define columns
   const columns = useMemo(
     () => [
       {
-        Header: "Invoice No",
-        accessor: "invoiceNumber",
+        Header: "Bank Name",
+        accessor: "bankInfo",
       },
       {
-        Header: "Fabricator",
-        accessor: "customerName",
+        Header: "Account Number",
+        accessor: "accountNumber",
       },
       {
-        Header: "Client",
-        accessor: "contactName",
-        id: "clientName",
+        Header: "Account Type",
+        accessor: "accountType",
       },
       {
-        Header: "Date",
-        accessor: (row) =>
-          row?.createdAt
-            ? new Date(row.createdAt).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })
-            : "N/A",
-        id: "createdAt",
+        Header: "Beneficiary Name",
+        accessor: "beneficiaryInfo",
       },
       {
-        Header: "Total (USD)",
-       
-        accessor: (row) => {
-          const total =
-            row?.invoiceItems?.reduce(
-              (sum, item) => sum + (parseFloat(item.totalUSD) || 0),
-              0
-            ) || 0;
-          return `$${total.toFixed(2)}`;
-        },
-        id: "totalUSD", 
+        Header: "ABA Routing No",
+        accessor: "abaRoutingNumber",
       },
     ],
     []
   );
 
-  const tableInstance = useTable(
-    { columns, data: filteredInvoices },
-    useSortBy
-  );
-
+  // ✅ Table setup
+  const tableInstance = useTable({ columns, data: filteredBanks }, useSortBy);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
+  // ✅ Skeleton loader
   const renderSkeletonRows = (count = 10) =>
     Array.from({ length: count }).map((_, rowIdx) => (
       <tr key={rowIdx} className="animate-pulse">
@@ -129,7 +118,7 @@ const AllInvoice = () => {
       <div className="mt-5 bg-white h-auto p-4">
         <input
           type="text"
-          placeholder="Search by fabricator, client, or invoice no."
+          placeholder="Search by bank, beneficiary, account no. or invoice no."
           className="border p-2 rounded w-full mb-4"
           value={searchQuery}
           onChange={handleSearch}
@@ -138,7 +127,7 @@ const AllInvoice = () => {
         <div className="overflow-x-auto rounded-md border max-h-[75vh]">
           <table
             {...getTableProps()}
-            className="min-w-[900px] w-full border-collapse text-sm text-center"
+            className="min-w-[1000px] w-full border-collapse text-sm text-center"
           >
             <thead className="sticky top-0 bg-teal-200/80 z-10">
               {headerGroups.map((headerGroup) => (
@@ -161,13 +150,14 @@ const AllInvoice = () => {
                 </tr>
               ))}
             </thead>
+
             <tbody {...getTableBodyProps()}>
               {loading ? (
                 renderSkeletonRows(8)
               ) : rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + 1} className="py-4 text-center">
-                    No Invoices Found
+                    No Bank Accounts Found
                   </td>
                 </tr>
               ) : (
@@ -204,9 +194,9 @@ const AllInvoice = () => {
           </table>
         </div>
 
-        {selectedInvoice && (
-          <GetInvoice
-            invoiceId={selectedInvoice}
+        {selectedBank && (
+          <GetBankAccount
+            bankId={selectedBank}
             isOpen={isModalOpen}
             onClose={handleModalClose}
           />
@@ -216,4 +206,4 @@ const AllInvoice = () => {
   );
 };
 
-export default AllInvoice;
+export default AllBankAccounts;

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../fields/Input";
@@ -7,8 +8,6 @@ import { CustomSelect } from "../index";
 import Service from "../../config/Service";
 
 const InvoiceForm = () => {
-  const [invoiceData, setInvoiceData] = useState();
-
   const {
     register,
     handleSubmit,
@@ -19,10 +18,11 @@ const InvoiceForm = () => {
   } = useForm({
     defaultValues: {
       invoiceItems: [],
+      currencyType: "USD",
     },
   });
 
-  // Redux data
+  // Redux data (Assumed paths)
   const projects = useSelector(
     (state) => state?.projectData?.projectData || []
   );
@@ -52,46 +52,31 @@ const InvoiceForm = () => {
   }));
 
   // invoice item table logic
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
+    // Added 'remove'
     control,
     name: "invoiceItems",
   });
 
-  const [grandTotal, setGrandTotal] = useState(0);
+  const [grandTotal, setGrandTotal] = useState(0); // Total before tax
   const rows = watch("invoiceItems") || [];
 
-  // calculate total
+  // calculate totalUSD for each row and update grand total
   useEffect(() => {
-    if (!rows || rows.length === 0) {
-      setGrandTotal(0);
-      return;
-    }
+    let calculatedGrandTotal = 0;
 
-    const total = rows.reduce(
-      (sum, row) =>
-        sum + (parseFloat(row.rateUSD) || 0) * (parseFloat(row.unit) || 1),
-      0
-    );
-    setGrandTotal(total);
-  }, [rows]);
-
-  // calculate totalUSD for each row
-  useEffect(() => {
-    const updatedRows = rows?.map((row) => {
+    const updatedRows = rows?.map((row, index) => {
       const rate = parseFloat(row.rateUSD) || 0;
-      const unit = parseFloat(row.unit) || 1;
+      const unit = parseInt(row.unit) || 0;
       const totalUSD = rate * unit;
+
+      setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2));
+      calculatedGrandTotal += totalUSD;
+
       return { ...row, totalUSD };
     });
 
-    if (updatedRows) {
-      updatedRows.forEach((row, index) => {
-        setValue(`invoiceItems.${index}.totalUSD`, row.totalUSD);
-      });
-    }
-
-    const total = updatedRows?.reduce((sum, r) => sum + r.totalUSD, 0) || 0;
-    setGrandTotal(total);
+    setGrandTotal(calculatedGrandTotal);
   }, [rows, setValue]);
 
   // handle HQ/Branch address
@@ -131,273 +116,363 @@ const InvoiceForm = () => {
     }
   }, [watch("selectedAddress")]);
 
-  // final submit
- const onSubmit = async (invoiceData) => {
-   console.log("formData======", invoiceData);
+  // FINAL SUBMIT LOGIC
+  const onSubmit = async (formData) => {
+    const customer = fabricatorData?.find(
+      (fab) => fab.id === formData?.fabricatorId
+    );
+    const client = clientData?.find(
+      (client) => client.id === formData?.clientId
+    );
 
-   const customer = fabricatorData?.find(
-     (fab) => fab.id === invoiceData?.fabricatorId
-   );
-   const client = clientData?.find(
-     (client) => client.id === invoiceData?.clientId
-   );
+    const finalInvoiceValue = grandTotal * 1.18;
 
-   // 🔹 Convert invoiceItems fields to proper types
-   const formattedInvoiceItems = (invoiceData.invoiceItems || []).map(
-     (item) => ({
-       ...item,
-       unit: parseInt(item.unit) || 0, // convert to integer
-       rateUSD: parseFloat(item.rateUSD) || 0, // convert to float
-       totalUSD: parseFloat(item.totalUSD) || 0, // convert to float
-     })
-   );
+    const formattedInvoiceItems = (formData.invoiceItems || []).map((item) => ({
+      ...item,
+      unit: parseInt(item.unit) || 0,
+      rateUSD: parseFloat(item.rateUSD) || 0,
+      totalUSD: parseFloat(item.totalUSD) || 0,
+    }));
 
-   const payload = {
-     projectId: invoiceData.projectId,
-     fabricatorId: invoiceData.fabricatorId,
-     customerName: customer?.fabName,
-     contactName: client?.f_name,
-     clientId: client?.clientId,
-     address: invoiceData.address, // ✅ plain string
-     stateCode: invoiceData.stateCode,
-     GSTIN: invoiceData.GSTIN,
-     invoiceNumber: invoiceData.invoiceNumber,
-     placeOfSupply: invoiceData.placeOfSupply,
-     jobName: invoiceData.jobName,
-     currencyType: invoiceData.currencyType,
-     TotalInvoiveValues: invoiceData.TotalInvoiveValues,
-     TotalInvoiveValuesinWords: invoiceData.TotalInvoiveValuesinWords,
-     invoiceItems: formattedInvoiceItems, // ✅ send number values
-     accountInfo: invoiceData.accountInfo || [],
-   };
+    const payload = {
+      projectId: formData.projectId,
+      fabricatorId: formData.fabricatorId,
+      customerName: customer?.fabName,
+      contactName: client?.f_name,
+      clientId: formData?.clientId,
+      address: formData.address,
+      stateCode: formData.stateCode,
+      GSTIN: formData.GSTIN,
+      invoiceNumber: formData.invoiceNumber,
+      placeOfSupply: formData.placeOfSupply,
+      jobName: formData.jobName,
+      currencyType: formData.currencyType,
+      TotalInvoiveValues: finalInvoiceValue.toFixed(2),
+      TotalInvoiveValuesinWords: formData.TotalInvoiveValuesinWords,
+      invoiceItems: formattedInvoiceItems,
+      accountInfo: formData.accountInfo || [],
+    };
 
-   console.log("Final Payload ===>", payload);
+    console.log("Final Payload ===>", payload);
 
-   // send to backend
-   try {
-     const response = await Service.AddInvoice(payload);
-     console.log("Invoice Created:", response);
-   } catch (error) {
-     console.error("Error creating invoice:", error);
-   }
- };
+    try {
+      const response = await Service.AddInvoice(payload);
+      console.log("Invoice Created:", response);
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+    }
+  };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
-        {/* Fabricator */}
-        <CustomSelect
-          label={
-            <span>
-              Fabricator <span className="text-red-500">*</span>
-            </span>
-          }
-          placeholder="Select Fabricator"
-          options={fabricatorOptions}
-          {...register("fabricatorId", { required: "Fabricator is required" })}
-          onChange={setValue}
-        />
+    <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
+      <header className="mb-6 border-b pb-4 border-teal-200">
+        <h1 className="text-3xl font-extrabold text-teal-700">
+          <span role="img" aria-label="invoice">
+            
+          </span>{" "}
+          New Tax Invoice
+        </h1>
+        <p className="text-gray-500">
+          Fill in the details to generate the invoice.
+        </p>
+      </header>
 
-        {/* Address (HQ/Branch) */}
-        {fabricatorID && (
-          <CustomSelect
-            label={
-              <span>
-                Select Branch / Headquarter{" "}
-                <span className="text-red-500">*</span>
-              </span>
-            }
-            placeholder="Select Address"
-            options={addressOptions}
-            {...register("selectedAddress", {
-              required: "Address is required",
-            })}
-            onChange={setValue}
-          />
-        )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {/* Fabricator & Client Info */}
+        <fieldset className="border p-4 rounded-lg shadow-inner bg-gray-50">
+          <legend className="text-lg font-semibold text-teal-600 px-2">
+            Supplier & Client Details
+          </legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CustomSelect
+              label={
+                <span>
+                  Fabricator <span className="text-red-500">*</span>
+                </span>
+              }
+              placeholder="Select Fabricator"
+              options={fabricatorOptions}
+              {...register("fabricatorId", {
+                required: "Fabricator is required",
+              })}
+              onChange={setValue}
+            />
 
-        {/* Client */}
-        <CustomSelect
-          label={
-            <span>
-              Client <span className="text-red-500">*</span>
-            </span>
-          }
-          placeholder="Select Client"
-          options={clientOptions}
-          {...register("clientId", { required: "Client is required" })}
-          onChange={setValue}
-        />
+            <CustomSelect
+              label={
+                <span>
+                  Client <span className="text-red-500">*</span>
+                </span>
+              }
+              placeholder="Select Client"
+              options={clientOptions}
+              {...register("clientId", { required: "Client is required" })}
+              onChange={setValue}
+            />
+          </div>
 
-        {/* Project */}
-        <CustomSelect
-          label={
-            <span>
-              Project <span className="text-red-500">*</span>
-            </span>
-          }
-          placeholder="Select Project"
-          options={filteredProjects?.map((proj) => ({
-            label: proj.name,
-            value: proj.id,
-          }))}
-          {...register("projectId", { required: "Project is required" })}
-          onChange={setValue}
-        />
+          {fabricatorID && (
+            <div className="mt-4">
+              <CustomSelect
+                label={
+                  <span>
+                    Select Branch / Headquarter{" "}
+                    <span className="text-red-500">*</span>
+                  </span>
+                }
+                placeholder="Select Address"
+                options={addressOptions}
+                {...register("selectedAddress", {
+                  required: "Address is required",
+                })}
+                onChange={setValue}
+              />
+            </div>
+          )}
 
-        {/* Auto-Filled Address */}
-        <Input
-          label="Address"
-          placeholder="Address"
-          {...register("address")}
-          readOnly
-        />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <Input label="GSTIN" placeholder="GSTIN" {...register("GSTIN")} />
+            <Input
+              label="State Code"
+              placeholder="State Code"
+              {...register("stateCode")}
+            />
+            <Input
+              label="Address"
+              placeholder="Address (Auto-filled)"
+              {...register("address")}
+              readOnly
+              className="bg-gray-200 cursor-not-allowed"
+            />
+          </div>
+        </fieldset>
 
-        {/* Other Fields */}
-        <Input
-          label="State Code"
-          placeholder="State Code"
-          {...register("stateCode")}
-        />
-        <Input label="GSTIN" placeholder="GSTIN" {...register("GSTIN")} />
-        <Input
-          label="Invoice Number"
-          placeholder="Invoice Number"
-          {...register("invoiceNumber")}
-        />
-        <Input
-          label="Place of Supply"
-          placeholder="Place of Supply"
-          {...register("placeOfSupply")}
-        />
-        <Input
-          label="Job Name"
-          placeholder="Job Name"
-          {...register("jobName")}
-        />
-        <Input
-          label="Currency"
-          placeholder="Currency"
-          {...register("currencyType")}
-        />
-        <Input
-          label="Total Invoice Values"
-          placeholder="Total Invoice Values"
-          {...register("TotalInvoiveValues")}
-        />
-        <Input
-          label="Total Invoice Values in Words"
-          placeholder="Total Invoice Values in Words"
-          {...register("TotalInvoiveValuesinWords")}
-        />
+        {/* Invoice & Project Details */}
+        <fieldset className="border p-4 rounded-lg shadow-inner">
+          <legend className="text-lg font-semibold text-teal-600 px-2">
+            Invoice & Job Details
+          </legend>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Invoice Number"
+              placeholder="Invoice Number"
+              {...register("invoiceNumber")}
+            />
+            <Input
+              label="Job Name"
+              placeholder="Job Name"
+              {...register("jobName")}
+            />
+          </div>
 
-        {/* Invoice Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-300 text-center">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-2 py-1">Sl. #</th>
-                <th className="border px-2 py-1">Description</th>
-                <th className="border px-2 py-1">SAC</th>
-                <th className="border px-2 py-1">Unit</th>
-                <th className="border px-2 py-1">Rate (USD)</th>
-                <th className="border px-2 py-1">Total (USD)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fields.map((field, index) => (
-                <tr key={field.id}>
-                  <td className="border px-2 py-1">{index + 1}</td>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <CustomSelect
+              label={
+                <span>
+                  Project <span className="text-red-500">*</span>
+                </span>
+              }
+              placeholder="Select Project"
+              options={filteredProjects?.map((proj) => ({
+                label: proj.name,
+                value: proj.id,
+              }))}
+              {...register("projectId", { required: "Project is required" })}
+              onChange={setValue}
+            />
+            <Input
+              label="Place of Supply"
+              placeholder="Place of Supply"
+              {...register("placeOfSupply")}
+            />
+            <Input
+              label="Currency"
+              placeholder="Currency"
+              {...register("currencyType")}
+              readOnly
+            />
+          </div>
+        </fieldset>
 
-                  <td className="border px-2 py-1">
-                    <Controller
-                      name={`invoiceItems.${index}.description`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="Description" size="sm" />
-                      )}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <Controller
-                      name={`invoiceItems.${index}.sacCode`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} placeholder="998333" size="sm" />
-                      )}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <Controller
-                      name={`invoiceItems.${index}.unit`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} type="number" min="1" size="sm" />
-                      )}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <Controller
-                      name={`invoiceItems.${index}.rateUSD`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          placeholder="Rate"
-                          size="sm"
-                        />
-                      )}
-                    />
-                  </td>
-
-                  <td className="border px-2 py-1">
-                    <Controller
-                      name={`invoiceItems.${index}.totalUSD`}
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          placeholder="Total (USD)"
-                          size="sm"
-                          readOnly
-                        />
-                      )}
-                    />
-                  </td>
+        {/* Items Table */}
+        <div className="p-4 rounded-lg border-2 border-teal-300">
+          <h2 className="text-lg font-bold text-teal-700 mb-4">
+            Invoice Items
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-separate border-spacing-y-2 border-spacing-x-0">
+              <thead className="bg-teal-50 border-b border-gray-300 sticky top-0 z-10">
+                <tr>
+                  <th className="px-2 py-2 text-left">Sl. #</th>
+                  <th className="px-2 py-2 text-left w-2/5">Description</th>
+                  <th className="px-2 py-2">SAC</th>
+                  <th className="px-2 py-2">Unit</th>
+                  <th className="px-2 py-2">Rate (USD)</th>
+                  <th className="px-2 py-2">Total (USD)</th>
+                  <th className="px-2 py-2 w-10"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {fields.map((field, index) => (
+                  <tr
+                    key={field.id}
+                    className="bg-white border-b hover:bg-teal-50 transition"
+                  >
+                    <td className="px-2 py-1 font-medium">{index + 1}</td>
+
+                    <td className="px-2 py-1">
+                      <Controller
+                        name={`invoiceItems.${index}.description`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            placeholder="Service description"
+                            size="sm"
+                            className="bg-white"
+                          />
+                        )}
+                      />
+                    </td>
+
+                    <td className="px-2 py-1">
+                      <Controller
+                        name={`invoiceItems.${index}.sacCode`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            placeholder="SAC Code"
+                            size="sm"
+                            className="bg-white"
+                          />
+                        )}
+                      />
+                    </td>
+
+                    <td className="px-2 py-1 w-20">
+                      <Controller
+                        name={`invoiceItems.${index}.unit`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="number"
+                            min="1"
+                            size="sm"
+                            className="text-center bg-white"
+                          />
+                        )}
+                      />
+                    </td>
+
+                    <td className="px-2 py-1 w-28">
+                      <Controller
+                        name={`invoiceItems.${index}.rateUSD`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="number"
+                            placeholder="Rate"
+                            step="0.01"
+                            size="sm"
+                            className="bg-white"
+                          />
+                        )}
+                      />
+                    </td>
+
+                    <td className="px-2 py-1 w-28">
+                      <Controller
+                        name={`invoiceItems.${index}.totalUSD`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            type="number"
+                            placeholder="Total (USD)"
+                            size="sm"
+                            readOnly
+                            className="bg-gray-100 font-semibold"
+                          />
+                        )}
+                      />
+                    </td>
+                    <td className="px-2 py-1">
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                        aria-label="Remove item"
+                      >
+                        <span role="img" aria-label="delete">
+                          🗑️
+                        </span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <Button
+            onClick={() =>
+              append({
+                description: "",
+                sacCode: "",
+                unit: 1,
+                rateUSD: "",
+                totalUSD: "",
+              })
+            }
+            type="button"
+            className="mt-4 bg-teal-500 text-white hover:bg-teal-600 px-4 py-2 rounded-lg"
+          >
+            + Add Item Row
+          </Button>
+        </div>
+
+        {/* Totals and Submission */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+          {/* Total In Words */}
+          <div className="flex flex-col justify-end">
+            <Input
+              label="Total Invoice Values in Words"
+              placeholder="Total Invoice Values in Words"
+              {...register("TotalInvoiveValuesinWords")}
+            />
+          </div>
+
+          {/* Calculated Totals */}
+          <div className="bg-teal-50 p-4 rounded-lg shadow-md text-right">
+            <div className="font-semibold text-gray-700 space-y-1">
+              <p className="flex justify-between">
+                <span>Subtotal (Before Tax):</span>
+                <span className="text-teal-700">${grandTotal.toFixed(2)}</span>
+              </p>
+              <p className="flex justify-between border-b pb-1 border-teal-200">
+                <span>IGST (18%):</span>
+                <span className="text-red-600">
+                  ${(grandTotal * 0.18).toFixed(2)}
+                </span>
+              </p>
+              <p className="flex justify-between pt-1 text-xl font-extrabold">
+                <span>Final Invoice Value:</span>
+                <span className="text-teal-800">
+                  ${(grandTotal * 1.18).toFixed(2)}
+                </span>
+              </p>
+            </div>
+          </div>
         </div>
 
         <Button
-          onClick={() =>
-            append({
-              description: "",
-              sacCode: "",
-              unit: 1,
-              rateUSD: "",
-              totalUSD: "",
-            })
-          }
-          type="button"
-          className="mt-4 bg-blue-500 text-white hover:bg-blue-600"
+          type="submit"
+          className="mt-8 bg-teal-700 hover:bg-teal-800 text-white w-full py-3 text-lg font-bold shadow-lg transition"
         >
-          + Add Row
-        </Button>
-
-        <div className="mt-6 text-right font-bold">
-          <p>Total: ${grandTotal.toFixed(2)}</p>
-          <p>IGST (18%): ${(grandTotal * 0.18).toFixed(2)}</p>
-          <p>Final Invoice Value: ${(grandTotal * 1.18).toFixed(2)}</p>
-        </div>
-
-        <Button type="submit" className="mt-3 bg-blue-gray-900 w-full">
-          Submit
+          Generate & Submit Invoice
         </Button>
       </form>
     </div>
