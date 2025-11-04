@@ -50,7 +50,7 @@ const BankAccounts = () => {
             <div>
               <AllBankAccounts />
             </div>
-          )}
+          )}9
         </div>
       </div>
     </div>

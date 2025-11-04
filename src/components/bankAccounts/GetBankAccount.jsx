@@ -53,7 +53,7 @@ const GetBankAccount = ({ bankId, isOpen, onClose }) => {
         ) : (
           <div className="space-y-6 text-gray-700">
             {/* Invoice Info */}
-            <div className="bg-gray-50 p-4 rounded-lg border">
+            {/* <div className="bg-gray-50 p-4 rounded-lg border">
               <h3 className="font-semibold text-teal-600 mb-2">
                 Linked Invoice
               </h3>
@@ -65,7 +65,7 @@ const GetBankAccount = ({ bankId, isOpen, onClose }) => {
                 <span className="font-medium">Invoice ID:</span>{" "}
                 {bankDetails.invoiceId || "N/A"}
               </p>
-            </div>
+            </div> */}
 
             {/* Beneficiary Info */}
             <div className="bg-gray-50 p-4 rounded-lg border">

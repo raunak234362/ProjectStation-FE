@@ -6,6 +6,7 @@ import Button from "../fields/Button";
 import { useSelector } from "react-redux";
 import { CustomSelect } from "../index";
 import Service from "../../config/Service";
+import toast from "react-hot-toast";
 
 const InvoiceForm = () => {
   const {
@@ -31,6 +32,9 @@ const InvoiceForm = () => {
   );
   const clientData = useSelector((state) => state?.fabricatorData?.clientData);
 
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [bankLoading, setBankLoading] = useState(true);
+
   const fabricatorID = watch("fabricatorId");
 
   // filter projects and clients based on fabricator
@@ -50,41 +54,66 @@ const InvoiceForm = () => {
     label: `${client.f_name} ${client.l_name}`,
     value: client.id,
   }));
+  const bankAccountOptions = bankAccounts?.map((bank) => ({
+    label: `${
+      bank.bankInfo || "Bank"
+    } - A/C No: XXXX${bank.accountNumber?.slice(-4)}`,
+    value: bank.id,
+  }));
 
-  // invoice item table logic
   const { fields, append, remove } = useFieldArray({
-    // Added 'remove'
     control,
     name: "invoiceItems",
   });
 
-  const [grandTotal, setGrandTotal] = useState(0); // Total before tax
-  const rows = watch("invoiceItems") || [];
+  const [grandTotal, setGrandTotal] = useState(0);
 
-  // calculate totalUSD for each row and update grand total
   useEffect(() => {
-    let calculatedGrandTotal = 0;
-
-    const updatedRows = rows?.map((row, index) => {
-      const rate = parseFloat(row.rateUSD) || 0;
-      const unit = parseInt(row.unit) || 0;
-      const totalUSD = rate * unit;
-
-      setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2));
-      calculatedGrandTotal += totalUSD;
-
-      return { ...row, totalUSD };
+    const subscription = watch((value, { name, type }) => {
+      // Only trigger recalculation when a rate or unit is changed, not the total.
+      // This prevents the infinite loop.
+      const isRelevantChange =
+        name && (name.endsWith(".rateUSD") || name.endsWith(".unit"));
+      if (isRelevantChange) {
+        const items = value.invoiceItems || [];
+        let calculatedGrandTotal = 0;
+        items.forEach((row, index) => {
+          const rate = parseFloat(row.rateUSD) || 0;
+          const unit = parseInt(row.unit) || 0;
+          const totalUSD = rate * unit;
+          setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2), {
+            shouldValidate: true,
+          });
+          calculatedGrandTotal += totalUSD;
+        });
+        setGrandTotal(calculatedGrandTotal);
+      }
     });
+    return () => subscription.unsubscribe();
+  }, [watch, setValue]);
 
-    setGrandTotal(calculatedGrandTotal);
-  }, [rows, setValue]);
+  useEffect(() => {
+    const fetchAllBanks = async () => {
+      setBankLoading(true);
+      try {
+        // Use your provided service method
+        const response = await Service.FetchAllBanks();
+        // Assuming response.data is the array of banks based on your console.log(response.data)
+        setBankAccounts(response.data?.data || response.data || []);
+      } catch (error) {
+        console.error("Error fetching all bank accounts:", error);
+        setBankAccounts([]);
+      } finally {
+        setBankLoading(false);
+      }
+    };
+    fetchAllBanks();
+  }, []);
 
-  // handle HQ/Branch address
   const selectedFabricator = fabricatorData?.find(
     (fab) => fab.id === fabricatorID
   );
 
-  // generate address options (HQ + branches)
   const addressOptions = selectedFabricator
     ? (() => {
         const hq = selectedFabricator.headquaters || {};
@@ -116,7 +145,6 @@ const InvoiceForm = () => {
     }
   }, [watch("selectedAddress")]);
 
-  // FINAL SUBMIT LOGIC
   const onSubmit = async (formData) => {
     const customer = fabricatorData?.find(
       (fab) => fab.id === formData?.fabricatorId
@@ -124,6 +152,13 @@ const InvoiceForm = () => {
     const client = clientData?.find(
       (client) => client.id === formData?.clientId
     );
+
+    // 1. Find the full bank account object using the selected ID
+    const selectedBankAccount = bankAccounts.find(
+      (bank) => bank.id === formData.bankAccountId
+    );
+
+    console.log(selectedBankAccount);
 
     const finalInvoiceValue = grandTotal * 1.18;
 
@@ -134,6 +169,18 @@ const InvoiceForm = () => {
       totalUSD: parseFloat(item.totalUSD) || 0,
     }));
 
+    let accountInfoPayload = {
+      // ...selectedBankAccount,
+      bankInfo: selectedBankAccount?.bankInfo,
+      bankAddress: selectedBankAccount?.bankAddress,
+      abaRoutingNumber: selectedBankAccount?.abaRoutingNumber,
+      accountNumber: selectedBankAccount?.accountNumber,
+      accountType: selectedBankAccount?.accountType,
+      beneficiaryAddress: selectedBankAccount?.beneficiaryAddress,
+      beneficiaryInfo: selectedBankAccount?.beneficiaryInfo,
+    };
+
+    // 4. Construct the final payload
     const payload = {
       projectId: formData.projectId,
       fabricatorId: formData.fabricatorId,
@@ -149,28 +196,30 @@ const InvoiceForm = () => {
       currencyType: formData.currencyType,
       TotalInvoiveValues: finalInvoiceValue.toFixed(2),
       TotalInvoiveValuesinWords: formData.TotalInvoiveValuesinWords,
-      invoiceItems: formattedInvoiceItems,
-      accountInfo: formData.accountInfo || [],
+      invoiceItems: {
+        formattedInvoiceItems,
+      },
+      accountInfo: {
+        accountInfoPayload,
+      },
     };
 
     console.log("Final Payload ===>", payload);
 
     try {
       const response = await Service.AddInvoice(payload);
+      toast.success("invoice created");
       console.log("Invoice Created:", response);
     } catch (error) {
+      alert.error("error");
       console.error("Error creating invoice:", error);
     }
   };
-
   return (
     <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-4xl mx-auto">
       <header className="mb-6 border-b pb-4 border-teal-200">
         <h1 className="text-3xl font-extrabold text-teal-700">
-          <span role="img" aria-label="invoice">
-            
-          </span>{" "}
-          New Tax Invoice
+          <span role="img" aria-label="invoice"></span> New Tax Invoice
         </h1>
         <p className="text-gray-500">
           Fill in the details to generate the invoice.
@@ -292,6 +341,33 @@ const InvoiceForm = () => {
               readOnly
             />
           </div>
+        </fieldset>
+
+        <fieldset className="border p-4 rounded-lg shadow-inner bg-gray-50">
+          <legend className="text-lg font-semibold text-teal-600 px-2">
+            Bank Account for Payment
+          </legend>
+          <CustomSelect
+            label={
+              <span>
+                Bank Account <span className="text-red-500">*</span>
+              </span>
+            }
+            placeholder={
+              bankLoading ? "Loading Banks..." : "Select Bank Account"
+            }
+            options={bankAccountOptions}
+            {...register("bankAccountId", {
+              required: "Bank Account is required",
+            })}
+            onChange={setValue}
+            disabled={bankLoading || bankAccountOptions.length === 0}
+          />
+          {bankAccountOptions.length === 0 && !bankLoading && (
+            <p className="text-sm text-red-500 mt-2">
+              No bank accounts available.
+            </p>
+          )}
         </fieldset>
 
         {/* Items Table */}

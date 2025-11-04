@@ -1,44 +1,44 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import Service from "../../config/Service";
-import { Button } from "../index"; // Assuming Button is imported correctly
+import { Button } from "../index";
 
 const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
   const [invoice, setInvoice] = useState(null);
+  // bankDetails state now holds the extracted object from invoice.accountInfo[0]
+  const [bankDetails, setBankDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Constants for design elements
   const PRIMARY_COLOR = "teal-700";
   const ACCENT_COLOR = "teal-500";
 
-  // Mock Bank Details based on the provided PDF, as this data is static/should be stored separately
-//   const bankDetails = {
-//     abaRouting: "121145349",
-//     accountNumber: "201408414172365",
-//     accountType: "Business checking",
-//     recipient: "Whiteboard Technologies LLC.",
-//     beneficiaryAddress:
-//       "2055, Limestone Rd STE 200-C, Wilmington New Castle Country, Wilmington, DE, 19808.",
-//     bankInfo: "Column Bank",
-//     bankAddress: "1110, Gorgas Ave Suite A4-700, San Francisco, CA 94129.",
-//   };
-
-  useEffect(() => {
-    if (invoiceId && isOpen) fetchInvoice();
-  }, [invoiceId, isOpen]);
-
+  // --- Fetch Invoice Data (MODIFIED LOGIC) ---
   const fetchInvoice = async () => {
     try {
       setLoading(true);
-      // Simulating a slight delay for better UX on fast networks
       await new Promise((resolve) => setTimeout(resolve, 300));
       const res = await Service.InvoiceByID(invoiceId);
-      setInvoice(res?.data);
+      const invoiceData = res?.data;
+      setInvoice(invoiceData);
+
+      // Extract bank details directly from invoice.accountInfo
+      if (invoiceData?.accountInfo && invoiceData.accountInfo.length > 0) {
+        setBankDetails(invoiceData.accountInfo[0]);
+      } else {
+        setBankDetails(null);
+      }
     } catch (err) {
       console.error("Error loading invoice:", err);
+      // setBankDetails(null) will be triggered if accountInfo is missing/empty
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (invoiceId && isOpen) fetchInvoice();
+  }, [invoiceId, isOpen]);
 
   // --- Calculations for Totals (Replicating InvoiceForm logic) ---
   const subtotal =
@@ -53,15 +53,21 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
   const igstRate = 0.18; // 18% IGST
   const igstAmount = subtotal * igstRate;
   const grandTotal = subtotal + igstAmount;
-  // -----------------------------------------------------------------
 
   if (!isOpen) return null;
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
   return (
-    // Backdrop: Now allows scrolling if content is taller than the viewport
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto p-4 md:pt-10">
       <div
-        // Inner Content Box: Constrained max height and internal scrolling
         className={`bg-white w-[95vw] max-w-4xl rounded-xl shadow-2xl relative transition-all duration-300 transform max-h-[95vh] overflow-y-auto ${
           isOpen ? "scale-100" : "scale-95"
         }`}
@@ -106,100 +112,52 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
             id="invoice-preview"
             className="p-8 md:p-12 text-sm text-gray-800 pt-0" /* Adjust padding top due to sticky close button */
           >
-            {/* Logo and Main Header */}
-            <header className="flex justify-between items-start mb-8 border-b-4 border-double border-gray-200 pb-4">
+            <header className="flex justify-between items-end mb-8 border-b-4 border-double border-gray-200 pb-4">
               <div className="flex items-center space-x-3">
-                <img
-                  src="../../src/assets/logo.png"
-                  alt="Company Logo"
-                  // Changed from rounded-full to rounded-lg
-                  className="w-12 h-12 rounded-lg shadow-md"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src =
-                      "https://placehold.co/60x60/cccccc/000000?text=Logo";
-                  }}
-                />
-                <div>
-                  <h1 className="text-xl font-extrabold text-gray-900">
-                    {invoice?.customerName || "Fabricator Name"}
-                  </h1>
-                  <p className={`text-xs text-${ACCENT_COLOR}`}>
-                    Adding Life to Engineering
-                  </p>
+                <div className="text-2xl font-black leading-none text-gray-900">
+                  <span className="text-4xl text-teal-600">WB</span> white
+                  <br />
+                  board
+                </div>
+                <div className={`text-xs text-${ACCENT_COLOR} italic`}>
+                  Adding Life to Engineering
                 </div>
               </div>
 
-              <div className="text-right">
-                <h2
-                  className={`text-4xl font-black text-${PRIMARY_COLOR} mb-1`}
-                >
-                  TAX INVOICE
-                </h2>
-                <div className="text-xs text-gray-600">
-                  <p>
-                    Invoice No:{" "}
-                    <span className="font-semibold text-gray-800">
-                      {invoice?.invoiceNumber}
-                    </span>
-                  </p>
-                  <p>
-                    Invoice Date:{" "}
-                    <span className="font-semibold">
-                      {new Date(
-                        invoice?.createdAt || Date.now()
-                      ).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "2-digit",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </p>
-                </div>
+              {/* Right: Invoice No & Date Block (Small Table look) */}
+              <div className="text-right border border-gray-300 p-2 text-xs bg-gray-50">
+                <p className="mb-1">
+                  <span className="font-semibold text-gray-700">
+                    Invoice No:
+                  </span>{" "}
+                  {invoice?.invoiceNumber || "N/A"}
+                </p>
+                <p className="mb-1">
+                  <span className="font-semibold text-gray-700">
+                    Invoice Date:
+                  </span>{" "}
+                  {formatDate(invoice?.createdAt)}
+                </p>
+                <p>
+                  <span className="font-semibold text-gray-700">Job Name:</span>{" "}
+                  {invoice?.jobName || "N/A"}
+                </p>
               </div>
             </header>
 
-            {/* Job and Supply Details */}
-            <div
-              className={`bg-gray-50 p-3 rounded-lg border border-gray-200 mb-6 text-xs grid grid-cols-2 md:grid-cols-4 gap-4 font-medium`}
-            >
-              <p>
-                Job Name:{" "}
-                <span className="text-gray-700 font-semibold">
-                  {invoice?.jobName || "N/A"}
-                </span>
-              </p>
-              <p>
-                Project ID:{" "}
-                <span className="text-gray-700 font-semibold">
-                  {invoice?.projectId || "N/A"}
-                </span>
-              </p>
-              <p>
-                Place of Supply:{" "}
-                <span className="text-gray-700 font-semibold">
-                  {invoice?.placeOfSupply || "N/A"}
-                </span>
-              </p>
-              <p>
-                Currency:{" "}
-                <span className="text-gray-700 font-semibold">
-                  {invoice?.currencyType || "USD"}
-                </span>
-              </p>
-            </div>
-
-            {/* Sender / Receiver Info */}
+            {/* --- INVOICE METADATA & RECIPIENT DETAILS --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* Fabricator (From) */}
-              <div className="p-4 border-l-4 border-gray-400 bg-gray-50 rounded-md">
+
+              <div className="p-4 border border-gray-300 bg-gray-100 rounded-md">
                 <h3 className={`text-xs font-bold text-gray-600 mb-1`}>
                   Details of Supplier (Billed From)
                 </h3>
                 <p className="font-bold text-base text-gray-900">
-                  {invoice?.customerName}
+                  {invoice?.customerName || "Fabricator Name"}
                 </p>
-                <p className="text-xs text-gray-600">{invoice?.address}</p>
+                <p className="text-xs text-gray-600">
+                  Address: {invoice?.address}
+                </p>
                 <p className="text-xs mt-2">
                   GSTIN:{" "}
                   <span className="font-semibold">
@@ -212,38 +170,21 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
                     {invoice?.stateCode || "N/A"}
                   </span>
                 </p>
-              </div>
-
-              {/* Client (To) */}
-              <div className="p-4 border-l-4 border-teal-500 bg-teal-50 rounded-md">
-                <h3 className={`text-xs font-bold text-gray-600 mb-1`}>
-                  Details of Receiver (Billed To)
-                </h3>
-                <p className="font-bold text-base text-gray-900">
-                  {invoice?.contactName}
-                </p>
-                <p className="text-xs text-gray-600">
-                  Client ID: {invoice?.clientId || "N/A"}
-                </p>
-                <p className="text-xs text-gray-600">
-                
-                  {invoice?.contactAddress || "Address not provided"}
-                </p>
-                <p className="text-xs mt-2">
-                  Country/State:{" "}
+                <p className="text-xs">
+                  Place of Supply:{" "}
                   <span className="font-semibold">
-                    {invoice?.clientState || "N/A"}
+                    {invoice?.placeOfSupply || "N/A"}
                   </span>
                 </p>
               </div>
             </div>
 
-            {/* Items Table */}
+            {/* --- ITEMS TABLE --- */}
             <div className="overflow-x-auto mb-6 border border-gray-300 rounded-lg">
               <table className="min-w-full text-center text-sm">
                 <thead className={`bg-${ACCENT_COLOR} text-white`}>
                   <tr>
-                    <th className="px-3 py-2 font-semibold">S.No</th>
+                    <th className="px-3 py-2 font-semibold">Sl. #</th>
                     <th className="px-3 py-2 text-left w-2/5">
                       Description of Services
                     </th>
@@ -288,39 +229,44 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
                       </td>
                     </tr>
                   )}
+                  {/* Total Row (Matching PDF layout for totals) */}
+                  <tr className="bg-gray-100 font-bold border-t-2 border-gray-400">
+                    <td colSpan={5} className="px-3 py-2 text-right">
+                      Total (Before Tax)
+                    </td>
+                    <td className="px-3 py-2 font-mono text-lg">
+                      ${subtotal.toFixed(2)}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
 
-            {/* Totals Summary & Words */}
-            <div className="flex justify-end">
-              <div className="w-full md:w-2/5">
-                {/* Value in Words */}
-                <div className="mb-4 p-2 border-b border-gray-300">
-                  <p className="font-medium text-sm">
-                    Total Invoice Value (in Words):{" "}
-                    <span className="font-bold italic">
-                      {invoice?.TotalInvoiveValuesinWords || "Not specified"}
-                    </span>
-                  </p>
-                </div>
-
-                {/* Financial Breakdown Table */}
+            {/* --- TOTALS SUMMARY & WORDS (Bottom Right) --- */}
+            <div className="flex justify-end mb-8">
+              <div className="w-full md:w-2/5 border border-gray-400 rounded-lg overflow-hidden shadow-md">
+                {/* GST Breakdown (Matching PDF) */}
                 <div className="text-right text-sm">
-                  <div className="flex justify-between font-medium py-1">
-                    <span>Subtotal (Before Tax):</span>
-                    <span className="font-mono text-gray-800">
-                      ${subtotal.toFixed(2)}
-                    </span>
+                  <div className="flex justify-between px-3 py-1 bg-gray-50">
+                    <span className="font-semibold">IGST Rate:</span>
+                    <span className="font-mono">18.0%</span>
                   </div>
-                  <div className="flex justify-between font-medium py-1 border-b border-gray-300">
-                    <span>IGST (18.0%):</span>
+                  <div className="flex justify-between px-3 py-1 bg-gray-50 border-b border-gray-300">
+                    <span className="font-semibold">IGST Amount:</span>
                     <span className="font-mono text-red-600">
                       ${igstAmount.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between font-extrabold text-lg py-2 bg-teal-50 rounded-b-lg">
-                    <span>Total Invoice Value:</span>
+                  <div className="flex justify-between px-3 py-1 font-extrabold bg-gray-200">
+                    <span>Total GST:</span>
+                    <span className="font-mono">${igstAmount.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Final Value */}
+                <div className="text-right text-base font-extrabold bg-teal-100 p-2">
+                  <div className="flex justify-between">
+                    <span>Total Invoice Value (in Figures):</span>
                     <span
                       className={`text-${PRIMARY_COLOR} font-black font-mono`}
                     >
@@ -331,56 +277,87 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Bank Details / Footer */}
-            {/* <div className="mt-12 pt-6 border-t border-gray-300">
-              <h3
-                className={`text-md font-bold text-${PRIMARY_COLOR} mb-3 border-b pb-1`}
-              >
-                ACH / Wire Transfer Instructions ({invoice?.currencyType})
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-xs">
-                <div>
-                  <p>
-                    <span className="font-semibold">Recipient:</span>{" "}
-                    {bankDetails.recipient}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Beneficiary Address:</span>{" "}
-                    {bankDetails.beneficiaryAddress}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Account Number:</span>{" "}
-                    {bankDetails.accountNumber}
-                  </p>
-                </div>
-                <div>
-                  <p>
-                    <span className="font-semibold">Bank:</span>{" "}
-                    {bankDetails.bankInfo}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Bank Address:</span>{" "}
-                    {bankDetails.bankAddress}
-                  </p>
-                  <p>
-                    <span className="font-semibold">ABA/Routing Number:</span>{" "}
-                    {bankDetails.abaRouting}
-                  </p>
-                </div>
-              </div>
-            </div> */}
+            {/* --- TOTAL IN WORDS (Footer Top) --- */}
+            <div className="mb-4 p-2 border-b-2 border-teal-500">
+              <p className="font-medium text-base">
+                Total Invoice Value (in Words):{" "}
+                <span className="font-bold italic text-teal-700">
+                  {invoice?.TotalInvoiveValuesinWords ||
+                    "US Dollars Not specified"}
+                </span>
+              </p>
+            </div>
 
+            {/* --- BANK DETAILS / INSTRUCTIONS (Footer) --- */}
+            <div className="mt-8 pt-6 border-t border-gray-300">
+              <h3
+                className={`text-md font-bold text-gray-700 mb-3 border-b pb-1`}
+              >
+                Instructions / ACH/Wire Transfer ({invoice?.currencyType})
+              </h3>
+              {bankDetails ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-xs p-4 bg-gray-50 rounded-lg">
+                  <div className="space-y-1">
+                    <p>
+                      <span className="font-semibold">
+                        Recipient / Beneficiary:
+                      </span>{" "}
+                      {bankDetails.beneficiaryInfo}
+                    </p>
+                    <p>
+                      <span className="font-semibold">
+                        Beneficiary Address:
+                      </span>{" "}
+                      {bankDetails.beneficiaryAddress}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Account Number:</span>{" "}
+                      {bankDetails.accountNumber}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Account Type:</span>{" "}
+                      {bankDetails.accountType}
+                    </p>
+                  </div>
+                  <div className="space-y-1">
+                    <p>
+                      <span className="font-semibold">Bank:</span>{" "}
+                      {bankDetails.bankInfo}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Bank Address:</span>{" "}
+                      {bankDetails.bankAddress}
+                    </p>
+                    <p>
+                      <span className="font-semibold">ABA/Routing Number:</span>{" "}
+                      {bankDetails.abaRoutingNumber}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-red-500 p-4 bg-red-50 rounded-lg">
+                  Bank account details not available or not linked to this
+                  invoice.
+                </p>
+              )}
+            </div>
+
+            {/* --- SIGNATURE / FINAL FOOTER --- */}
             <div className="flex justify-between items-end mt-8">
-              <p className="text-xs italic text-gray-500">
-                Instructions: Consulting Proforma Invoice. All payments to be
-                made within 15 days.
+              <p className="text-xs italic text-gray-500 w-1/2">
+                Instructions:{" "}
+                {invoice?.instructions ||
+                  "All payments to be made via Wire Transfers within 15 days."}
               </p>
               <div className="text-center">
                 <p className={`font-semibold text-md text-${PRIMARY_COLOR}`}>
                   For {invoice?.customerName}
                 </p>
                 <div className="h-10 border-b border-gray-400 w-32 mx-auto mt-4"></div>
-                <p className="text-xs mt-1">Authorised Signatory</p>
+                <p className="text-xs mt-1">
+                  Authorised Signatory (
+                  {invoice?.authorisingPerson || "Rajeshwari K"})
+                </p>
               </div>
             </div>
 
