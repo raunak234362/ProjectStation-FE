@@ -4,12 +4,14 @@ import { useTable, useSortBy } from "react-table";
 import { Button } from "../index.js";
 import Service from "../../config/Service.js";
 import GetBankAccount from "./GetBankAccount.jsx"; 
+import toast from "react-hot-toast";
 
 const AllBankAccounts = () => {
   const [bankData, setBankData] = useState([]);
   const [filteredBanks, setFilteredBanks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   // optional (for future modal)
   const [selectedBank, setSelectedBank] = useState(null);
@@ -60,6 +62,25 @@ const AllBankAccounts = () => {
     setSelectedBank(id);
     setIsModalOpen(true);
   };
+  const handleDeleteBank = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this bank account?"
+    );
+    if (!confirmDelete) return;
+
+    setDeletingId(id);
+    try {
+      await Service.deleteBankByID(id);
+      toast.success("Bank account deleted successfully!");
+      getAllBanks(); // Refresh list
+    } catch (error) {
+      console.error("Error deleting bank account:", error);
+      toast.error("Failed to delete bank account. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
 
   const handleModalClose = () => {
     setSelectedBank(null);
@@ -177,7 +198,7 @@ const AllBankAccounts = () => {
                           {cell.render("Cell")}
                         </td>
                       ))}
-                      <td className="px-4 py-2 border">
+                      {/* <td className="px-4 py-2 border">
                         <Button
                           size="sm"
                           className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -185,6 +206,32 @@ const AllBankAccounts = () => {
                         >
                           View
                         </Button>
+                      </td> */}
+                      <td className="px-4 py-2 border">
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-teal-600 hover:bg-teal-700 text-white"
+                            onClick={() => handleViewClick(row.original.id)}
+                          >
+                            View
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            disabled={deletingId === row.original.id}
+                            className={`${
+                              deletingId === row.original.id
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-red-600 hover:bg-red-700 text-white"
+                            }`}
+                            onClick={() => handleDeleteBank(row.original.id)}
+                          >
+                            {deletingId === row.original.id
+                              ? "Deleting..."
+                              : "Delete"}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );

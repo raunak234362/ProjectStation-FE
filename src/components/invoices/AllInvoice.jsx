@@ -4,6 +4,7 @@ import { useTable, useSortBy } from "react-table";
 import { Button } from "../index.js";
 import Service from "../../config/Service.js";
 import GetInvoice from "./GetInvoice.jsx";
+import toast from "react-hot-toast";
 
 const AllInvoice = () => {
   const [invoiceData, setInvoiceData] = useState([]);
@@ -52,6 +53,22 @@ const AllInvoice = () => {
     setSelectedInvoice(id);
     setIsModalOpen(true);
   };
+const handleDeleteInvoice = async (id) => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this invoice?"
+  );
+  if (!confirmDelete) return;
+
+  try {
+    await Service.deleteInvoiceByID(id);
+    toast.success("Invoice deleted successfully!");
+    // Refresh invoice list
+    getAllInvoices();
+  } catch (error) {
+    console.error("Error deleting invoice:", error);
+    toast.error("Failed to delete invoice. Please try again.");
+  }
+};
 
   const handleModalClose = () => {
     setSelectedInvoice(null);
@@ -187,7 +204,7 @@ const AllInvoice = () => {
                           {cell.render("Cell")}
                         </td>
                       ))}
-                      <td className="px-4 py-2 border">
+                      {/* <td className="px-4 py-2 border">
                         <Button
                           size="sm"
                           className="bg-teal-600 hover:bg-teal-700 text-white"
@@ -195,6 +212,25 @@ const AllInvoice = () => {
                         >
                           View
                         </Button>
+                      </td> */}
+                      <td className="px-4 py-2 border">
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-teal-600 hover:bg-teal-700 text-white"
+                            onClick={() => handleViewClick(row.original.id)}
+                          >
+                            View
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            onClick={() => handleDeleteInvoice(row.original.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );
