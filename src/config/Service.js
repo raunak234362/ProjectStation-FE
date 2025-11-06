@@ -2241,7 +2241,7 @@ class Service {
   }
 
   //route to update the status of Notification
-  static async UpdateNotification(id){
+  static async UpdateNotification(id) {
     const token = sessionStorage.getItem("token");
     try {
       const response = await api.patch(`/api/notifications/read/${id}`, {
@@ -2256,24 +2256,137 @@ class Service {
     }
   }
 
-  // Ping server
-  // static async ping() {
+  static async AddInvoice(invoiceData) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.post(`/api/invoice/`, invoiceData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+
+      return response?.data;
+    } catch (error) {
+      console.log(error, "Error while adding invoice");
+    }
+  }
+  static async AllInvoice() {
+    try {
+      const response = await api.get(`/api/invoice`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log(error, "Error while adding invoice");
+    }
+  }
+  static async InvoiceByID(id) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "error while fetching the invoice");
+    }
+  }
+  // static async AddBankData(bankData) {
+  //   const token = sessionStorage.getItem("token");
   //   try {
-  //     const response = await Promise.race([
-  //       axios.get(`/API/ping`, {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         }}),
-  //       new Promise((resolve, reject) => {
-  //         setTimeout(() => reject(new Error('Timeout')), 10000);
-  //       }),
-  //     ]);
-  //     return response.data.connection;
+  //     const response = await api.post(`/api/invoice/${id}/account`, bankData, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     console.log(response.data);
+
+  //     return response?.data;
   //   } catch (error) {
-  //     console.log('Error pinging server:', error);
-  //     return false;
+  //     console.log(error, "Error while adding bankdetails");
   //   }
   // }
+  static async AddBankAccount(payload) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.post(`/api/invoice/accountInfo`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error adding bank account:", error);
+      throw error;
+    }
+  }
+  static async FetchAllBanks() {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice/accounts/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "failed to load the all the bank accounts ");
+      throw error;
+    }
+  }
+  static async FetchBankById(id) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/api/invoice//account/${id}/account`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error, "failed to load the bank detail ");
+      throw error;
+    }
+  }
+  static async deleteInvoiceByID(id) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.delete(`/api/invoice/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in deleting Invoice by ID: ", error);
+      throw error;
+    }
+  }
+  static async deleteBankByID(id) {
+    const token = sessionStorage.getItem("token");
+    try {
+      const response = await api.delete(`/api/invoice/account/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.log("Error in deleting bank by ID: ", error);
+      throw error;
+    }
+  }
 }
 
 export default Service;

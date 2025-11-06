@@ -34,6 +34,7 @@ const AddRFI = ({ projectData }) => {
     register,
     setValue,
     handleSubmit,
+    
     watch,
     formState: { errors },
   } = useForm();
