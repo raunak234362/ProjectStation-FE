@@ -141,6 +141,7 @@ const Sidebar = () => {
         "client",
         "estimator",
         "sales",
+        "PMO",
         "project-manager",
         "department-manager",
         "human-resource",
