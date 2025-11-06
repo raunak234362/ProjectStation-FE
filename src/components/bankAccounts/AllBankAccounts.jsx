@@ -3,7 +3,8 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useTable, useSortBy } from "react-table";
 import { Button } from "../index.js";
 import Service from "../../config/Service.js";
-import GetBankAccount from "./GetBankAccount.jsx"; 
+import GetBankAccount from "./GetBankAccount.jsx";
+import EditBankAccount from "./EditBankAccount.jsx";
 import toast from "react-hot-toast";
 
 const AllBankAccounts = () => {
@@ -13,15 +14,13 @@ const AllBankAccounts = () => {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
 
-  // optional (for future modal)
   const [selectedBank, setSelectedBank] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
-  // ✅ Fetch all bank accounts
   const getAllBanks = async () => {
     try {
       const response = await Service.FetchAllBanks();
-      console.log("All Banks fetched:", response);
       setBankData(response?.data || []);
       setFilteredBanks(response?.data || []);
       setLoading(false);
@@ -32,11 +31,9 @@ const AllBankAccounts = () => {
   };
 
   useEffect(() => {
-    console.log("Component Mounted → Fetching Bank Accounts...");
     getAllBanks();
   }, []);
 
-  // ✅ Search filter
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredBanks(bankData);
@@ -49,78 +46,54 @@ const AllBankAccounts = () => {
         bank.beneficiaryInfo
           ?.toLowerCase()
           .includes(searchQuery.toLowerCase()) ||
-        bank.accountNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bank.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+        bank.accountNumber?.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setFilteredBanks(result);
   }, [searchQuery, bankData]);
 
   const handleSearch = (e) => setSearchQuery(e.target.value);
 
-  // ✅ (Optional) Modal handler
-  const handleViewClick = (id) => {
-    setSelectedBank(id);
-    setIsModalOpen(true);
+  const handleViewClick = (bank) => {
+    setSelectedBank(bank);
+    setIsViewOpen(true);
   };
-  const handleDeleteBank = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this bank account?"
-    );
-    if (!confirmDelete) return;
 
+  const handleEditClick = (bank) => {
+    setSelectedBank(bank);
+    setIsEditOpen(true);
+  };
+
+  const handleDeleteBank = async (id) => {
+    const confirmDelete = window.confirm("Delete this bank account?");
+    if (!confirmDelete) return;
     setDeletingId(id);
     try {
       await Service.deleteBankByID(id);
       toast.success("Bank account deleted successfully!");
-      getAllBanks(); // Refresh list
+      getAllBanks();
     } catch (error) {
-      console.error("Error deleting bank account:", error);
-      toast.error("Failed to delete bank account. Please try again.");
+      toast.error("Failed to delete bank account.");
     } finally {
       setDeletingId(null);
     }
   };
 
-
-  const handleModalClose = () => {
-    setSelectedBank(null);
-    setIsModalOpen(false);
-  };
-
-  // ✅ Define columns
   const columns = useMemo(
     () => [
-      {
-        Header: "Bank Name",
-        accessor: "bankInfo",
-      },
-      {
-        Header: "Account Number",
-        accessor: "accountNumber",
-      },
-      {
-        Header: "Account Type",
-        accessor: "accountType",
-      },
-      {
-        Header: "Beneficiary Name",
-        accessor: "beneficiaryInfo",
-      },
-      {
-        Header: "ABA Routing No",
-        accessor: "abaRoutingNumber",
-      },
+      { Header: "Bank Name", accessor: "bankInfo" },
+      { Header: "Account Number", accessor: "accountNumber" },
+      { Header: "Account Type", accessor: "accountType" },
+      { Header: "Beneficiary Name", accessor: "beneficiaryInfo" },
+      { Header: "ABA Routing No", accessor: "abaRoutingNumber" },
     ],
     []
   );
 
-  // ✅ Table setup
   const tableInstance = useTable({ columns, data: filteredBanks }, useSortBy);
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
-  // ✅ Skeleton loader
-  const renderSkeletonRows = (count = 10) =>
+  const renderSkeletonRows = (count = 8) =>
     Array.from({ length: count }).map((_, rowIdx) => (
       <tr key={rowIdx} className="animate-pulse">
         {columns.map((_, colIdx) => (
@@ -139,7 +112,7 @@ const AllBankAccounts = () => {
       <div className="mt-5 bg-white h-auto p-4">
         <input
           type="text"
-          placeholder="Search by bank, beneficiary, account no. or invoice no."
+          placeholder="Search by bank, beneficiary, or account no."
           className="border p-2 rounded w-full mb-4"
           value={searchQuery}
           onChange={handleSearch}
@@ -174,7 +147,7 @@ const AllBankAccounts = () => {
 
             <tbody {...getTableBodyProps()}>
               {loading ? (
-                renderSkeletonRows(8)
+                renderSkeletonRows()
               ) : rows.length === 0 ? (
                 <tr>
                   <td colSpan={columns.length + 1} className="py-4 text-center">
@@ -187,7 +160,7 @@ const AllBankAccounts = () => {
                   return (
                     <tr
                       {...row.getRowProps()}
-                      className="hover:bg-gray-100 transition cursor-pointer"
+                      className="hover:bg-gray-100 transition"
                     >
                       <td className="px-4 py-2 border">{index + 1}</td>
                       {row.cells.map((cell) => (
@@ -198,25 +171,22 @@ const AllBankAccounts = () => {
                           {cell.render("Cell")}
                         </td>
                       ))}
-                      {/* <td className="px-4 py-2 border">
-                        <Button
-                          size="sm"
-                          className="bg-teal-600 hover:bg-teal-700 text-white"
-                          onClick={() => handleViewClick(row.original.id)}
-                        >
-                          View
-                        </Button>
-                      </td> */}
                       <td className="px-4 py-2 border">
                         <div className="flex justify-center gap-2">
                           <Button
                             size="sm"
                             className="bg-teal-600 hover:bg-teal-700 text-white"
-                            onClick={() => handleViewClick(row.original.id)}
+                            onClick={() => handleViewClick(row.original)}
                           >
                             View
                           </Button>
-
+                          <Button
+                            size="sm"
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                            onClick={() => handleEditClick(row.original)}
+                          >
+                            Edit
+                          </Button>
                           <Button
                             size="sm"
                             disabled={deletingId === row.original.id}
@@ -242,11 +212,19 @@ const AllBankAccounts = () => {
         </div>
 
         {selectedBank && (
-          <GetBankAccount
-            bankId={selectedBank}
-            isOpen={isModalOpen}
-            onClose={handleModalClose}
-          />
+          <>
+            <GetBankAccount
+              bankId={selectedBank.id}
+              isOpen={isViewOpen}
+              onClose={() => setIsViewOpen(false)}
+            />
+            <EditBankAccount
+              bankData={selectedBank}
+              isOpen={isEditOpen}
+              onClose={() => setIsEditOpen(false)}
+              refreshBanks={getAllBanks}
+            />
+          </>
         )}
       </div>
     </div>

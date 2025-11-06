@@ -2393,12 +2393,27 @@ class Service {
       const response = await api.put(`api/invoice/${Id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
       return response.data;
     } catch (error) {
       console.error("Error updating the invoice:", error);
+      throw error;
+    }
+  }
+  static async editBankDetails(Id, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(`api/invoice/${Id}/account`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating the bankDetails:", error);
       throw error;
     }
   }

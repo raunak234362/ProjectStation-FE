@@ -147,7 +147,6 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
 
             {/* --- INVOICE METADATA & RECIPIENT DETAILS --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
               <div className="p-4 border border-gray-300 bg-gray-100 rounded-md">
                 <h3 className={`text-xs font-bold text-gray-600 mb-1`}>
                   Details of Supplier (Billed From)
@@ -282,7 +281,7 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
               <p className="font-medium text-base">
                 Total Invoice Value (in Words):{" "}
                 <span className="font-bold italic text-teal-700">
-                  {invoice?.TotalInvoiveValuesinWords ||
+                  {invoice?.totalInvoiceValueInWords ||
                     "US Dollars Not specified"}
                 </span>
               </p>

@@ -5,6 +5,7 @@ import { Button } from "../index.js";
 import Service from "../../config/Service.js";
 import GetInvoice from "./GetInvoice.jsx";
 import toast from "react-hot-toast";
+import EditInvoice from "./EditInvoice.jsx"
 
 const AllInvoice = () => {
   const [invoiceData, setInvoiceData] = useState([]);
@@ -13,6 +14,9 @@ const AllInvoice = () => {
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editInvoiceId, setEditInvoiceId] = useState(null);
+
 
   const getAllInvoices = async () => {
     try {
@@ -74,6 +78,15 @@ const handleDeleteInvoice = async (id) => {
     setSelectedInvoice(null);
     setIsModalOpen(false);
   };
+  const handleEditClick = (id) => {
+    setEditInvoiceId(id);
+    setIsEditModalOpen(true);
+  };
+const handleEditClose = () => {
+  setEditInvoiceId(null);
+  setIsEditModalOpen(false);
+};
+
 
   const columns = useMemo(
     () => [
@@ -213,6 +226,25 @@ const handleDeleteInvoice = async (id) => {
                           View
                         </Button>
                       </td> */}
+                      {/* <td className="px-4 py-2 border">
+                        <div className="flex justify-center gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-teal-600 hover:bg-teal-700 text-white"
+                            onClick={() => handleViewClick(row.original.id)}
+                          >
+                            View
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                            onClick={() => handleDeleteInvoice(row.original.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </td> */}
                       <td className="px-4 py-2 border">
                         <div className="flex justify-center gap-2">
                           <Button
@@ -221,6 +253,14 @@ const handleDeleteInvoice = async (id) => {
                             onClick={() => handleViewClick(row.original.id)}
                           >
                             View
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={() => handleEditClick(row.original.id)}
+                          >
+                            Edit
                           </Button>
 
                           <Button
@@ -245,6 +285,15 @@ const handleDeleteInvoice = async (id) => {
             invoiceId={selectedInvoice}
             isOpen={isModalOpen}
             onClose={handleModalClose}
+          />
+        )}
+
+        {isEditModalOpen && (
+          <EditInvoice
+            invoiceId={editInvoiceId}
+            isOpen={isEditModalOpen}
+            onClose={handleEditClose}
+            onSave={getAllInvoices} 
           />
         )}
       </div>
