@@ -111,7 +111,7 @@ const Sidebar = () => {
       roles: ["admin", "PMO", "client"],
     },
     {
-      label: "Back Accounts",
+      label: "Bank Accounts",
       to: "bank-accounts",
       icon: <Database />,
       roles: ["admin", "PMO", "client"],
