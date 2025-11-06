@@ -2387,6 +2387,21 @@ class Service {
       throw error;
     }
   }
+  static async editInvoice(Id, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(`api/invoice/${Id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error updating the invoice:", error);
+      throw error;
+    }
+  }
 }
 
 export default Service;
