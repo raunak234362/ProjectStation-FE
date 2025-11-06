@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../fields/Input";
@@ -23,7 +23,7 @@ const InvoiceForm = () => {
     },
   });
 
-  // Redux data (Assumed paths)
+
   const projects = useSelector(
     (state) => state?.projectData?.projectData || []
   );
@@ -37,7 +37,6 @@ const InvoiceForm = () => {
 
   const fabricatorID = watch("fabricatorId");
 
-  // filter projects and clients based on fabricator
   const filteredProjects = projects?.filter(
     (proj) => proj.fabricatorID === fabricatorID
   );
@@ -45,7 +44,7 @@ const InvoiceForm = () => {
     (client) => client.fabricatorId === fabricatorID
   );
 
-  // dropdown options
+
   const fabricatorOptions = fabricatorData?.map((fab) => ({
     label: `${fab?.fabName}`,
     value: fab?.id,
@@ -70,8 +69,7 @@ const InvoiceForm = () => {
 
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      // Only trigger recalculation when a rate or unit is changed, not the total.
-      // This prevents the infinite loop.
+
       const isRelevantChange =
         name && (name.endsWith(".rateUSD") || name.endsWith(".unit"));
       if (isRelevantChange) {
@@ -96,9 +94,9 @@ const InvoiceForm = () => {
     const fetchAllBanks = async () => {
       setBankLoading(true);
       try {
-        // Use your provided service method
+     
         const response = await Service.FetchAllBanks();
-        // Assuming response.data is the array of banks based on your console.log(response.data)
+        
         setBankAccounts(response.data?.data || response.data || []);
       } catch (error) {
         console.error("Error fetching all bank accounts:", error);
@@ -137,7 +135,7 @@ const InvoiceForm = () => {
       })()
     : [];
 
-  // update address field when selected
+
   useEffect(() => {
     const selectedAddress = watch("selectedAddress");
     if (selectedAddress) {
@@ -152,8 +150,6 @@ const InvoiceForm = () => {
     const client = clientData?.find(
       (client) => client.id === formData?.clientId
     );
-
-    // 1. Find the full bank account object using the selected ID
     const selectedBankAccount = bankAccounts.find(
       (bank) => bank.id === formData.bankAccountId
     );
@@ -169,8 +165,7 @@ const InvoiceForm = () => {
       totalUSD: parseFloat(item.totalUSD) || 0,
     }));
 
-    let accountInfoPayload = {
-      // ...selectedBankAccount,
+    const accountInfoPayload = {
       bankInfo: selectedBankAccount?.bankInfo,
       bankAddress: selectedBankAccount?.bankAddress,
       abaRoutingNumber: selectedBankAccount?.abaRoutingNumber,
@@ -180,7 +175,6 @@ const InvoiceForm = () => {
       beneficiaryInfo: selectedBankAccount?.beneficiaryInfo,
     };
 
-    // 4. Construct the final payload
     const payload = {
       projectId: formData.projectId,
       fabricatorId: formData.fabricatorId,
@@ -196,12 +190,8 @@ const InvoiceForm = () => {
       currencyType: formData.currencyType,
       TotalInvoiveValues: finalInvoiceValue.toFixed(2),
       TotalInvoiveValuesinWords: formData.TotalInvoiveValuesinWords,
-      invoiceItems: {
-        formattedInvoiceItems,
-      },
-      accountInfo: {
-        accountInfoPayload,
-      },
+      invoiceItems: formattedInvoiceItems,
+      accountInfo: accountInfoPayload,
     };
 
     console.log("Final Payload ===>", payload);
@@ -211,7 +201,7 @@ const InvoiceForm = () => {
       toast.success("invoice created");
       console.log("Invoice Created:", response);
     } catch (error) {
-      alert.error("error");
+      toast.error("Error creating invoice");
       console.error("Error creating invoice:", error);
     }
   };
