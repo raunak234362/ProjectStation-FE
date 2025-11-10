@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../fields/Input";
@@ -22,7 +21,7 @@ const InvoiceForm = () => {
       currencyType: "USD",
     },
   });
-
+  const selectedCurrency = watch("currencyType");
 
   const projects = useSelector(
     (state) => state?.projectData?.projectData || []
@@ -43,7 +42,6 @@ const InvoiceForm = () => {
   const filteredClients = clientData?.filter(
     (client) => client.fabricatorId === fabricatorID
   );
-
 
   const fabricatorOptions = fabricatorData?.map((fab) => ({
     label: `${fab?.fabName}`,
@@ -68,10 +66,12 @@ const InvoiceForm = () => {
   const [grandTotal, setGrandTotal] = useState(0);
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-
+    const subscription = watch((value, { name }) => {
       const isRelevantChange =
-        name && (name.endsWith(".rateUSD") || name.endsWith(".unit"));
+        name &&
+        (name.endsWith(".rateUSD") ||
+          name.endsWith(".unit") ||
+          name === "currencyType");
       if (isRelevantChange) {
         const items = value.invoiceItems || [];
         let calculatedGrandTotal = 0;
@@ -87,34 +87,37 @@ const InvoiceForm = () => {
         setGrandTotal(calculatedGrandTotal);
       }
     });
+    {
+    }
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
 
-  const finalInvoiceValue = grandTotal * 1.18;
-const convertToCurrencyWords = (amount, currency = "USD") => {
-  if (!amount || isNaN(amount)) return "";
+  const finalInvoiceValue = grandTotal;
+  const convertToCurrencyWords = (amount, currency = "USD") => {
+    if (!amount || isNaN(amount)) return "";
 
-  const [whole, fraction] = amount.toFixed(2).split(".");
-  const wholeInWords = numWords(parseInt(whole)).replace(/\b\w/g, (c) =>
-    c.toUpperCase()
-  );
-  const fractionInWords = numWords(parseInt(fraction)).replace(/\b\w/g, (c) =>
-    c.toUpperCase()
-  );
-
-  return `${wholeInWords} ${currency} And ${fractionInWords} Cents Only`;
-};
-const words = convertToCurrencyWords(finalInvoiceValue, "USD");
-console.log(words);
+    const [whole, fraction] = amount.toFixed(2).split(".");
+    const wholeInWords = numWords(parseInt(whole)).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const fractionInWords = numWords(parseInt(fraction)).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const currencyLabel =
+      currency === "CAD" ? "Canadian Dollars" : "US Dollars";
+      console.log("currency Selected-----", selectedCurrency);
+    return `${wholeInWords} ${currencyLabel} And ${fractionInWords} Cents Only`;
+      
+  };
+  const words = convertToCurrencyWords(finalInvoiceValue, selectedCurrency);
 
 
   useEffect(() => {
     const fetchAllBanks = async () => {
       setBankLoading(true);
       try {
-     
         const response = await Service.FetchAllBanks();
-        
+
         setBankAccounts(response.data?.data || response.data || []);
       } catch (error) {
         console.error("Error fetching all bank accounts:", error);
@@ -153,7 +156,6 @@ console.log(words);
       })()
     : [];
 
-
   useEffect(() => {
     const selectedAddress = watch("selectedAddress");
     if (selectedAddress) {
@@ -162,7 +164,6 @@ console.log(words);
   }, [watch("selectedAddress")]);
 
   const onSubmit = async (formData) => {
-    
     const customer = fabricatorData?.find(
       (fab) => fab.id === formData?.fabricatorId
     );
@@ -174,7 +175,6 @@ console.log(words);
     );
     console.log(formData);
 
-    
     const formattedInvoiceItems = (formData.invoiceItems || []).map((item) => ({
       ...item,
       unit: parseInt(item.unit) || 0,
@@ -349,7 +349,7 @@ console.log(words);
               placeholder="Select Currency"
               options={[
                 { label: "USD (United States Dollar)", value: "USD" },
-                { label: "CAD (Canadian Dollar)", value: "CSD" },
+                { label: "CAD (Canadian Dollar)", value: "CAD" },
               ]}
               {...register("currencyType", {
                 required: "Currency is required",
@@ -532,15 +532,16 @@ console.log(words);
           <div className="flex flex-col justify-end">
             <Input
               label="Total Invoice Values in Words"
-              placeholder="Total Invoice Values in Words"
-              {...register("TotalInvoiveValuesinWords")}
+              value={words}
+              readOnly
+              className="bg-gray-100 font-semibold"
             />
           </div>
 
           {/* Calculated Totals */}
           <div className="bg-teal-50 p-4 rounded-lg shadow-md text-right">
             <div className="font-semibold text-gray-700 space-y-1">
-              <p className="flex justify-between">
+              {/* <p className="flex justify-between">
                 <span>Subtotal (Before Tax):</span>
                 <span className="text-teal-700">${grandTotal.toFixed(2)}</span>
               </p>
@@ -554,6 +555,13 @@ console.log(words);
                 <span>Final Invoice Value:</span>
                 <span className="text-teal-800">
                   ${(grandTotal * 1.18).toFixed(2)}
+                </span>
+              </p> */}
+              <p className="flex justify-between pt-1 text-xl font-extrabold">
+                <span>Final Invoice Value:</span>
+                <span className="text-teal-800">
+                  {selectedCurrency === "CAD" ? "C$" : "$"}
+                  {grandTotal.toFixed(2)}
                 </span>
               </p>
             </div>
