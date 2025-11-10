@@ -7,7 +7,7 @@ import { useSelector } from "react-redux";
 import { CustomSelect } from "../index";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
-
+import numWords from "num-words";
 const InvoiceForm = () => {
   const {
     register,
@@ -79,7 +79,7 @@ const InvoiceForm = () => {
           const rate = parseFloat(row.rateUSD) || 0;
           const unit = parseInt(row.unit) || 0;
           const totalUSD = rate * unit;
-          setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2), {
+          setValue(`invoiceItems.${index}.totalUSD`, totalUSD, {
             shouldValidate: true,
           });
           calculatedGrandTotal += totalUSD;
@@ -89,6 +89,24 @@ const InvoiceForm = () => {
     });
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
+
+  const finalInvoiceValue = grandTotal * 1.18;
+const convertToCurrencyWords = (amount, currency = "USD") => {
+  if (!amount || isNaN(amount)) return "";
+
+  const [whole, fraction] = amount.toFixed(2).split(".");
+  const wholeInWords = numWords(parseInt(whole)).replace(/\b\w/g, (c) =>
+    c.toUpperCase()
+  );
+  const fractionInWords = numWords(parseInt(fraction)).replace(/\b\w/g, (c) =>
+    c.toUpperCase()
+  );
+
+  return `${wholeInWords} ${currency} And ${fractionInWords} Cents Only`;
+};
+const words = convertToCurrencyWords(finalInvoiceValue, "USD");
+console.log(words);
+
 
   useEffect(() => {
     const fetchAllBanks = async () => {
@@ -144,6 +162,7 @@ const InvoiceForm = () => {
   }, [watch("selectedAddress")]);
 
   const onSubmit = async (formData) => {
+    
     const customer = fabricatorData?.find(
       (fab) => fab.id === formData?.fabricatorId
     );
@@ -153,11 +172,9 @@ const InvoiceForm = () => {
     const selectedBankAccount = bankAccounts.find(
       (bank) => bank.id === formData.bankAccountId
     );
+    console.log(formData);
 
-    console.log(selectedBankAccount);
-
-    const finalInvoiceValue = grandTotal * 1.18;
-
+    
     const formattedInvoiceItems = (formData.invoiceItems || []).map((item) => ({
       ...item,
       unit: parseInt(item.unit) || 0,
@@ -184,12 +201,11 @@ const InvoiceForm = () => {
       address: formData.address,
       stateCode: formData.stateCode,
       GSTIN: formData.GSTIN,
-      invoiceNumber: formData.invoiceNumber,
       placeOfSupply: formData.placeOfSupply,
       jobName: formData.jobName,
       currencyType: formData.currencyType,
       TotalInvoiveValues: finalInvoiceValue.toFixed(2),
-      TotalInvoiveValuesinWords: formData.TotalInvoiveValuesinWords,
+      TotalInvoiveValuesinWords: words,
       invoiceItems: formattedInvoiceItems,
       accountInfo: accountInfoPayload,
     };
@@ -292,11 +308,11 @@ const InvoiceForm = () => {
             Invoice & Job Details
           </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            {/* <Input
               label="Invoice Number"
               placeholder="Invoice Number"
               {...register("invoiceNumber")}
-            />
+            /> */}
             <Input
               label="Job Name"
               placeholder="Job Name"
