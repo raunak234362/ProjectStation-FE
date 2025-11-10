@@ -340,11 +340,19 @@ console.log(words);
               placeholder="Place of Supply"
               {...register("placeOfSupply")}
             />
-            <Input
-              label="Currency"
-              placeholder="Currency"
-              {...register("currencyType")}
-              readOnly
+            <CustomSelect
+              label={
+                <span>
+                  Currency <span className="text-red-500">*</span>
+                </span>
+              }
+              placeholder="Select Project"
+              options={filteredProjects?.map((proj) => ({
+                label: proj.name,
+                value: proj.id,
+              }))}
+              {...register("projectId", { required: "Project is required" })}
+              onChange={setValue}
             />
           </div>
         </fieldset>

@@ -2,13 +2,15 @@
 import React, { useEffect, useState } from "react";
 import Service from "../../config/Service";
 import { Button } from "../index";
+import numWords from "num-words";
+
 
 const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
   const [invoice, setInvoice] = useState(null);
   // bankDetails state now holds the extracted object from invoice.accountInfo[0]
   const [bankDetails, setBankDetails] = useState(null);
   const [loading, setLoading] = useState(true);
-console.log(invoice);
+  console.log(invoice);
   // Constants for design elements (Keeping your originals)
   const PRIMARY_COLOR = "teal-700";
   const ACCENT_COLOR = "teal-500";
@@ -57,6 +59,10 @@ console.log(invoice);
   const igstRate = 0.18; // 18% IGST
   const igstAmount = subtotal * igstRate;
   const grandTotal = subtotal + igstAmount;
+  // Convert grand total to words (USD)
+  const grandTotalInWords = `${numWords(
+    Math.floor(grandTotal)
+  )} US Dollars Only`;
 
   if (!isOpen) return null;
 
@@ -276,8 +282,7 @@ console.log(invoice);
                   <p className="font-medium text-sm">
                     Total Invoice Value (in Words):{" "}
                     <span className="font-bold italic text-green-800">
-                      {invoice?.TotalInvoiveValuesinWords ||
-                        "US Dollars Not specified"}{" "}
+                      {grandTotalInWords}
                     </span>
                   </p>
                 </div>
@@ -317,7 +322,6 @@ console.log(invoice);
                     </div>
                   </div>
 
-                  
                   <div
                     className={`text-right text-lg font-extrabold bg-green-800 text-white p-3`}
                   >
@@ -328,8 +332,7 @@ console.log(invoice);
                         {(invoice?.TotalInvoiveValues
                           ? parseFloat(invoice.TotalInvoiveValues)
                           : grandTotal
-                        )
-                          .toFixed(2)}
+                        ).toFixed(2)}
                       </span>
                     </div>
                   </div>
