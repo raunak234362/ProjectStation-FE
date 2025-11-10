@@ -7,19 +7,15 @@ import numWords from "num-words";
 
 const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
   const [invoice, setInvoice] = useState(null);
-  // bankDetails state now holds the extracted object from invoice.accountInfo[0]
+  const currency = invoice?.currencyType;
   const [bankDetails, setBankDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   console.log(invoice);
-  // Constants for design elements (Keeping your originals)
-  const PRIMARY_COLOR = "teal-700";
-  const ACCENT_COLOR = "teal-500";
-  const PRIMARY_COLOR_BG = "bg-teal-700";
-  const PRIMARY_COLOR_TEXT = "text-teal-700";
-  const ACCENT_COLOR_BG = "bg-teal-100";
-  const ACCENT_COLOR_TEXT = "text-teal-500"; // Used this less, replaced with teal-800 for better contrast
 
-  // --- Fetch Invoice Data (ORIGINAL LOGIC PRESERVED) ---
+ 
+  const ACCENT_COLOR = "teal-500";
+ 
+  
   const fetchInvoice = async () => {
     try {
       setLoading(true);
@@ -36,7 +32,7 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
       }
     } catch (err) {
       console.error("Error loading invoice:", err);
-      // setBankDetails(null) will be triggered if accountInfo is missing/empty
+
     } finally {
       setLoading(false);
     }
@@ -46,29 +42,27 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
     if (invoiceId && isOpen) fetchInvoice();
   }, [invoiceId, isOpen]);
 
-  // --- Calculations for Totals (ORIGINAL LOGIC PRESERVED) ---
-  const subtotal =
-    invoice?.invoiceItems?.reduce((sum, item) => {
+ const subtotal =
+   invoice?.invoiceItems?.reduce((sum, item) => {
       // Safely calculate total USD, prioritizing existing totalUSD if available
       const totalUSD =
         parseFloat(item.totalUSD) ||
         (parseFloat(item.rateUSD) || 0) * (parseInt(item.unit) || 0);
       return sum + totalUSD;
-    }, 0) || 0;
+   }, 0) || 0;
 
-  const igstRate = 0.18; // 18% IGST
-  const igstAmount = subtotal * igstRate;
-  const grandTotal = subtotal + igstAmount;
-  // Convert grand total to words (USD)
-  const grandTotalInWords = `${numWords(
-    Math.floor(grandTotal)
-  )} US Dollars Only`;
+const grandTotal = subtotal;
+
+const grandTotalInWords = `${numWords(Math.floor(grandTotal))} ${
+  currency === "USD" ? "US Dollars" : "Canadian Dollars"
+} Only`;
+
 
   if (!isOpen) return null;
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    // Matching the format from the PDF: May 29, 2025 [cite: 21]
+
     return new Date(dateString).toLocaleDateString("en-US", {
       month: "short",
       day: "2-digit",
@@ -87,7 +81,6 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
           isOpen ? "scale-100" : "scale-95"
         }`}
       >
-        {/* Close Button - Moved slightly up to be outside the main padding */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-3xl font-light text-gray-500 hover:text-red-500 z-50 transition bg-white rounded-full p-2 shadow-lg"
@@ -127,9 +120,7 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
             id="invoice-preview"
             className="p-8 md:p-12 text-sm text-gray-800"
           >
-            {/* --- HEADER: LOGO, BRANDING & INVOICE DETAILS (Redesign based on PDF) --- */}
             <header className="flex justify-between items-end mb-10 pb-4 border-b-2 border-green-700">
-              {/* Left: Logo & Tagline (Whiteboard Technologies LLC) [cite: 1, 50] */}
               <div className="flex flex-col">
                 <div className="flex items-center space-x-2">
                   <img
@@ -141,7 +132,6 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
               </div>
             </header>
 
-            {/* --- SUPPLIER (Billed From) & RECIPIENT (Billed To) DETAILS (Clean Vertical Split) --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
               <div className="p-4 border-l-4 border-gray-300 bg-gray-50 rounded-r-md">
                 <h3 className="text-xs font-bold text-green-700 mb-3 uppercase tracking-wider">
@@ -268,7 +258,7 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
                       Subtotal (Before Tax)
                     </td>
                     <td className="px-4 py-2 text-right font-mono text-base text-gray-800 font-semibold">
-                      ${subtotal.toFixed(2)}
+                      {currency} {subtotal.toFixed(2)}
                     </td>
                   </tr>
                 </tbody>
@@ -302,33 +292,14 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
               {/* Right: Tax and Grand Total Box */}
               <div className="w-full md:w-[40%] mt-6 md:mt-0">
                 <div className="border border-gray-400 rounded-lg overflow-hidden shadow-xl">
-                  <div className="text-right text-sm">
-                    <div className="flex justify-between px-3 py-2 bg-gray-50 border-b border-gray-300">
-                      <span className="font-semibold text-gray-600">
-                        IGST @ 18%:
-                      </span>
-                      <span className="font-mono text-red-600 font-bold">
-                        ${igstAmount.toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between px-3 py-2 bg-gray-50">
-                      <span className="font-semibold text-gray-600">
-                        Total GST:
-                      </span>
-                      <span className="font-mono text-red-600 font-bold">
-                        ${igstAmount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-
                   <div
                     className={`text-right text-lg font-extrabold bg-green-800 text-white p-3`}
                   >
                     <div className="flex justify-between items-center">
-                      <span>TOTAL DUE (USD):</span>
+                      <span>TOTAL DUE ({currency}):</span>
+
                       <span className={`font-black font-mono text-3xl`}>
-                        $
+                        {currency}{" "}
                         {(invoice?.TotalInvoiveValues
                           ? parseFloat(invoice.TotalInvoiveValues)
                           : grandTotal
@@ -345,7 +316,7 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
               <h3
                 className={`text-md font-bold text-gray-800 mb-4 border-b pb-1 text-light-green-700`}
               >
-                ACH/Domestic Wire Instructions (USD Currency){" "}
+                ACH/Domestic Wire Instructions {" "}
                 {/* Matches PDF title [cite: 52, 51] */}
               </h3>
               {bankDetails ? (

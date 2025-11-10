@@ -7,6 +7,7 @@ import Input from "../fields/Input";
 import Button from "../fields/Button";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
+import numWords from "num-words";
 
 const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
   const {
@@ -23,6 +24,8 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
       currencyType: "USD",
     },
   });
+
+  const selectedCurrency = watch("currencyType");
 
   const [grandTotal, setGrandTotal] = useState(0);
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -65,7 +68,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     name: "invoiceItems",
   });
 
-  // 🧾 Fetch existing invoice details
+  // 🧾 Fetch existing invoice details and prefill
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
@@ -73,13 +76,14 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
         const invoiceData = response?.data;
 
         if (invoiceData) {
-          // Pre-fill form with existing data
+          // Pre-fill form with existing data (ensure currencyType present)
           reset({
             ...invoiceData,
+            currencyType: invoiceData.currencyType || "USD",
             invoiceItems: invoiceData.invoiceItems || [],
           });
 
-          // Calculate total
+          // Calculate subtotal from invoice items
           let total = 0;
           (invoiceData.invoiceItems || []).forEach((item) => {
             total += parseFloat(item.totalUSD) || 0;
@@ -94,7 +98,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     if (invoiceId && isOpen) fetchInvoice();
   }, [invoiceId, isOpen, reset]);
 
-  // 🏦 Fetch bank accounts
+  // 🏦 Fetch bank accounts (same as InvoiceForm)
   useEffect(() => {
     const fetchAllBanks = async () => {
       setBankLoading(true);
@@ -110,7 +114,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     fetchAllBanks();
   }, []);
 
-  // 💰 Calculate totals
+  // 💰 Calculate totals (subtotal only). Watch for rate/unit changes.
   useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name && (name.endsWith(".rateUSD") || name.endsWith(".unit"))) {
@@ -120,6 +124,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
           const rate = parseFloat(row.rateUSD) || 0;
           const unit = parseInt(row.unit) || 0;
           const totalUSD = rate * unit;
+          // store as number (two decimals) in field
           setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2));
           total += totalUSD;
         });
@@ -129,36 +134,56 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
 
-  // 🧾 Update invoice
-    const onSubmit = async (data) => {
-      console.log("-========================",data)
-    const formattedItems = data.invoiceItems.map((i) => ({
+  // convert subtotal to words with currency label (USD / CAD)
+  const convertToCurrencyWords = (amount, currency = "USD") => {
+    if (amount == null || isNaN(amount)) return "";
+    const [whole, fraction] = Number(amount).toFixed(2).split(".");
+    // handle zero whole or fraction using numWords safely
+    const wholeNum = parseInt(whole, 10) || 0;
+    const fractionNum = parseInt(fraction, 10) || 0;
+    const wholeInWords = numWords(wholeNum || 0).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const fractionInWords = numWords(fractionNum || 0).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const currencyLabel =
+      currency === "CAD" ? "Canadian Dollars" : "US Dollars";
+    return `${wholeInWords} ${currencyLabel} And ${fractionInWords} Cents Only`;
+  };
+
+  const words = convertToCurrencyWords(grandTotal, selectedCurrency);
+
+  // 🧾 Update invoice (submit)
+  const onSubmit = async (data) => {
+    const formattedItems = (data.invoiceItems || []).map((i) => ({
       ...i,
-      unit: parseInt(i.unit) || 0,
+      unit: parseInt(i.unit, 10) || 0,
       rateUSD: parseFloat(i.rateUSD) || 0,
       totalUSD: parseFloat(i.totalUSD) || 0,
     }));
 
-   const payload = {
-     fabricatorId: data.fabricatorId,
-     clientId: data.clientId,
-     GSTIN: data.GSTIN,
-     stateCode: data.stateCode,
-     address: data.address,
-     invoiceNumber: data.invoiceNumber,
-     jobName: data.jobName,
-     placeOfSupply: data.placeOfSupply,
-     currencyType: data.currencyType,
-     totalInvoiceValueInWords: data.totalInvoiceValueInWords,
-     invoiceItems: formattedItems,
-     TotalInvoiveValues: (grandTotal * 1.18).toFixed(2),
-   };
+    const payload = {
+      fabricatorId: data.fabricatorId,
+      clientId: data.clientId,
+      GSTIN: data.GSTIN,
+      stateCode: data.stateCode,
+      address: data.address,
+      invoiceNumber: data.invoiceNumber,
+      jobName: data.jobName,
+      placeOfSupply: data.placeOfSupply,
+      currencyType: data.currencyType,
+      // keep the same field name you had for total-in-words
+      totalInvoiceValueInWords: words,
+      invoiceItems: formattedItems,
+      // Final total = subtotal (no IGST/GST)
+      TotalInvoiveValues: grandTotal.toFixed(2),
+      // include selected bank account id if present
+      bankAccountId: data.bankAccountId,
+    };
 
-console.log(payload,"============")
     try {
-        const response = await Service.editInvoice(invoiceId, payload);
-        console.log("-------------",response);
-        
+      const response = await Service.editInvoice(invoiceId, payload);
       toast.success("Invoice updated successfully!");
       onSave?.();
       onClose?.();
@@ -218,7 +243,27 @@ console.log(payload,"============")
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               <Input label="Place of Supply" {...register("placeOfSupply")} />
-              <Input label="Currency" {...register("currencyType")} readOnly />
+              {/* currency field (editable dropdown) */}
+              <CustomSelect
+                label="Currency"
+                options={[
+                  { label: "USD (United States Dollar)", value: "USD" },
+                  { label: "CAD (Canadian Dollar)", value: "CAD" },
+                ]}
+                {...register("currencyType")}
+                onChange={(field, value) => setValue("currencyType", value)}
+              />
+              {/* Bank Account dropdown (as requested) */}
+              <CustomSelect
+                label="Bank Account"
+                placeholder={
+                  bankLoading ? "Loading Banks..." : "Select Bank Account"
+                }
+                options={bankAccountOptions}
+                {...register("bankAccountId")}
+                onChange={setValue}
+                disabled={bankLoading || bankAccountOptions.length === 0}
+              />
             </div>
           </fieldset>
 
@@ -330,12 +375,15 @@ console.log(payload,"============")
             <Input
               label="Total Invoice Value (in Words)"
               {...register("totalInvoiceValueInWords")}
+              value={words}
+              readOnly
             />
             <div className="bg-teal-50 p-4 rounded-lg text-right font-semibold">
-              <p>Subtotal: ${grandTotal.toFixed(2)}</p>
-              <p>IGST (18%): ${(grandTotal * 0.18).toFixed(2)}</p>
+              
+              {/* IGST/GST removed as requested */}
               <p className="text-xl font-bold">
-                Final: ${(grandTotal * 1.18).toFixed(2)}
+                Total Invoice Value: {selectedCurrency === "CAD" ? "C$" : "$"}
+                {grandTotal.toFixed(2)}
               </p>
             </div>
           </div>
