@@ -346,13 +346,15 @@ console.log(words);
                   Currency <span className="text-red-500">*</span>
                 </span>
               }
-              placeholder="Select Project"
-              options={filteredProjects?.map((proj) => ({
-                label: proj.name,
-                value: proj.id,
-              }))}
-              {...register("projectId", { required: "Project is required" })}
-              onChange={setValue}
+              placeholder="Select Currency"
+              options={[
+                { label: "USD (United States Dollar)", value: "USD" },
+                { label: "CAD (Canadian Dollar)", value: "CSD" },
+              ]}
+              {...register("currencyType", {
+                required: "Currency is required",
+              })}
+              onChange={(field, value) => setValue("currencyType", value)}
             />
           </div>
         </fieldset>
