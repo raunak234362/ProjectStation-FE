@@ -81,14 +81,12 @@ const ClientProjectDetail = ({
     const groups = new Map();
 
     tasks.forEach((task) => {
-      // console.log("Task milestone raw:", task.milestone, task.mileStone, task);
-
       const ms = task.milestone || task.mileStone || {};
       const id = task.milestone_id || task.mileStone_id || ms.id;
       const subject =
         ms.subject || ms.Subject || ms.name || task.milestone_name;
 
-      if (!id && !subject) return; // ✅ only skip if both missing
+      if (!id && !subject) return;
 
       const key = `${id || subject}`;
       if (!groups.has(key))
@@ -96,7 +94,10 @@ const ClientProjectDetail = ({
           id,
           subject: subject || "Unnamed Milestone",
           tasks: [],
+          startDate: ms.startDate || ms.StartDate || task.startDate,
+          endDate: ms.endDate || ms.EndDate || task.endDate,
         });
+
       groups.get(key).tasks.push(task);
     });
 
@@ -105,8 +106,36 @@ const ClientProjectDetail = ({
       const completedCount = group.tasks.filter(
         (t) => t.status === "COMPLETE"
       ).length;
-      const percentage = total ? Math.round((completedCount / total) * 100) : 0;
-      return { ...group, total, completedCount, percentage };
+
+      const taskPercentage = total
+        ? Math.round((completedCount / total) * 100)
+        : 0;
+
+      // ✅ TIME BASED %
+      let timePercent = 0;
+      if (group.startDate && group.endDate) {
+        const today = new Date();
+        const start = new Date(group.startDate);
+        const end = new Date(group.endDate);
+
+        const fullDuration = end - start;
+        const passed = today - start;
+
+        if (fullDuration > 0) {
+          timePercent = Math.min(
+            100,
+            Math.max(0, Math.round((passed / fullDuration) * 100))
+          );
+        }
+      }
+
+      return {
+        ...group,
+        total,
+        completedCount,
+        taskPercentage,
+        timePercent,
+      };
     });
   };
 
@@ -150,16 +179,31 @@ const ClientProjectDetail = ({
             </h4>
             {getMilestoneStatus(projectData?.tasks).length > 0 ? (
               getMilestoneStatus(projectData?.tasks).map((ms) => (
-                <div key={ms.id} className="flex items-center gap-5 mb-1">
-                  {/* ✅ Show milestone subject */}
-                  <span className="text-gray-800 text-sm font-semibold">
-                    {ms.subject}
-                  </span>
+                <div key={ms.id} className="mb-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-800 font-medium text-sm">
+                      {ms.subject}
+                    </span>
 
-                  {/* ✅ Show percentage */}
-                  <span className="text-gray-700 font-semibold text-sm">
-                    {ms.percentage}% completed
-                  </span>
+                    <span className="text-xs text-gray-500">
+                      Tasks: {ms.taskPercentage}% | Time: {ms.timePercent}%
+                    </span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-1 relative">
+                    {/* Time Progress (background shadow layer) */}
+                    <div
+                      className="absolute top-0 left-0 h-2 rounded-full bg-gray-400 opacity-40"
+                      style={{ width: `${ms.timePercent}%` }}
+                    ></div>
+
+                    {/* Task Completion (real progress) */}
+                    <div
+                      className="absolute top-0 left-0 h-2 rounded-full bg-teal-500"
+                      style={{ width: `${ms.taskPercentage}%` }}
+                    ></div>
+                  </div>
                 </div>
               ))
             ) : (
@@ -238,7 +282,6 @@ const ClientProjectDetail = ({
             </div>
 
             <div className="space-y-4">
-              
               <div className="grid grid-cols-3 gap-4">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500 mb-1">

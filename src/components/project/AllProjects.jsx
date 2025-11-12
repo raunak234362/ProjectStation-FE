@@ -168,7 +168,7 @@ const AllProjects = () => {
             StatusIcon = Loader2;
             statusColor = "text-blue-500";
             statusBgColor = "bg-blue-50";
-          } else if (status === "ON-HOLD") {
+          } else if (status === "ONHOLD") {
             StatusIcon = PauseCircle;
             statusColor = "text-amber-500";
             statusBgColor = "bg-amber-50";
@@ -336,9 +336,7 @@ const AllProjects = () => {
             <option value="">All Status</option>
             <option value="ASSIGNED">ASSIGNED</option>
             <option value="ACTIVE">ACTIVE</option>
-            <option value="ON-HOLD">ON-HOLD</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="DELAY">DELAY</option>
+            <option value="ONHOLD">ON-HOLD</option>
             <option value="COMPLETE">COMPLETED</option>
           </select>
 

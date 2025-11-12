@@ -9,7 +9,8 @@ import toast from "react-hot-toast";
 import Service from "../../../config/Service";
 import { updateProjectData } from "../../../store/projectSlice";
 import Input from "../../fields/Input";
-import { Button, CustomSelect } from "../..";
+import { Button, CustomSelect, Toggle } from "../..";
+import SectionTitle from "../../../util/SectionTitle";
 
 const EditProject = ({ project, onUpdate, onClose }) => {
   const [teamOptions, setTeamOptions] = useState([]);
@@ -203,12 +204,8 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 options={[
                   { label: "ACTIVE", value: "ACTIVE" },
                   { label: "ON-HOLD", value: "ONHOLD" },
-                  { label: "INACTIVE", value: "INACTIVE" },
-                  { label: "DELAY", value: "DELAY" },
                   { label: "REOPEN", value: "REOPEN" },
                   { label: "COMPLETE", value: "COMPLETE" },
-                  { label: "SUBMIT", value: "SUBMIT" },
-                  { label: "SUSPEND", value: "SUSPEND" },
                   { label: "CANCEL", value: "CANCEL" },
                 ]}
                 defaultValue={project?.projectStatus}
@@ -224,6 +221,40 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 className="w-full"
                 {...register("team")}
                 onChange={setValue}
+              />
+            </div>
+
+            <SectionTitle title="Connection Design Scope" />
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Toggle
+                label="Main Design"
+                {...register("connectionDesign")}
+                onChange={(value) => setValue("connectionDesign", value)}
+              />
+              <Toggle
+                label="Misc Design"
+                {...register("miscDesign")}
+                onChange={(value) => setValue("miscDesign", value)}
+              />
+              <Toggle
+                label="Custom Design"
+                {...register("customerDesign")}
+                onChange={(value) => setValue("customerDesign", value)}
+              />
+            </div>
+
+            {/* Detailing Scope */}
+            <SectionTitle title="Detailing Scope" />
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Toggle
+                label="Main Steel"
+                {...register("detailingMain")}
+                onChange={(value) => setValue("detailingMain", value)}
+              />
+              <Toggle
+                label="Miscellaneous Steel"
+                {...register("detailingMisc")}
+                onChange={(value) => setValue("detailingMisc", value)}
               />
             </div>
 

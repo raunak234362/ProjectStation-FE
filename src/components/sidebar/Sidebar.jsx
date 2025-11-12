@@ -17,7 +17,7 @@ const Sidebar = () => {
     const userData = await Service.getCurrentUser(token);
     setCurrentUser(userData[0]);
   };
-
+  
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -114,7 +114,7 @@ const Sidebar = () => {
       label: "Bank Accounts",
       to: "bank-accounts",
       icon: <Database />,
-      roles: ["admin", "PMO", "client"],
+      roles: ["admin", "PMO"],
     },
     {
       label: "Chats",
@@ -130,6 +130,7 @@ const Sidebar = () => {
         "estimator-head",
       ],
     },
+    
     {
       label: "Profile",
       to: "profile",
