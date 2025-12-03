@@ -18,6 +18,10 @@ import TeamStatsCards from "./TeamStatsCards";
 import MonthlyEfficiencyChart from "./MonthlyEfficiencyChart";
 import TeamMembersTable from "./TeamMembersTable";
 import TaskDistribution from "./TaskDistribution";
+import ProjectsSection from "../utils/ProjectSection";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import toast from "react-hot-toast";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -77,7 +81,6 @@ const TeamDashboard = () => {
         setLoading(false);
       }
     };
-
     fetchTeams();
   }, [dispatch, token]);
 
@@ -91,8 +94,13 @@ const TeamDashboard = () => {
         const response = await Service.getTeamById(selectedTeam);
 
         if (response?.data) {
-          setTeamMembers(response.data.members);
-          calculateTeamStats(response.data.members);
+          // ✅ Filter out disabled users
+          const activeMembers = response.data.members.filter(
+            (member) => !member.is_disabled
+          );
+
+          setTeamMembers(activeMembers);
+          calculateTeamStats(activeMembers);
         }
         setLoading(false);
       } catch (error) {
@@ -107,16 +115,16 @@ const TeamDashboard = () => {
   // Calculate team statistics
   const calculateTeamStats = async (members) => {
     try {
+      // ✅ Ignore disabled members at stats level too (safety)
+      const activeMembers = members.filter((m) => !m.is_disabled);
+
       const memberStats = await Promise.all(
-        members.map(async (member) => {
+        activeMembers.map(async (member) => {
           try {
             const response = await Service.getUsersStats(member.id);
             return response.data;
           } catch (error) {
-            console.error(
-              `Error fetching stats for member ${member.id}:`,
-              error
-            );
+            console.error(`Error fetching stats for member ${member.id}:`, error);
             return null;
           }
         })
@@ -135,10 +143,24 @@ const TeamDashboard = () => {
         };
       });
 
+      const allFilteredTasks = filteredStats.flatMap((m) => m.tasks || []);
+
+      const uniqueProjects = [];
+      const projectIds = new Set();
+      for (const t of allFilteredTasks) {
+        const p = t?.project;
+        if (p && p.id != null && !projectIds.has(p.id)) {
+          projectIds.add(p.id);
+          uniqueProjects.push(p);
+        }
+      }
+
       const totalAssignedHours = filteredStats.reduce((total, member) => {
-        const memberAssignedHours = member.tasks.reduce((sum, task) => {
-          return sum + parseDurationToMinutes(task.duration || "00:00:00") / 60;
-        }, 0);
+        const memberAssignedHours = member.tasks.reduce(
+          (sum, task) =>
+            sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
+          0
+        );
         return total + memberAssignedHours;
       }, 0);
 
@@ -154,19 +176,21 @@ const TeamDashboard = () => {
         0
       );
 
-      const completedTasks = filteredStats.reduce((total, member) => {
-        return (
-          total +
-          member.tasks.filter((task) => task.status === "COMPLETE").length
-        );
-      }, 0);
+      const projectCount = uniqueProjects.length;
 
-      const inProgressTasks = filteredStats.reduce((total, member) => {
-        return (
+      const completedTasks = filteredStats.reduce(
+        (total, member) =>
           total +
-          member.tasks.filter((task) => task.status === "IN_PROGRESS").length
-        );
-      }, 0);
+          member.tasks.filter((task) => task.status === "COMPLETE").length,
+        0
+      );
+
+      const inProgressTasks = filteredStats.reduce(
+        (total, member) =>
+          total +
+          member.tasks.filter((task) => task.status === "IN_PROGRESS").length,
+        0
+      );
 
       const efficiency =
         totalAssignedHours > 0
@@ -185,6 +209,8 @@ const TeamDashboard = () => {
         efficiency,
         completionRate,
         memberStats: filteredStats,
+        projects: uniqueProjects,
+        projectCount,
       });
 
       calculateMonthlyEfficiency(filteredStats);
@@ -193,7 +219,6 @@ const TeamDashboard = () => {
     }
   };
 
-  // Calculate monthly efficiency data
   const calculateMonthlyEfficiency = (memberStats) => {
     const monthlyData = {};
     const currentYear = new Date().getFullYear();
@@ -239,7 +264,6 @@ const TeamDashboard = () => {
     setMonthlyEfficiency(monthlyEfficiencyData);
   };
 
-  // Filter tasks based on date range
   const filterTasksByDateRange = (tasks, filter) => {
     if (!tasks || !Array.isArray(tasks)) return [];
     if (filter.type === "all") return tasks;
@@ -284,14 +308,12 @@ const TeamDashboard = () => {
     });
   };
 
-  // Helper function to parse duration string to minutes
   const parseDurationToMinutes = (duration) => {
     if (!duration) return 0;
     const [hours, minutes, seconds] = duration.split(":").map(Number);
     return hours * 60 + minutes + Math.floor(seconds / 60);
   };
 
-  // Handle search and filtering
   useEffect(() => {
     if (!teams) return;
 
@@ -312,28 +334,16 @@ const TeamDashboard = () => {
     setFilteredTeams(filtered);
   }, [searchTerm, filterStatus, teams]);
 
-  // Update team stats when date filter changes
   useEffect(() => {
     if (selectedTeam && teamMembers.length > 0) {
       calculateTeamStats(teamMembers);
     }
   }, [dateFilter, selectedTeam, teamMembers]);
 
-  // Handle team selection
-  const handleTeamSelect = (teamId) => {
-    setSelectedTeam(teamId);
-  };
+  const handleTeamSelect = (teamId) => setSelectedTeam(teamId);
+  const handleMemberClick = (memberId) => setSelectedEmployee(memberId);
+  const handleCloseModal = () => setSelectedEmployee(null);
 
-  // Handle member click to show detailed view
-  const handleMemberClick = (memberId) => {
-    setSelectedEmployee(memberId);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedEmployee(null);
-  };
-
-  // Get efficiency color class based on value
   const getEfficiencyColorClass = (efficiency) => {
     if (efficiency >= 90) return "bg-green-100 text-green-800";
     if (efficiency >= 70) return "bg-blue-100 text-blue-800";
@@ -341,50 +351,53 @@ const TeamDashboard = () => {
     return "bg-red-100 text-red-800";
   };
 
-  // Prepare data for react-table
   const tableData = useMemo(() => {
     if (!teamMembers || !teamStats.memberStats) return [];
 
-    return teamMembers.map((member, index) => {
-      const memberStat = teamStats.memberStats?.find(
-        (stat) => stat.id === member.id
-      );
+    return teamMembers
+      .filter((member) => !member.is_disabled)
+      .map((member, index) => {
+        const memberStat = teamStats.memberStats?.find(
+          (stat) => stat.id === member.id
+        );
 
-      const assignedHours =
-        memberStat?.tasks
-          .reduce(
-            (sum, task) =>
-              sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
-            0
-          )
-          .toFixed(2) || "0.00";
+        const assignedHours =
+          memberStat?.tasks
+            .reduce(
+              (sum, task) =>
+                sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
+              0
+            )
+            .toFixed(2) || "0.00";
 
-      const workedHours =
-        memberStat?.tasks
-          .flatMap((task) => task.workingHourTask || [])
-          .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0)
-          .toFixed(2) || "0.00";
+        const workedHours =
+          memberStat?.tasks
+            .flatMap((task) => task.workingHourTask || [])
+            .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0)
+            .toFixed(2) || "0.00";
 
-      const totalTasks = memberStat?.tasks.length || 0;
-      const completedTasks =
-        memberStat?.tasks.filter((task) => task.status === "COMPLETE").length ||
-        0;
+        const totalTasks = memberStat?.tasks.length || 0;
+        const completedTasks =
+          memberStat?.tasks.filter((task) => task.status === "COMPLETE").length ||
+          0;
 
-      const efficiency =
-        assignedHours > 0 ? Math.round((assignedHours / workedHours) * 100) : 0;
+        const efficiency =
+          assignedHours > 0
+            ? Math.round((assignedHours / workedHours) * 100)
+            : 0;
 
-      return {
-        sno: index + 1,
-        id: member.id,
-        name: `${member.f_name} ${member.m_name || ""} ${member.l_name}`,
-        role: member.role || "Member",
-        assignedHours,
-        workedHours,
-        totalTasks,
-        completedTasks,
-        efficiency,
-      };
-    });
+        return {
+          sno: index + 1,
+          id: member.id,
+          name: `${member.f_name} ${member.m_name || ""} ${member.l_name}`,
+          role: member.role || "Member",
+          assignedHours,
+          workedHours,
+          totalTasks,
+          completedTasks,
+          efficiency,
+        };
+      });
   }, [teamMembers, teamStats.memberStats]);
 
   const formatToHoursMinutes = (val) => {
@@ -396,7 +409,6 @@ const TeamDashboard = () => {
       .padStart(2, "0")} mins`;
   };
 
-  // Define columns for react-table
   const columns = useMemo(
     () => [
       {
@@ -446,13 +458,12 @@ const TeamDashboard = () => {
               <div
                 className="h-full bg-green-500 rounded-full"
                 style={{
-                  width: `${
-                    row.original.totalTasks > 0
-                      ? (row.original.completedTasks /
-                          row.original.totalTasks) *
-                        100
-                      : 0
-                  }%`,
+                  width: `${row.original.totalTasks > 0
+                    ? (row.original.completedTasks /
+                      row.original.totalTasks) *
+                    100
+                    : 0
+                    }%`,
                 }}
               ></div>
             </div>
@@ -485,8 +496,104 @@ const TeamDashboard = () => {
     }
   };
 
-  const handleViewCloseModal = () => {
-    setIsViewModalOpen(false);
+  const handleViewCloseModal = () => setIsViewModalOpen(false);
+
+  const generateGlobalPDF = () => {
+    try {
+      const doc = new jsPDF();
+      const today = new Date().toLocaleDateString();
+
+      // Title
+      doc.setFontSize(20);
+      doc.text("Team Performance Report", 14, 22);
+      doc.setFontSize(11);
+      doc.text(`Date: ${today}`, 14, 30);
+      doc.text(`Team: ${teams?.find((t) => t.id === selectedTeam)?.name || "All Teams"}`, 14, 36);
+
+      // Summary Section
+      doc.setFontSize(14);
+      doc.text("Executive Summary", 14, 50);
+
+      const summaryData = [
+        ["Total Assigned Hours", teamStats?.totalAssignedHours || "0"],
+        ["Total Worked Hours", teamStats?.totalWorkedHours || "0"],
+        ["Overall Efficiency", `${teamStats?.efficiency || 0}%`],
+        ["Completion Rate", `${teamStats?.completionRate || 0}%`],
+        ["Total Tasks", teamStats?.totalTasks || "0"],
+        ["Completed Tasks", teamStats?.completedTasks || "0"],
+        ["In Progress Tasks", teamStats?.inProgressTasks || "0"],
+      ];
+
+      autoTable(doc, {
+        startY: 55,
+        head: [["Metric", "Value"]],
+        body: summaryData,
+        theme: "grid",
+        headStyles: { fillColor: [66, 133, 244] },
+      });
+
+      // Projects Section
+      let finalY = doc.lastAutoTable.finalY + 15;
+      doc.text("Active Projects", 14, finalY);
+
+      const projectsData = (teamStats?.projects || []).map((p, index) => [
+        index + 1,
+        p.name,
+        p.status || "N/A",
+        // Add more project details if available in p object
+      ]);
+
+      autoTable(doc, {
+        startY: finalY + 5,
+        head: [["#", "Project Name", "Status"]],
+        body: projectsData.length ? projectsData : [["-", "No active projects", "-"]],
+        theme: "striped",
+        headStyles: { fillColor: [66, 133, 244] },
+      });
+
+      // Employees Section
+      finalY = doc.lastAutoTable.finalY + 15;
+      doc.text("Team Member Performance", 14, finalY);
+
+      const employeeData = (teamStats?.memberStats || []).map((m, index) => {
+        // Re-calculate or use pre-calculated if available. 
+        // Using logic similar to tableData useMemo for consistency
+        const assignedHrs = m.tasks.reduce((sum, task) => {
+          const [h, min] = (task.duration || "0:0").split(":").map(Number);
+          return sum + h + (min / 60);
+        }, 0).toFixed(2);
+
+        const workedHrs = m.tasks.flatMap(t => t.workingHourTask || []).reduce((sum, w) => sum + (w.duration || 0) / 60, 0).toFixed(2);
+
+        const eff = assignedHrs > 0 ? Math.round((assignedHrs / workedHrs) * 100) : 0;
+        const completed = m.tasks.filter(t => t.status === "COMPLETE").length;
+        const total = m.tasks.length;
+
+        return [
+          index + 1,
+          `${m.f_name} ${m.l_name}`,
+          m.role || "Member",
+          `${assignedHrs} hrs`,
+          `${workedHrs} hrs`,
+          `${eff}%`,
+          `${completed}/${total}`
+        ];
+      });
+
+      autoTable(doc, {
+        startY: finalY + 5,
+        head: [["#", "Name", "Role", "Assigned", "Worked", "Efficiency", "Tasks (C/T)"]],
+        body: employeeData.length ? employeeData : [["-", "No members found", "-", "-", "-", "-", "-"]],
+        theme: "striped",
+        headStyles: { fillColor: [66, 133, 244] },
+      });
+
+      doc.save(`Team_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success("Report generated successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate report. Please try again.");
+    }
   };
 
   return (
@@ -497,6 +604,7 @@ const TeamDashboard = () => {
         onSearchChange={setSearchTerm}
         dateFilter={dateFilter}
         onDateFilterChange={setDateFilter}
+        onGenerateReport={generateGlobalPDF}
       />
 
       {loading && !selectedTeam ? (
@@ -523,7 +631,7 @@ const TeamDashboard = () => {
                 <div className="p-4">
                   <div className="flex justify-between items-center">
                     <h2 className="text-xl font-bold text-gray-800 mb-6">
-                      Team:-{" "}
+                      Team:{" "}
                       <span className="font-normal">
                         {teams?.find((t) => t.id === selectedTeam)?.name ||
                           "Team Details"}
@@ -536,10 +644,10 @@ const TeamDashboard = () => {
                       View Details
                     </Button>
                   </div>
-
                   <TeamStatsCards teamStats={teamStats} />
                   <MonthlyEfficiencyChart
                     monthlyEfficiency={monthlyEfficiency}
+                    teamStats={teamStats}
                   />
                   <TeamMembersTable
                     tableData={tableData}
@@ -548,6 +656,7 @@ const TeamDashboard = () => {
                     formatToHoursMinutes={formatToHoursMinutes}
                     getEfficiencyColorClass={getEfficiencyColorClass}
                   />
+                  <ProjectsSection projects={teamStats?.projects || []} />
                   <TaskDistribution teamStats={teamStats} />
                 </div>
               )}
