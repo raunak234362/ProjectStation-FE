@@ -8,7 +8,7 @@ import ClientProjectDetail from "./ClientProjectDetail";
 import RFI from "../../rfi/RFI";
 import Submittals from "../../submittals/Submittals";
 import CO from "../../changeOrder/CO";
-import RenderFiles from "../RenderFiles";
+import RenderFiles from "../../RenderFiles";
 import AddFiles from "../projectTab/AddFiles";
 
 const ClientProjectStatus = ({ projectId, onClose }) => {
@@ -87,11 +87,10 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
             ].map(({ key, label }) => (
               <button
                 key={key}
-                className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${
-                  activeTab === key
-                    ? "bg-teal-500 text-white font-semibold rounded-md"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${activeTab === key
+                  ? "bg-teal-500 text-white font-semibold rounded-md"
+                  : "text-gray-600 hover:text-gray-900"
+                  }`}
                 onClick={() => setActiveTab(key)}
               >
                 {label}
@@ -109,18 +108,19 @@ const ClientProjectStatus = ({ projectId, onClose }) => {
             files={files}
             onAddFilesClick={handleAddFilesClick}
             formatDate={formatDate}
+            table="designDrawings"
           />
         )}
         {activeTab === "CO" && <CO projectData={projectData} />}
         {isAddFilesModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <AddFiles
-            projectId={projectId}
-            onUpdate={fetchProjectByID}
-            onClose={handleAddFilesClose}
-          />
-        </div>
-      )}
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <AddFiles
+              projectId={projectId}
+              onUpdate={fetchProjectByID}
+              onClose={handleAddFilesClose}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

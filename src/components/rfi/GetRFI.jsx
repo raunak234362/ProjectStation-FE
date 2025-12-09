@@ -5,42 +5,12 @@ import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import RFIResponse from "./response/RFIResponse";
-import { X } from "lucide-react";
+import { X, Share2, Download } from "lucide-react";
 import RFIDetail from "./RFIDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 
-const FileLinks = ({ files, rfiId, isResponse = false, responseId }) => {
-  const baseURL = import.meta.env.VITE_BASE_URL;
-  const responseID = responseId;
-  const rfiID = rfiId;
-  if (!Array.isArray(files) || files.length === 0) {
-    return <span className="text-sm text-gray-500">Not available</span>;
-  }
 
-  return files.map((file, index) => {
-    const fileUrl = isResponse
-      ? `${baseURL.replace(
-          /\/$/,
-          ""
-        )}/api/RFI/rfi/response/viewfile/${responseID}/${file.id}`
-      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiID}/${
-          file.id
-        }`;
-
-    return (
-      <a
-        key={file.id || index}
-        href={fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-teal-600 hover:underline block"
-      >
-        {file.originalName || `File ${index + 1}`}
-      </a>
-    );
-  });
-};
 
 const GetRFI = ({ rfiId, isOpen, onClose }) => {
   console.log(rfiId);
@@ -192,16 +162,15 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
 
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           <div className={`grid gap-4 `}>
-            <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfi_Id} />
+            <RFIDetail rfi={rfi} rfiId={rfi_Id} />
             {userType === "client" && (
               <div className="flex flex-col gap-4">
                 <Button
                   onClick={toggleResponseForm}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
-                    showResponseForm
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-teal-600 hover:bg-teal-700"
-                  }`}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${showResponseForm
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-teal-600 hover:bg-teal-700"
+                    }`}
                 >
                   {showResponseForm ? "Close Response Form" : "Add Response"}
                 </Button>

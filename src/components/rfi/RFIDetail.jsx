@@ -1,3 +1,4 @@
+import RenderFiles from "../RenderFiles";
 /* eslint-disable react/prop-types */
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col w-full">
@@ -8,7 +9,7 @@ const InfoItem = ({ label, value }) => (
   </div>
 );
 
-const RFIDetail = ({ rfi, FileLinks, rfiId }) => {
+const RFIDetail = ({ rfi, rfiId }) => {
 
   const statusText = rfi?.status === "replied" ? "Replied" : "No Reply";
   return (
@@ -24,11 +25,10 @@ const RFIDetail = ({ rfi, FileLinks, rfiId }) => {
           </h4>
         </div>
         <span
-          className={`px-4 py-1 rounded-full text-sm font-semibold ${
-            statusText === "Replied"
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
+          className={`px-4 py-1 rounded-full text-sm font-semibold ${statusText === "Replied"
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-700"
+            }`}
         >
           {statusText}
         </span>
@@ -53,7 +53,7 @@ const RFIDetail = ({ rfi, FileLinks, rfiId }) => {
             Files:
           </span>
           <div className="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <FileLinks files={rfi.files} rfiId={rfiId} />
+            <RenderFiles files={rfi.files} table="rFI" parentId={rfi.id} />
           </div>
         </div>
       </div>

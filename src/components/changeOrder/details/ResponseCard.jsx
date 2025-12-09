@@ -2,6 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useMemo, useState } from "react";
 import Button from "../../fields/Button";
+import RenderFiles from "../../RenderFiles";
 
 const ResponseCard = ({ co }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
@@ -62,6 +63,12 @@ const ResponseCard = ({ co }) => {
               View
             </Button>
           </div> */}
+          {/* The following RenderFiles component was added based on the instruction to pass parentId.
+              It is placed here as a sibling to the commented-out button for syntactic correctness,
+              as placing it inside the Button's children alongside text would be invalid JSX. */}
+          <div className="mt-4">
+            <RenderFiles files={response.files} table="cOResponse" parentId={co.id} />
+          </div>
         </div>
       ) : (
         <div>

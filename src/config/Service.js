@@ -1,5 +1,37 @@
 import api from "./api";
 const token = sessionStorage.getItem("token");
+
+export const createShareLink = async (table, parentId, fileId) => {
+  try {
+    const response = await api.post(
+      `/api/share/${table}/${parentId}/${fileId}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log("Error creating share link:", error);
+    throw error;
+  }
+};
+
+export const downloadShare = async (token) => {
+  try {
+    const response = await api.get(`/api/shareLink/${token}`, {
+      responseType: "blob",
+    });
+    return response.data;
+  } catch (error) {
+    console.log("Error downloading shared file:", error);
+    throw error;
+  }
+};
+
 class Service {
   // BASE_URL is stored as a constant
 

@@ -1,3 +1,5 @@
+import RenderFiles from "../RenderFiles";
+
 /* eslint-disable react/prop-types */
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col">
@@ -8,8 +10,8 @@ const InfoItem = ({ label, value }) => (
   </div>
 );
 
-const SubmittalDetail = ({ submittal, FileLinks, submittalId }) => {
-console.log(submittal)
+const SubmittalDetail = ({ submittal, submittalId }) => {
+  console.log(submittal)
 
   const statusText =
     submittal?.status === true ? "No reply" : "Replied";
@@ -18,7 +20,7 @@ console.log(submittal)
     <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-200">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-gradient-to-r from-teal-500 via-teal-400 to-teal-200 rounded-xl shadow-md mb-6">
-      <div className="flex items-end gap-4">
+        <div className="flex items-end gap-4">
           <h3 className="text-xl font-bold text-white tracking-wide">
             Submittal Information
           </h3>
@@ -27,11 +29,10 @@ console.log(submittal)
           </h4>
         </div>
         <span
-          className={`px-4 py-1 rounded-full text-sm font-semibold ${
-            statusText === true
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
+          className={`px-4 py-1 rounded-full text-sm font-semibold ${statusText === true
+            ? "bg-green-100 text-green-700"
+            : "bg-yellow-100 text-yellow-700"
+            }`}
         >
           {statusText}
         </span>
@@ -47,7 +48,7 @@ console.log(submittal)
             Files:
           </span>
           <div className="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <FileLinks files={submittal.files} submittalId={submittalId} />
+            <RenderFiles files={submittal.files} table="submittals" parentId={submittal.id} />
           </div>
         </div>
 
