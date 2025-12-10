@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   AreaChart,
   Area,
@@ -12,23 +12,26 @@ import {
 } from "recharts";
 import { DateTime } from "luxon";
 
-const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
+const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats, teams, fetchTeamStats, selectedTeam }) => {
   const [selectedRange, setSelectedRange] = useState("1M");
   const [customDateRange, setCustomDateRange] = useState({ start: "", end: "" });
+  const [comparedTeams, setComparedTeams] = useState([]); // Array of team IDs
+  const [comparedTeamsData, setComparedTeamsData] = useState({}); // Map: teamId -> data array
 
-  // Process real data from teamStats
-  const realDailyData = useMemo(() => {
-    if (!teamStats || !teamStats.memberStats) return [];
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088FE", "#00C49F"];
 
+  // Helper to process member stats into daily efficiency
+  const processMemberStats = useCallback((memberStats) => {
+    if (!memberStats) return [];
     const dailyMap = {};
 
-    teamStats.memberStats.forEach((member) => {
+    memberStats.forEach((member) => {
       if (member.is_disabled) return;
 
       member.tasks.forEach((task) => {
         const dateStr = task.start_date || task.startDate;
         if (!dateStr) return;
-        
+
         const date = DateTime.fromISO(dateStr).toISODate(); // YYYY-MM-DD
 
         if (!dailyMap[date]) {
@@ -49,78 +52,98 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
       });
     });
 
-    // Convert map to array and calculate efficiency
-    const data = Object.keys(dailyMap)
+    return Object.keys(dailyMap)
       .map((date) => {
         const { assigned, worked } = dailyMap[date];
-        const efficiency =
-          assigned > 0 ? Math.round(((assigned / 60) / (worked / 60)) * 100) : 0;
-          
-        // Handle potential Infinity if worked is 0 but assigned > 0 (though logic above handles assigned > 0 check)
-        // If worked is 0 and assigned > 0, efficiency is technically infinite/undefined. 
-        // Based on TeamDashboard logic: totalAssignedHours > 0 ? (assigned/worked)*100 : 0.
-        // If totalWorkedHours is 0, this is Infinity.
-        // Let's cap or handle it. TeamDashboard logic:
-        // efficiency = totalAssignedHours > 0 ? Math.round((totalAssignedHours / totalWorkedHours) * 100) : 0;
-        // If totalWorkedHours is 0, this is Infinity.
-        // Let's assume if worked is 0, efficiency is 0 or 100? Usually 0 if nothing done.
-        // But if assigned is 5h and worked is 0, efficiency is undefined.
-        // Let's stick to safe math.
-        
         const safeEfficiency = worked > 0 ? Math.round((assigned / worked) * 100) : 0;
-
-        return {
-          date,
-          efficiency: safeEfficiency,
-        };
+        return { date, efficiency: safeEfficiency };
       })
       .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, []);
 
-    return data;
-  }, [teamStats]);
+  // Process real data for current team
+  const realDailyData = useMemo(() => {
+    return processMemberStats(teamStats?.memberStats);
+  }, [teamStats, processMemberStats]);
+
+  // Handle adding/removing teams to comparison
+  const handleTeamToggle = async (teamId) => {
+    if (comparedTeams.includes(teamId)) {
+      setComparedTeams(prev => prev.filter(id => id !== teamId));
+      setComparedTeamsData(prev => {
+        const newData = { ...prev };
+        delete newData[teamId];
+        return newData;
+      });
+    } else {
+      setComparedTeams(prev => [...prev, teamId]);
+      // Fetch data if not already present
+      if (!comparedTeamsData[teamId]) {
+        const data = await fetchTeamStats(teamId);
+        if (data && data.memberStats) {
+          const processed = processMemberStats(data.memberStats);
+          setComparedTeamsData(prev => ({ ...prev, [teamId]: processed }));
+        }
+      }
+    }
+  };
 
   const filteredData = useMemo(() => {
     const today = DateTime.now();
+    const todayStr = today.toISODate();
     let startDate;
 
-    // Use realDailyData instead of mockDailyData
-    const sourceData = realDailyData;
+    // 1. Merge all data sources
+    const mergedMap = {};
+    const currentTeamName = teams?.find(t => t.id === selectedTeam)?.name || "Current Team";
 
+    // Add current team data
+    realDailyData.forEach(item => {
+      if (item.date === todayStr) return; // Exclude today
+      if (!mergedMap[item.date]) mergedMap[item.date] = { date: item.date };
+      mergedMap[item.date][currentTeamName] = item.efficiency;
+    });
+
+    // Add compared teams data
+    comparedTeams.forEach(teamId => {
+      const teamName = teams?.find(t => t.id === teamId)?.name || `Team ${teamId}`;
+      const teamData = comparedTeamsData[teamId] || [];
+
+      teamData.forEach(item => {
+        if (item.date === todayStr) return; // Exclude today
+        if (!mergedMap[item.date]) mergedMap[item.date] = { date: item.date };
+        mergedMap[item.date][teamName] = item.efficiency;
+      });
+    });
+
+    let sourceData = Object.values(mergedMap).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // 2. Filter by date range
     if (selectedRange === "CUSTOM") {
       if (customDateRange.start && customDateRange.end) {
         const start = DateTime.fromISO(customDateRange.start);
         const end = DateTime.fromISO(customDateRange.end);
-        
+
         return sourceData.filter((item) => {
           const itemDate = DateTime.fromISO(item.date);
           return itemDate >= start && itemDate <= end;
         });
       }
-      return sourceData; // Fallback if dates aren't selected yet
+      return sourceData;
     }
 
     switch (selectedRange) {
-      case "1D":
-        startDate = today.minus({ days: 1 });
-        break;
-      case "1W":
-        startDate = today.minus({ days: 7 });
-        break;
-      case "1M":
-        startDate = today.minus({ months: 1 });
-        break;
-      case "1Y":
-        startDate = today.minus({ years: 1 });
-        break;
-      case "ALL":
-      default:
-        startDate = null;
+      case "1D": startDate = today.minus({ days: 1 }); break;
+      case "1W": startDate = today.minus({ days: 7 }); break;
+      case "1M": startDate = today.minus({ months: 1 }); break;
+      case "1Y": startDate = today.minus({ years: 1 }); break;
+      case "ALL": default: startDate = null;
     }
 
     if (!startDate) return sourceData;
 
     return sourceData.filter((item) => DateTime.fromISO(item.date) >= startDate);
-  }, [selectedRange, customDateRange, realDailyData]);
+  }, [selectedRange, customDateRange, realDailyData, comparedTeams, comparedTeamsData, teams, selectedTeam]);
 
   const handleRangeChange = (range) => {
     setSelectedRange(range);
@@ -140,12 +163,18 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-lg rounded-md">
           <p className="text-sm font-semibold text-gray-700">{`Date: ${label}`}</p>
-          <p className="text-sm text-blue-600">{`Efficiency: ${payload[0].value}%`}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {`${entry.name}: ${entry.value}%`}
+            </p>
+          ))}
         </div>
       );
     }
     return null;
   };
+
+  const currentTeamName = teams?.find(t => t.id === selectedTeam)?.name || "Current Team";
 
   return (
     <div className="mb-6">
@@ -153,6 +182,26 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
         <h3 className="text-lg font-semibold text-gray-800">Efficiency Analytics</h3>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* Team Comparison Selector */}
+          <div className="relative group">
+            <button className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">
+              Compare Teams +
+            </button>
+            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block z-10 p-2">
+              {teams?.filter(t => t.id !== selectedTeam).map(team => (
+                <label key={team.id} className="flex items-center space-x-2 p-1 hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={comparedTeams.includes(team.id)}
+                    onChange={() => handleTeamToggle(team.id)}
+                    className="rounded text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-700">{team.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Time Range Buttons */}
           <div className="flex bg-gray-100 rounded-lg p-1">
             {["1D", "1W", "1M", "1Y", "ALL"].map((range) => (
@@ -196,9 +245,15 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
             <AreaChart data={filteredData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                  <stop offset="5%" stopColor={COLORS[0]} stopOpacity={0.8} />
+                  <stop offset="95%" stopColor={COLORS[0]} stopOpacity={0} />
                 </linearGradient>
+                {comparedTeams.map((teamId, index) => (
+                  <linearGradient key={teamId} id={`color-${teamId}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COLORS[(index + 1) % COLORS.length]} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={COLORS[(index + 1) % COLORS.length]} stopOpacity={0} />
+                  </linearGradient>
+                ))}
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
               <XAxis
@@ -217,16 +272,38 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats }) => {
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
+
+              {/* Current Team Area */}
               <Area
                 type="monotone"
-                dataKey="efficiency"
-                stroke="#8884d8"
+                dataKey={currentTeamName}
+                stroke={COLORS[0]}
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorEfficiency)"
-                name="Efficiency"
+                name={currentTeamName}
                 animationDuration={1000}
+                connectNulls
               />
+
+              {/* Compared Teams Areas */}
+              {comparedTeams.map((teamId, index) => {
+                const teamName = teams?.find(t => t.id === teamId)?.name || `Team ${teamId}`;
+                return (
+                  <Area
+                    key={teamId}
+                    type="monotone"
+                    dataKey={teamName}
+                    stroke={COLORS[(index + 1) % COLORS.length]}
+                    strokeWidth={2}
+                    fillOpacity={0.3}
+                    fill={`url(#color-${teamId})`}
+                    name={teamName}
+                    animationDuration={1000}
+                    connectNulls
+                  />
+                );
+              })}
             </AreaChart>
           </ResponsiveContainer>
         </div>

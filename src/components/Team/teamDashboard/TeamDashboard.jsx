@@ -84,65 +84,75 @@ const TeamDashboard = () => {
     fetchTeams();
   }, [dispatch, token]);
 
+  // Fetch team stats (Reusable)
+  const fetchTeamStats = useCallback(
+    async (teamId) => {
+      try {
+        const response = await Service.getTeamById(teamId);
+        if (!response?.data) return null;
+
+        // ✅ Filter out disabled users
+        const activeMembers = response.data.members.filter(
+          (member) => !member.is_disabled
+        );
+
+        const memberStats = await Promise.all(
+          activeMembers.map(async (member) => {
+            try {
+              const response = await Service.getUsersStats(member.id);
+              return response.data;
+            } catch (error) {
+              console.error(
+                `Error fetching stats for member ${member.id}:`,
+                error
+              );
+              return null;
+            }
+          })
+        );
+
+        const validStats = memberStats.filter((stat) => stat !== null);
+
+        const filteredStats = validStats.map((memberStat) => {
+          const filteredTasks = filterTasksByDateRange(
+            memberStat.tasks,
+            dateFilter
+          );
+          return {
+            ...memberStat,
+            tasks: filteredTasks,
+          };
+        });
+
+        return { members: activeMembers, memberStats: filteredStats };
+      } catch (error) {
+        console.error("Error fetching team stats:", error);
+        return null;
+      }
+    },
+    [dateFilter]
+  );
+
   // Handle team selection
   useEffect(() => {
     if (!selectedTeam) return;
 
-    const fetchTeamData = async () => {
-      try {
-        setLoading(true);
-        const response = await Service.getTeamById(selectedTeam);
-
-        if (response?.data) {
-          // ✅ Filter out disabled users
-          const activeMembers = response.data.members.filter(
-            (member) => !member.is_disabled
-          );
-
-          setTeamMembers(activeMembers);
-          calculateTeamStats(activeMembers);
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching team data:", error);
-        setLoading(false);
+    const loadTeamData = async () => {
+      setLoading(true);
+      const data = await fetchTeamStats(selectedTeam);
+      if (data) {
+        setTeamMembers(data.members);
+        calculateTeamSummary(data.memberStats);
       }
+      setLoading(false);
     };
 
-    fetchTeamData();
-  }, [selectedTeam]);
+    loadTeamData();
+  }, [selectedTeam, fetchTeamStats]);
 
-  // Calculate team statistics
-  const calculateTeamStats = async (members) => {
+  // Calculate team statistics summary
+  const calculateTeamSummary = (filteredStats) => {
     try {
-      // ✅ Ignore disabled members at stats level too (safety)
-      const activeMembers = members.filter((m) => !m.is_disabled);
-
-      const memberStats = await Promise.all(
-        activeMembers.map(async (member) => {
-          try {
-            const response = await Service.getUsersStats(member.id);
-            return response.data;
-          } catch (error) {
-            console.error(`Error fetching stats for member ${member.id}:`, error);
-            return null;
-          }
-        })
-      );
-
-      const validStats = memberStats.filter((stat) => stat !== null);
-
-      const filteredStats = validStats.map((memberStat) => {
-        const filteredTasks = filterTasksByDateRange(
-          memberStat.tasks,
-          dateFilter
-        );
-        return {
-          ...memberStat,
-          tasks: filteredTasks,
-        };
-      });
-
       const allFilteredTasks = filteredStats.flatMap((m) => m.tasks || []);
 
       const uniqueProjects = [];
@@ -264,56 +274,6 @@ const TeamDashboard = () => {
     setMonthlyEfficiency(monthlyEfficiencyData);
   };
 
-  const filterTasksByDateRange = (tasks, filter) => {
-    if (!tasks || !Array.isArray(tasks)) return [];
-    if (filter.type === "all") return tasks;
-
-    return tasks.filter((task) => {
-      const taskStartDate = new Date(task.start_date || task.startDate);
-      const taskEndDate = new Date(task.due_date || task.endDate);
-
-      switch (filter.type) {
-        case "week":
-          const weekStart = new Date(filter.weekStart);
-          const weekEnd = new Date(filter.weekEnd);
-          return taskStartDate <= weekEnd && taskEndDate >= weekStart;
-
-        case "month":
-          const monthStart = new Date(filter.year, filter.month, 1);
-          const monthEnd = new Date(filter.year, filter.month + 1, 0);
-          return taskStartDate <= monthEnd && taskEndDate >= monthStart;
-
-        case "year":
-          const yearStart = new Date(filter.year, 0, 1);
-          const yearEnd = new Date(filter.year, 11, 31);
-          return taskStartDate <= yearEnd && taskEndDate >= yearStart;
-
-        case "range":
-          const rangeStart = new Date(filter.year, filter.startMonth, 1);
-          const rangeEnd = new Date(filter.year, filter.endMonth + 1, 0);
-          return taskStartDate <= rangeEnd && taskEndDate >= rangeStart;
-
-        case "dateRange":
-          const startDate = new Date(filter.startDate);
-          const endDate = new Date(filter.endDate);
-          return taskStartDate <= endDate && taskEndDate >= startDate;
-
-        case "specificDate":
-          const specificDate = new Date(filter.date);
-          return taskStartDate.toDateString() === specificDate.toDateString();
-
-        default:
-          return true;
-      }
-    });
-  };
-
-  const parseDurationToMinutes = (duration) => {
-    if (!duration) return 0;
-    const [hours, minutes, seconds] = duration.split(":").map(Number);
-    return hours * 60 + minutes + Math.floor(seconds / 60);
-  };
-
   useEffect(() => {
     if (!teams) return;
 
@@ -334,11 +294,7 @@ const TeamDashboard = () => {
     setFilteredTeams(filtered);
   }, [searchTerm, filterStatus, teams]);
 
-  useEffect(() => {
-    if (selectedTeam && teamMembers.length > 0) {
-      calculateTeamStats(teamMembers);
-    }
-  }, [dateFilter, selectedTeam, teamMembers]);
+
 
   const handleTeamSelect = (teamId) => setSelectedTeam(teamId);
   const handleMemberClick = (memberId) => setSelectedEmployee(memberId);
@@ -648,6 +604,9 @@ const TeamDashboard = () => {
                   <MonthlyEfficiencyChart
                     monthlyEfficiency={monthlyEfficiency}
                     teamStats={teamStats}
+                    teams={teams}
+                    fetchTeamStats={fetchTeamStats}
+                    selectedTeam={selectedTeam}
                   />
                   <TeamMembersTable
                     tableData={tableData}
@@ -683,3 +642,53 @@ const TeamDashboard = () => {
 };
 
 export default TeamDashboard;
+
+const parseDurationToMinutes = (duration) => {
+  if (!duration) return 0;
+  const [hours, minutes, seconds] = duration.split(":").map(Number);
+  return hours * 60 + minutes + Math.floor(seconds / 60);
+};
+
+const filterTasksByDateRange = (tasks, filter) => {
+  if (!tasks || !Array.isArray(tasks)) return [];
+  if (filter.type === "all") return tasks;
+
+  return tasks.filter((task) => {
+    const taskStartDate = new Date(task.start_date || task.startDate);
+    const taskEndDate = new Date(task.due_date || task.endDate);
+
+    switch (filter.type) {
+      case "week":
+        const weekStart = new Date(filter.weekStart);
+        const weekEnd = new Date(filter.weekEnd);
+        return taskStartDate <= weekEnd && taskEndDate >= weekStart;
+
+      case "month":
+        const monthStart = new Date(filter.year, filter.month, 1);
+        const monthEnd = new Date(filter.year, filter.month + 1, 0);
+        return taskStartDate <= monthEnd && taskEndDate >= monthStart;
+
+      case "year":
+        const yearStart = new Date(filter.year, 0, 1);
+        const yearEnd = new Date(filter.year, 11, 31);
+        return taskStartDate <= yearEnd && taskEndDate >= yearStart;
+
+      case "range":
+        const rangeStart = new Date(filter.year, filter.startMonth, 1);
+        const rangeEnd = new Date(filter.year, filter.endMonth + 1, 0);
+        return taskStartDate <= rangeEnd && taskEndDate >= rangeStart;
+
+      case "dateRange":
+        const startDate = new Date(filter.startDate);
+        const endDate = new Date(filter.endDate);
+        return taskStartDate <= endDate && taskEndDate >= startDate;
+
+      case "specificDate":
+        const specificDate = new Date(filter.date);
+        return taskStartDate.toDateString() === specificDate.toDateString();
+
+      default:
+        return true;
+    }
+  });
+};
