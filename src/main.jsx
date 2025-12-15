@@ -12,9 +12,7 @@ import routes from "./routes/routes.jsx";
 const router = createBrowserRouter(routes)
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router} />
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <RouterProvider router={router} />
+  </Provider>
 );

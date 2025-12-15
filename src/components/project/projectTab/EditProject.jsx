@@ -29,7 +29,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
   } = useForm({
     defaultValues: {
       name: project?.name || "",
-      fabricator: project?.fabricator?.id || "",
+      fabricatorID: project?.fabricator?.id || "",
       description: project?.description || "",
       duration: project?.duration || "",
       startDate: project?.startDate || "",
@@ -38,7 +38,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       estimatedHours: project?.estimatedHours || "",
       status: project?.status || "",
       stage: project?.stage || "",
-      manager: project?.manager?.id || "",
+      managerID: project?.manager?.id || "",
       fileData: project?.files || "",
     },
   });
@@ -141,7 +141,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 {...register("managerID")}
                 onChange={setValue}
               />
-              {errors.manager && (
+              {errors.managerID && (
                 <div className="text-red-500">This field is required</div>
               )}
             </div>
@@ -216,10 +216,10 @@ const EditProject = ({ project, onUpdate, onClose }) => {
             <div className="my-2 h-full z-50">
               <CustomSelect
                 label="Team"
-                name="team"
+                name="teamID"
                 options={teamOptions}
                 className="w-full"
-                {...register("team")}
+                {...register("teamID")}
                 onChange={setValue}
               />
             </div>
