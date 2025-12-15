@@ -2,9 +2,10 @@
 /* eslint-disable react/prop-types */
 
 import AddFiles from "./AddFiles";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import JoditEditor from "jodit-react";
 import toast from "react-hot-toast";
 import Service from "../../../config/Service";
 import { updateProjectData } from "../../../store/projectSlice";
@@ -26,6 +27,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
     formState: { errors },
     reset,
     setValue,
+    control,
   } = useForm({
     defaultValues: {
       name: project?.name || "",
@@ -37,6 +39,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       endDate: project?.endDate || "",
       estimatedHours: project?.estimatedHours || "",
       status: project?.status || "",
+      tools: project?.tools || "",
       stage: project?.stage || "",
       managerID: project?.manager?.id || "",
       fileData: project?.files || "",
@@ -121,11 +124,21 @@ const EditProject = ({ project, onUpdate, onClose }) => {
               />
             </div>
             <div className="my-2">
-              <Input
-                label="Project Description"
-                type="text"
-                defaultValue={project?.description}
-                {...register("description")}
+              <label className="font-bold text-sm text-gray-700">
+                Project Description
+              </label>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <JoditEditor
+                    value={field.value}
+                    config={{ readonly: false }}
+                    tabIndex={1} // tabIndex of textarea
+                    onBlur={(newContent) => field.onChange(newContent)} // preferred to use only this option to update the content for performance reasons
+                    onChange={(newContent) => { }}
+                  />
+                )}
               />
             </div>
             <div className="my-2">
@@ -173,6 +186,19 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 {...register("estimatedHours", {
                   setValueAs: (value) => parseInt(value, 10) || 0,
                 })}
+              />
+            </div>
+            <div className="my-2">
+              <CustomSelect
+                label="Tools"
+                name="tools"
+                options={[
+                  { label: "SDS-2", value: "SDS2" },
+                  { label: "TEKLA", value: "TEKLA" },
+                ]}
+                defaultValue={project?.tools}
+                {...register("tools")}
+                onChange={setValue}
               />
             </div>
             <div className="my-2">

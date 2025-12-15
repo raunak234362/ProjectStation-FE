@@ -66,7 +66,7 @@ const AddSubmittals = ({ projectData }) => {
     ? clientData?.find((client) => client.id === selectedFabricator.clientID)
         ?.name
     : "";
-  console.log("Client Name:", clientName);
+  console.log("Client Name:", selectedFabricator);
 
   const onFilesChange = (updatedFiles) => {
     setFiles(updatedFiles);
