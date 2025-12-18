@@ -125,6 +125,7 @@ const ClientAllProjects = () => {
         "COMPLETE",
         "VALIDATE_COMPLETE",
         "COMPLETE_OTHER",
+        "USER_FAULT",
       ];
       const completedTasks = project.tasks.filter((task) =>
         completedStatuses.includes(task?.status)
@@ -143,7 +144,11 @@ const ClientAllProjects = () => {
       (task) => task.project_id === project.id
     );
     const completedTasks = projectTasks.filter(
-      (task) => task.status === "COMPLETE"
+      (task) =>
+        task.status === "COMPLETE" ||
+        task.status === "VALIDATE_COMPLETE" ||
+        task.status === "COMPLETE_OTHER" ||
+        task.status === "USER_FAULT"
     ).length;
     const totalTasks = projectTasks.length;
 
@@ -385,22 +390,20 @@ const ClientAllProjects = () => {
 
             {/* View Toggle */}
             <button
-              className={`p-2 rounded-md ${
-                viewMode === "grid"
+              className={`p-2 rounded-md ${viewMode === "grid"
                   ? "bg-blue-100 text-blue-600"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
               onClick={() => setViewMode("grid")}
             >
               <LayoutGrid className="w-5 h-5" />
             </button>
 
             <button
-              className={`p-2 rounded-md ${
-                viewMode === "list"
+              className={`p-2 rounded-md ${viewMode === "list"
                   ? "bg-blue-100 text-blue-600"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
               onClick={() => setViewMode("list")}
             >
               <List className="w-5 h-5" />

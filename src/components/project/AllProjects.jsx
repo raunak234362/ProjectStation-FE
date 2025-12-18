@@ -124,8 +124,8 @@ const AllProjects = () => {
           ? 1
           : -1
         : aValue < bValue
-        ? 1
-        : -1;
+          ? 1
+          : -1;
     });
 
     setProjectFilter(filtered);
@@ -200,7 +200,8 @@ const AllProjects = () => {
               (task) =>
                 task.status === "COMPLETE" ||
                 task.status === "VALIDATE_COMPLETE" ||
-                task.status === "COMPLETE_OTHER"
+                task.status === "COMPLETE_OTHER" ||
+                task.status === "USER_FAULT"
             ).length || 0;
           const totalTasks = projectTasks.length;
           const progress =

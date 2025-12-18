@@ -19,6 +19,8 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
   const dispatch = useDispatch();
   const [joditContent, setJoditContent] = useState(milestone?.description || "");
   const [loading, setLoading] = useState(false);
+  const userType = sessionStorage.getItem("userType");
+  const canEditManualProgress = ["admin", "deputy-manager"].includes(userType);
 
   //initializing USE-FORM
   const {
@@ -42,6 +44,7 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
       if (milestone.approvalDate) {
         setValue("approvalDate", new Date(milestone.approvalDate).toISOString().split('T')[0]);
       }
+      setValue("percentage", milestone.percentage || 0);
       setJoditContent(milestone.description || "");
     }
   }, [milestone, setValue]);
@@ -154,6 +157,27 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
             type="date"
             {...register("approvalDate")}
           />
+
+          {canEditManualProgress && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Manual Progress (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  {...register("percentage", {
+                    min: { value: 0, message: "Min 0" },
+                    max: { value: 100, message: "Max 100" }
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                />
+                {errors.percentage && <span className="text-red-500 text-sm">{errors.percentage.message}</span>}
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-4">
             <Button
