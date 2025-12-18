@@ -7,9 +7,12 @@ import Button from "../../fields/Button";
 import Input from "../../fields/Input";
 import { CustomSelect } from "../..";
 import Service from "../../../config/Service";
+import { useDispatch } from "react-redux";
+import { updateCO } from "../../../store/projectSlice";
 import toast from "react-hot-toast";
 
 const EditCoDetail = ({ selectedCO, onClose, fetchCO }) => {
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -35,7 +38,12 @@ const EditCoDetail = ({ selectedCO, onClose, fetchCO }) => {
     try {
       const response = await Service.updateCO(selectedCO.id, data);
       console.log(response);
-      await fetchCO(); 
+      const updatedData = {
+        id: selectedCO.id,
+        ...data,
+      };
+      dispatch(updateCO(updatedData));
+      if (fetchCO) await fetchCO();
       toast.success("Change Order updated successfully");
       onClose();
     } catch (error) {

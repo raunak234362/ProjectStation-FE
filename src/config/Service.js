@@ -2153,7 +2153,7 @@ class Service {
   static async updateMilestoneById(milestoneID, milestoneData) {
     const token = sessionStorage.getItem("token");
     try {
-      const response = await api.put(
+      const response = await api.patch(
         `/api/Milestone/update/${milestoneID}`,
         milestoneData,
         {

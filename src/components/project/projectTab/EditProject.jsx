@@ -9,6 +9,7 @@ import JoditEditor from "jodit-react";
 import toast from "react-hot-toast";
 import Service from "../../../config/Service";
 import { updateProjectData } from "../../../store/projectSlice";
+import { projectData as projectSignal } from "../../../signals/projectData";
 import Input from "../../fields/Input";
 import { Button, CustomSelect, Toggle } from "../..";
 import SectionTitle from "../../../util/SectionTitle";
@@ -75,7 +76,12 @@ const EditProject = ({ project, onUpdate, onClose }) => {
         project?.id,
         projectData
       );
-      dispatch(updateProjectData(updatedProject?.data));
+      const updatedData = updatedProject?.data;
+      dispatch(updateProjectData(updatedData));
+
+      // Update signal for immediate refresh
+      projectSignal.value = { ...projectSignal.value, ...updatedData };
+
       toast.success("Project updated successfully");
 
       if (onUpdate) {

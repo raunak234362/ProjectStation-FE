@@ -9,6 +9,7 @@ import Service from "../../config/Service";
 import JoditEditor from "jodit-react";
 import { useEffect, useState } from "react";
 import { showRFQs } from "../../store/rfqSlice";
+import { addProject } from "../../store/projectSlice";
 
 const AddProject = () => {
   const dispatch = useDispatch();
@@ -57,7 +58,7 @@ const AddProject = () => {
       label: `${user.f_name} ${user.l_name}`,
       value: user.id,
     }));
-    console.log("",managerOption)
+  console.log("", managerOption)
 
   // Watch values
   const selectedRfqId = watch("rfqId");
@@ -134,8 +135,13 @@ const AddProject = () => {
       detailingMisc: Boolean(data.detailingMisc),
     };
     try {
-      await Service.addProject(projectData);
+      const response = await Service.addProject(projectData);
       toast.success("Project Added Successfully");
+
+      if (response?.data) {
+        dispatch(addProject(response.data));
+      }
+
       setJoditContent("");
       setValue("description", "");
       reset();

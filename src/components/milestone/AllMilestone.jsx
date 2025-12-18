@@ -60,13 +60,13 @@ const AllMilestone = ({ milestoneData }) => {
       );
     }
     return [];
-  }, [milestoneData]);
+  }, [milestoneData.value]);
 
   console.log("Filtered milestone data:", data);
 
   const columns = useMemo(
     () => [
-      
+
       {
         Header: "Subject",
         accessor: "subject",
