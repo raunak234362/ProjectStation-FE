@@ -110,7 +110,7 @@ const Tabs = ({ tabs, activeTab, onChange }) => (
 );
 
 // ------------------------ Main Component ------------------------
-const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
+const GetProject = ({ projectId, projectData, fetchProjectByID, fetchFilesByProjectId, files }) => {
   const [activeTab, setActiveTab] = useState("details");
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -432,7 +432,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
       {selectedEditProject && isModalOpen && (
         <EditProject
           project={selectedEditProject}
-          onUpdate={fetchProjectByID}
+          onUpdate={() => fetchProjectByID(true)}
           onClose={handleModalClose}
         />
       )}
@@ -442,7 +442,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <AddFiles
             projectId={projectId}
-            onUpdate={fetchProjectByID}
+            onUpdate={() => fetchFilesByProjectId(true)}
             onClose={handleAddFilesClose}
           />
         </div>

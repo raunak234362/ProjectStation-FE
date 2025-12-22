@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { showRFQs } from "../../store/rfqSlice";
 import { addProject } from "../../store/projectSlice";
 
-const AddProject = () => {
+const AddProject = ({ setActiveTab }) => {
   const dispatch = useDispatch();
   const {
     register,
@@ -145,6 +145,9 @@ const AddProject = () => {
       setJoditContent("");
       setValue("description", "");
       reset();
+      if (setActiveTab) {
+        setActiveTab("allProject");
+      }
     } catch (error) {
       toast.error("Error Adding Project");
     }

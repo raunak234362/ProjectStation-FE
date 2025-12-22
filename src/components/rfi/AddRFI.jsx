@@ -16,7 +16,7 @@ import toast, { Toaster } from "react-hot-toast";
 import JoditEditor from "jodit-react";
 import { prependRFI } from "../../signals";
 
-const AddRFI = ({ projectData }) => {
+const AddRFI = ({ projectData, setActiveTab }) => {
   const project = projectData || {};
   const fabricatorID = project?.fabricatorID;
   const projectID = project?.id;
@@ -34,7 +34,7 @@ const AddRFI = ({ projectData }) => {
     register,
     setValue,
     handleSubmit,
-    
+
     watch,
     formState: { errors },
   } = useForm();
@@ -69,7 +69,7 @@ const AddRFI = ({ projectData }) => {
 
   const clientName = selectedFabricator
     ? clientData?.find((client) => client.id === selectedFabricator.clientID)
-        ?.name
+      ?.name
     : "";
   console.log("Client Name:", clientName);
 
@@ -128,6 +128,10 @@ const AddRFI = ({ projectData }) => {
           message: `📌 New Task Assigned: ${projectData.name}`,
           title: "New Task",
         });
+      }
+      // Switch back to the list view
+      if (setActiveTab) {
+        setActiveTab("allRFI");
       }
     } catch (error) {
       toast.error("Error creating RFI");

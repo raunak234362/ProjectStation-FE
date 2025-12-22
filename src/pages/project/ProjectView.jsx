@@ -18,21 +18,19 @@ const ProjectView = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={() => setActiveTab("ProjectDashboard")}
-                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                    activeTab === "ProjectDashboard"
+                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "ProjectDashboard"
                       ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                       : "md:text-base text-sm bg-white"
-                  }`}
+                    }`}
                 >
                   Project Dashboard
                 </button>
                 <button
                   onClick={() => setActiveTab("addProject")}
-                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                    activeTab === "addProject"
+                  className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "addProject"
                       ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                       : "md:text-base text-sm bg-white"
-                  }`}
+                    }`}
                 >
                   Add Project
                 </button>
@@ -40,11 +38,10 @@ const ProjectView = () => {
             )}
             <button
               onClick={() => setActiveTab("allProject")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "allProject"
+              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "allProject"
                   ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                   : "md:text-base text-sm bg-white"
-              }`}
+                }`}
             >
               All Project
             </button>
@@ -58,7 +55,7 @@ const ProjectView = () => {
           )}
           {activeTab === "addProject" && (
             <div>
-              <AddProject />
+              <AddProject setActiveTab={setActiveTab} />
             </div>
           )}
           {activeTab === "allProject" && (

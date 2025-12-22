@@ -104,6 +104,7 @@ const AddFiles = ({ projectId, onUpdate, onClose }) => {
     onUpdate();
     toast.success("Document uploaded successfully");
     console.log("Document uploaded successfully:", response);
+    onClose();
   };
 
   return (

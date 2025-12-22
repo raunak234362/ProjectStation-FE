@@ -99,8 +99,8 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       const response = await Service.deleteProject(project?.id);
       console.log("Delete response", response);
       toast.success("Project deleted successfully!");
+      dispatch(deleteProject(project?.id));
       onClose(true);
-      window.location.reload();
     } catch (error) {
       toast.error("Error deleting project!");
       console.error("Error deleting project:", error);

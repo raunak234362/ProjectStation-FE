@@ -40,8 +40,8 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const [expandedTypes, setExpandedTypes] = useState({});
   const id = projectId;
   // Fetch project data
-  const fetchProjectByID = async () => {
-    setLoading(true);
+  const fetchProjectByID = async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const response = await Service.fetchProjectByID(id);
@@ -50,7 +50,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
       setError("Failed to load project data");
       console.error("Error fetching project:", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -91,10 +91,10 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const formatDate = (date) => {
     return date && !isNaN(new Date(date))
       ? new Date(date).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
       : "N/A";
   };
 
@@ -392,16 +392,16 @@ const ProjectStatus = ({ projectId, onClose }) => {
   const minDate = useMemo(() => {
     return projectTasks.length > 0
       ? Math.min(
-          ...projectTasks.map((task) => new Date(task.start_date).getTime())
-        )
+        ...projectTasks.map((task) => new Date(task.start_date).getTime())
+      )
       : new Date().getTime();
   }, [projectTasks]);
 
   const maxDate = useMemo(() => {
     return projectTasks.length > 0
       ? Math.max(
-          ...projectTasks.map((task) => new Date(task.due_date).getTime())
-        )
+        ...projectTasks.map((task) => new Date(task.due_date).getTime())
+      )
       : new Date().getTime();
   }, [projectTasks]);
 
@@ -437,10 +437,17 @@ const ProjectStatus = ({ projectId, onClose }) => {
     BREAK: "#EF4444",
   };
 
-  const fetchFilesByProjectId = async () => {
-    const response = await Service.getFilesByProjectId(projectId);
-    console.log("Fetched Files:", response.data);
-    setFiles(response.data);
+  const fetchFilesByProjectId = async (silent = false) => {
+    if (!silent) setLoading(true);
+    try {
+      const response = await Service.getFilesByProjectId(projectId);
+      console.log("Fetched Files:", response.data);
+      setFiles(response.data);
+    } catch (err) {
+      console.error("Error fetching files:", err);
+    } finally {
+      if (!silent) setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -509,11 +516,10 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 ].map(({ key, label }) => (
                   <button
                     key={key}
-                    className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${
-                      activeTab === key
-                        ? "bg-teal-500 text-white font-semibold rounded-md"
-                        : "text-gray-600 hover:text-gray-900"
-                    }`}
+                    className={`px-4 py-2 font-medium text-sm whitespace-nowrap ${activeTab === key
+                      ? "bg-teal-500 text-white font-semibold rounded-md"
+                      : "text-gray-600 hover:text-gray-900"
+                      }`}
                     onClick={() => setActiveTab(key)}
                   >
                     {label}
@@ -529,6 +535,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 files={files}
                 projectData={projectData}
                 fetchProjectByID={fetchProjectByID}
+                fetchFilesByProjectId={fetchFilesByProjectId}
               />
             )}
             {activeTab === "overview" && (
@@ -560,7 +567,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 expandedTypes={expandedTypes}
                 toggleTypeExpansion={toggleTypeExpansion}
                 visibleTaskCount={filteredGanttData.length}
-                loadMoreTasks={() => {}}
+                loadMoreTasks={() => { }}
                 typeColors={typeColors}
                 statusColors={statusColors}
               />

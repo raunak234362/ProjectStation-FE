@@ -48,6 +48,7 @@ const Milestone = ({ projectData }) => {
       toast.success("Milestone added successfully");
       dispatch(addMilestone(response.data));
       console.log("Response from addMilestone API:", response.data);
+      setActiveTab("allMilestone");
     } catch (error) {
       console.error("Error adding milestone:", error);
       toast.error("Failed to add milestone");
@@ -61,8 +62,8 @@ const Milestone = ({ projectData }) => {
             <button
               onClick={() => setActiveTab("addMilestone")}
               className={`py-3 px-1 border-b-2 font-medium text-sm ${activeTab === "addMilestone"
-                  ? "border-teal-500 text-teal-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "border-teal-500 text-teal-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
             >
               Add Milestone
@@ -70,8 +71,8 @@ const Milestone = ({ projectData }) => {
             <button
               onClick={() => setActiveTab("allMilestone")}
               className={`py-3 px-1 border-b-2 font-medium text-sm ${activeTab === "allMilestone"
-                  ? "border-teal-500 text-teal-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "border-teal-500 text-teal-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
             >
               View Milestone
