@@ -44,7 +44,7 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
       if (milestone.approvalDate) {
         setValue("approvalDate", new Date(milestone.approvalDate).toISOString().split('T')[0]);
       }
-      setValue("percentage", milestone.percentage || 0);
+      setValue("percentage", milestone.percentage);
       setJoditContent(milestone.description || "");
     }
   }, [milestone, setValue]);
@@ -165,7 +165,6 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
                   Manual Progress (%)
                 </label>
                 <input
-                  type="number"
                   min="0"
                   max="100"
                   {...register("percentage", {
