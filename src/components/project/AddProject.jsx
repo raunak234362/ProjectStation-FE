@@ -118,7 +118,8 @@ const AddProject = ({ setActiveTab }) => {
     enter: "p",
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
   };
 
   const onSubmit = async (data) => {

@@ -139,7 +139,13 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 render={({ field }) => (
                   <JoditEditor
                     value={field.value}
-                    config={{ readonly: false }}
+                    config={{
+                      readonly: false,
+                      askBeforePasteHTML: false,
+                      askBeforePasteFromWord: false,
+                      defaultActionOnPaste: "insert_as_html",
+                      processPasteHTML: true,
+                    }}
                     tabIndex={1} // tabIndex of textarea
                     onBlur={(newContent) => field.onChange(newContent)} // preferred to use only this option to update the content for performance reasons
                     onChange={(newContent) => { }}
