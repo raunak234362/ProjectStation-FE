@@ -8,7 +8,7 @@ const AllJobStudy = ({ projectId }) => {
   const [jobStudy, setJobStudy] = useState([]);
   const [selectedJobStudy, setSelectedJobStudy] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -16,7 +16,7 @@ const AllJobStudy = ({ projectId }) => {
   const [timeFilter, setTimeFilter] = useState({ min: "", max: "" });
   const [sortBy, setSortBy] = useState("none");
   const [sortOrder, setSortOrder] = useState("asc");
-  
+
   console.log(projectId);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const AllJobStudy = ({ projectId }) => {
     };
     fetchJobStudy();
   }, [projectId]);
-  
+
 
   const handleOpenJobStudy = (jobStudyId) => {
     const job = jobStudy.find((j) => j.id === jobStudyId);
@@ -47,17 +47,17 @@ const AllJobStudy = ({ projectId }) => {
       const matchesSearch = job.description
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      
+
       // Quantity filter
-      const matchesQty = 
+      const matchesQty =
         (!qtyFilter.min || job.QtyNo >= parseFloat(qtyFilter.min)) &&
         (!qtyFilter.max || job.QtyNo <= parseFloat(qtyFilter.max));
-      
+
       // Time filter
-      const matchesTime = 
+      const matchesTime =
         (!timeFilter.min || job.execTime >= parseFloat(timeFilter.min)) &&
         (!timeFilter.max || job.execTime <= parseFloat(timeFilter.max));
-      
+
       return matchesSearch && matchesQty && matchesTime;
     });
 
@@ -65,7 +65,7 @@ const AllJobStudy = ({ projectId }) => {
     if (sortBy !== "none") {
       filtered.sort((a, b) => {
         let aValue, bValue;
-        
+
         switch (sortBy) {
           case "description":
             aValue = a.description.toLowerCase();
@@ -82,7 +82,7 @@ const AllJobStudy = ({ projectId }) => {
           default:
             return 0;
         }
-        
+
         if (typeof aValue === "string") {
           return sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         } else {
@@ -90,7 +90,7 @@ const AllJobStudy = ({ projectId }) => {
         }
       });
     }
-    
+
     return filtered;
   }, [jobStudy, searchTerm, qtyFilter, timeFilter, sortBy, sortOrder]);
 
@@ -108,7 +108,7 @@ const AllJobStudy = ({ projectId }) => {
       <div className="flex justify-center items-center font-bold mb-4">
         Job Study
       </div>
-      
+
       {/* Search and Filter Controls */}
       <div className="mb-4 p-4 bg-gray-50 rounded-lg border">
         {/* Search Bar */}
@@ -141,7 +141,7 @@ const AllJobStudy = ({ projectId }) => {
             </Button>
           )}
         </div>
-        
+
         {/* Advanced Filters */}
         {showFilters && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
@@ -153,19 +153,19 @@ const AllJobStudy = ({ projectId }) => {
                   type="number"
                   placeholder="Min"
                   value={qtyFilter.min}
-                  onChange={(e) => setQtyFilter({...qtyFilter, min: e.target.value})}
+                  onChange={(e) => setQtyFilter({ ...qtyFilter, min: e.target.value })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <input
                   type="number"
                   placeholder="Max"
                   value={qtyFilter.max}
-                  onChange={(e) => setQtyFilter({...qtyFilter, max: e.target.value})}
+                  onChange={(e) => setQtyFilter({ ...qtyFilter, max: e.target.value })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
-            
+
             {/* Time Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Execution Time Range (Hr)</label>
@@ -174,19 +174,19 @@ const AllJobStudy = ({ projectId }) => {
                   type="number"
                   placeholder="Min"
                   value={timeFilter.min}
-                  onChange={(e) => setTimeFilter({...timeFilter, min: e.target.value})}
+                  onChange={(e) => setTimeFilter({ ...timeFilter, min: e.target.value })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <input
                   type="number"
                   placeholder="Max"
                   value={timeFilter.max}
-                  onChange={(e) => setTimeFilter({...timeFilter, max: e.target.value})}
+                  onChange={(e) => setTimeFilter({ ...timeFilter, max: e.target.value })}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
-            
+
             {/* Sort Options */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
@@ -196,10 +196,10 @@ const AllJobStudy = ({ projectId }) => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="none">No Sorting</option>
                   <option value="description">Description</option>
-                  <option value="quantity">Quantity</option>
                   <option value="time">Execution Time</option>
+                  <option value="none">No Sorting</option>
+                  <option value="quantity">Quantity</option>
                 </select>
                 <select
                   value={sortOrder}
@@ -213,13 +213,13 @@ const AllJobStudy = ({ projectId }) => {
             </div>
           </div>
         )}
-        
+
         {/* Results Count */}
         <div className="mt-4 text-sm text-gray-600">
           Showing {filteredAndSortedJobStudy.length} of {jobStudy.length} entries
         </div>
       </div>
-      
+
       <div className="md:w-[80vw] overflow-x-auto w-full">
         <table className="w-full border-collapse border border-gray-600 text-center text-sm">
           <thead className="bg-gray-200">

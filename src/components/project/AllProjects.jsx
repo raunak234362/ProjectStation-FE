@@ -335,10 +335,10 @@ const AllProjects = () => {
             className="w-full p-2 border rounded"
           >
             <option value="">All Status</option>
-            <option value="ASSIGNED">ASSIGNED</option>
             <option value="ACTIVE">ACTIVE</option>
-            <option value="ONHOLD">ON-HOLD</option>
+            <option value="ASSIGNED">ASSIGNED</option>
             <option value="COMPLETE">COMPLETED</option>
+            <option value="ONHOLD">ON-HOLD</option>
           </select>
 
           <select

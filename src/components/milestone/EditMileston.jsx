@@ -20,7 +20,7 @@ const EditMileston = ({ milestone, onSubmit, onClose }) => {
   const [joditContent, setJoditContent] = useState(milestone?.description || "");
   const [loading, setLoading] = useState(false);
   const userType = sessionStorage.getItem("userType");
-  const canEditManualProgress = ["admin", "deputy-manager"].includes(userType);
+  const canEditManualProgress = ["admin", "deputy-general-manager"].includes(userType);
 
   //initializing USE-FORM
   const {

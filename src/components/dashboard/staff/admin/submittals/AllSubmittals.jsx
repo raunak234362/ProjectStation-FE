@@ -74,7 +74,7 @@ const AllSubmittals = () => {
       filteredData = filteredData.filter(
         (sub) =>
           sub?.fabricator?.project?.name?.toLowerCase() ===
-            filters.project.toLowerCase() ||
+          filters.project.toLowerCase() ||
           sub?.project?.name?.toLowerCase() === filters.project.toLowerCase()
       );
       console.log(filteredData);
@@ -157,7 +157,7 @@ const AllSubmittals = () => {
             <option value="">Filter by Fabricator</option>
             {[
               ...new Set(submittals?.map((sub) => sub?.fabricator?.fabName)),
-            ].map((name) => (
+            ].sort().map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
@@ -170,7 +170,7 @@ const AllSubmittals = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Project</option>
-            {[...new Set(submittals?.map((sub) => sub?.project?.name))].map(
+            {[...new Set(submittals?.map((sub) => sub?.project?.name))].sort().map(
               (name) => (
                 <option key={name} value={name}>
                   {name}
@@ -185,8 +185,8 @@ const AllSubmittals = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Status</option>
-            <option value="open">Open</option>
             <option value="closed">Closed</option>
+            <option value="open">Open</option>
           </select>
         </div>
         <div className="overflow-x-auto">

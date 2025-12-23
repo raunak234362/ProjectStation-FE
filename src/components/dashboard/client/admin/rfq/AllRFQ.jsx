@@ -51,7 +51,7 @@ function AllRFQ() {
       const matchedFabricator =
         !filters.fabricator ||
         item?.fabricatorName?.toLowerCase() ===
-          filters?.fabricator?.toLowerCase();
+        filters?.fabricator?.toLowerCase();
       //filter dropdown project
       const matchedProject =
         !filters.project ||
@@ -127,8 +127,8 @@ function AllRFQ() {
                 className="px-2 py-1 border border-gray-300 rounded"
               >
                 <option value="">Filter by Status</option>
-                <option value="Open">Viewed</option>
                 <option value="Closed">Closed</option>
+                <option value="Open">Viewed</option>
               </select>
             </div>
           </div>

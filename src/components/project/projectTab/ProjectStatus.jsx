@@ -476,7 +476,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white h-[90vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-11/12 md:w-10/12">
+      <div className="bg-white h-[100vh] p-4 md:p-6 rounded-lg shadow-lg w-full">
         {/* Loading and Error States */}
         {loading && (
           <div className="p-4 bg-blue-50 text-blue-700 rounded-lg text-center">
@@ -527,6 +527,8 @@ const ProjectStatus = ({ projectId, onClose }) => {
                 ))}
               </div>
             </div>
+            <div className="overflow-y-auto h-[85vh]">
+
             {/* Tab Content */}
             {activeTab === "projectDetail" && (
               <GetProject
@@ -588,6 +590,7 @@ const ProjectStatus = ({ projectId, onClose }) => {
             {activeTab === "Notes" && (
               <Notes projectData={projectData} projectId={projectId} />
             )}
+            </div>
           </>
         )}
       </div>

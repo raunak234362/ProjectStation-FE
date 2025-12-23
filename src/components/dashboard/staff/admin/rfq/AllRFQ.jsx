@@ -9,8 +9,8 @@ import toast from "react-hot-toast";
 function AllRFQ() {
 
   const [rfq, setRfq] = useState([]);
-  
-  
+
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     fabricator: "",
@@ -76,20 +76,20 @@ function AllRFQ() {
   const [selectedRFQ, setSelectedRFQ] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-   const handleModalClose = async () => {
-     setSelectedRFQ(null);
-     setIsModalOpen(false);
-   };
-   const handleViewClick = (rfq) => {
-     console.log(rfq);
-     const updatedRfq = { ...rfq, status: "Opened" };
-     setRfq((prevRfq) =>
-       prevRfq.map((item) => (item.id === rfq.id ? updatedRfq : item))
-     );
+  const handleModalClose = async () => {
+    setSelectedRFQ(null);
+    setIsModalOpen(false);
+  };
+  const handleViewClick = (rfq) => {
+    console.log(rfq);
+    const updatedRfq = { ...rfq, status: "Opened" };
+    setRfq((prevRfq) =>
+      prevRfq.map((item) => (item.id === rfq.id ? updatedRfq : item))
+    );
 
-     setSelectedRFQ(updatedRfq); 
-     setIsModalOpen(true);
-   };
+    setSelectedRFQ(updatedRfq);
+    setIsModalOpen(true);
+  };
 
   // const handleViewClick = (data) => {
   //   setViewData(data);
@@ -164,8 +164,8 @@ function AllRFQ() {
                 className="px-2 py-1 border border-gray-300 rounded"
               >
                 <option value="">Filter by Status</option>
-                <option value="Open">Open</option>
                 <option value="Closed">Closed</option>
+                <option value="Open">Open</option>
               </select>
             </div>
           </div>
@@ -189,29 +189,29 @@ function AllRFQ() {
                   </td>
                 </tr>
               ) : rfq?.map((data) => {
-                    const matchedClient = clientData.find(
-                      (client) =>
-                        client.email === data.sender_id || client.id === data.sender_id
-                    );
-                    return (
-                      <tr key={data.id} className="bg-white">
-                        <td className="px-2 py-1 border-2">
-                          {data.projectName}
-                        </td>
-                        <td className="px-2 py-1 border-2">
-                          {matchedClient ? matchedClient.email : data.sender_id}
-                        </td>
-                        <td className="px-2 py-1 border-2">{data.subject}</td>
-                        <td className="px-2 py-1 border-2">{data.date}</td>
-                        <td className="px-2 py-1 border-2">{data.status}</td>
-                        <td className="px-2 py-1 border-2">
-                          <Button onClick={() => handleViewClick(data)}>
-                            View
-                          </Button>
-                        </td>
-                      </tr>
-                    );
-                    })}
+                const matchedClient = clientData.find(
+                  (client) =>
+                    client.email === data.sender_id || client.id === data.sender_id
+                );
+                return (
+                  <tr key={data.id} className="bg-white">
+                    <td className="px-2 py-1 border-2">
+                      {data.projectName}
+                    </td>
+                    <td className="px-2 py-1 border-2">
+                      {matchedClient ? matchedClient.email : data.sender_id}
+                    </td>
+                    <td className="px-2 py-1 border-2">{data.subject}</td>
+                    <td className="px-2 py-1 border-2">{data.date}</td>
+                    <td className="px-2 py-1 border-2">{data.status}</td>
+                    <td className="px-2 py-1 border-2">
+                      <Button onClick={() => handleViewClick(data)}>
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -17,7 +17,7 @@ const Sidebar = () => {
     const userData = await Service.getCurrentUser(token);
     setCurrentUser(userData[0]);
   };
-  
+
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -35,7 +35,7 @@ const Sidebar = () => {
       icon: <LayoutDashboard />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "client",
@@ -49,7 +49,7 @@ const Sidebar = () => {
       label: "Fabricator",
       to: "fabricator",
       icon: <Building2 />,
-      roles: ["admin", "deputy-manager", "sales", "department-manager"],
+      roles: ["admin", "deputy-general-manager", "sales", "department-manager"],
     },
     {
       label: "Project",
@@ -57,7 +57,7 @@ const Sidebar = () => {
       icon: <SquareKanban />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "PMO",
         "department-manager",
         "project-manager",
@@ -72,7 +72,7 @@ const Sidebar = () => {
       icon: <MessageSquareQuote />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "sales",
         "client",
         "department-manager",
@@ -85,7 +85,7 @@ const Sidebar = () => {
       icon: <ChartCandlestick />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "user",
         "sales",
@@ -98,7 +98,7 @@ const Sidebar = () => {
       icon: <Database />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "human-resource",
@@ -122,7 +122,7 @@ const Sidebar = () => {
       icon: <MessageSquare />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "user",
@@ -130,14 +130,14 @@ const Sidebar = () => {
         "estimator-head",
       ],
     },
-    
+
     {
       label: "Profile",
       to: "profile",
       icon: <CgProfile />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "user",
         "client",
         "estimator",

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -11,12 +11,26 @@ import {
   Legend,
 } from "recharts";
 import { DateTime } from "luxon";
+import { ChevronDown } from "lucide-react";
 
 const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats, teams, fetchTeamStats, selectedTeam }) => {
   const [selectedRange, setSelectedRange] = useState("1M");
   const [customDateRange, setCustomDateRange] = useState({ start: "", end: "" });
   const [comparedTeams, setComparedTeams] = useState([]); // Array of team IDs
   const [comparedTeamsData, setComparedTeamsData] = useState({}); // Map: teamId -> data array
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCompareOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088FE", "#00C49F"];
 
@@ -183,23 +197,57 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats, teams, fetchTeam
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Team Comparison Selector */}
-          <div className="relative group">
-            <button className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200">
-              Compare Teams +
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsCompareOpen(!isCompareOpen)}
+              className={`px-3 py-1 text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${isCompareOpen || comparedTeams.length > 0
+                  ? "bg-blue-50 text-blue-600 border border-blue-200"
+                  : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
+            >
+              Compare Teams {comparedTeams.length > 0 ? `(${comparedTeams.length})` : "+"}
+              <ChevronDown className={`w-3 h-3 transition-transform ${isCompareOpen ? "rotate-180" : ""}`} />
             </button>
-            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block z-10 p-2">
-              {teams?.filter(t => t.id !== selectedTeam).map(team => (
-                <label key={team.id} className="flex items-center space-x-2 p-1 hover:bg-gray-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={comparedTeams.includes(team.id)}
-                    onChange={() => handleTeamToggle(team.id)}
-                    className="rounded text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm text-gray-700">{team.name}</span>
-                </label>
-              ))}
-            </div>
+
+            {isCompareOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl z-20 p-2 animate-in fade-in zoom-in duration-200">
+                <div className="flex items-center justify-between px-2 py-1 mb-2 border-b border-gray-100 pb-2">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Select Teams</span>
+                  {comparedTeams.length > 0 && (
+                    <button
+                      onClick={() => {
+                        setComparedTeams([]);
+                        setComparedTeamsData({});
+                      }}
+                      className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase"
+                    >
+                      Clear All
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-48 overflow-y-auto custom-scrollbar">
+                  {teams?.filter(t => t.id !== selectedTeam).length > 0 ? (
+                    teams?.filter(t => t.id !== selectedTeam).map(team => (
+                      <label key={team.id} className="flex items-center space-x-3 p-2 hover:bg-blue-50 rounded-md cursor-pointer transition-colors group">
+                        <div className="relative flex items-center justify-center">
+                          <input
+                            type="checkbox"
+                            checked={comparedTeams.includes(team.id)}
+                            onChange={() => handleTeamToggle(team.id)}
+                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          />
+                        </div>
+                        <span className={`text-sm transition-colors ${comparedTeams.includes(team.id) ? "text-blue-700 font-medium" : "text-gray-700 group-hover:text-blue-600"}`}>
+                          {team.name}
+                        </span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-400 text-center py-4 italic">No other teams available</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Time Range Buttons */}
@@ -242,7 +290,7 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats, teams, fetchTeam
       <div className="bg-white border border-gray-200 rounded-lg p-4">
         <div className="h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={filteredData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={filteredData} margin={{ top: 10, right: 30, left: 40, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorEfficiency" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={COLORS[0]} stopOpacity={0.8} />
@@ -268,7 +316,14 @@ const MonthlyEfficiencyChart = ({ monthlyEfficiency, teamStats, teams, fetchTeam
                 tick={{ fontSize: 12, fill: "#6b7280" }}
                 tickLine={false}
                 axisLine={false}
-                label={{ value: "Efficiency %", angle: -90, position: "insideLeft", style: { fill: '#9ca3af' } }}
+                width={60}
+                label={{
+                  value: "Efficiency %",
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: -10,
+                  style: { fill: '#9ca3af', textAnchor: 'middle' }
+                }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />

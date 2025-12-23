@@ -26,7 +26,7 @@ const AllSubmittals = () => {
   });
 
 
-  const fetchSubmittals = async () => { 
+  const fetchSubmittals = async () => {
     try {
       submittalsLoading.value = true;
       const response = await Service.sentSubmittal()
@@ -80,7 +80,7 @@ const AllSubmittals = () => {
       filteredData = filteredData.filter(
         (sub) =>
           sub?.fabricator?.project?.name?.toLowerCase() ===
-            filters.project.toLowerCase() ||
+          filters.project.toLowerCase() ||
           sub?.project?.name?.toLowerCase() === filters.project.toLowerCase()
       );
       console.log(filteredData);
@@ -170,7 +170,7 @@ const AllSubmittals = () => {
                   (sub) => sub?.fabricator?.project?.name || sub?.project?.name
                 )
               ),
-            ].map((name) => (
+            ].sort().map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
@@ -183,8 +183,8 @@ const AllSubmittals = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Status</option>
-            <option value="open">Open</option>
             <option value="closed">Closed</option>
+            <option value="open">Open</option>
           </select>
         </div>
         <div className="overflow-x-auto">
@@ -219,7 +219,7 @@ const AllSubmittals = () => {
                       {sub?.recepients.email}
                     </td>
                     <td className="px-2 py-1 border">
-                      {sub?.date? new Date(sub.date).toLocaleString(): "N/A"}
+                      {sub?.date ? new Date(sub.date).toLocaleString() : "N/A"}
                     </td>
 
                     <Button onClick={() => handleViewClick(sub.id)}>

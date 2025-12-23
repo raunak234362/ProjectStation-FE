@@ -83,13 +83,13 @@ const App = () => {
       }
 
       if (
-        ["admin", "department-manager","deputy-manager", "project-manager","sales","PMO"]?.includes(userType)
+        ["admin", "department-manager", "deputy-general-manager", "project-manager", "sales", "PMO"]?.includes(userType)
       ) {
         const fabricator = await Service.allFabricator(token);
         dispatch(loadFabricator(fabricator));
       }
       if (
-        ["admin", "department-manager","deputy-manager", "project-manager","sales","PMO"]?.includes(userType)
+        ["admin", "department-manager", "deputy-general-manager", "project-manager", "sales", "PMO"]?.includes(userType)
       ) {
         const client = await Service.allClient(token);
         dispatch(showClient(client));

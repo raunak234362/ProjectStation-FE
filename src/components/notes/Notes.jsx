@@ -106,17 +106,17 @@ const Notes = ({ projectId, toggleForm }) => {
                 >
                   <option value="">Select Stage</option>
                   {[
-                    "RFI",
-                    "IFA",
                     "BFA",
                     "BFA_M",
-                    "RIFA",
-                    "RBFA",
-                    "IFC",
                     "BFC",
-                    "RIFC",
-                    "REV",
                     "CO#",
+                    "IFA",
+                    "IFC",
+                    "RBFA",
+                    "REV",
+                    "RFI",
+                    "RIFA",
+                    "RIFC",
                   ].map((stage) => (
                     <option key={stage} value={stage}>
                       {stage}

@@ -35,7 +35,7 @@ const AllSentRFI = () => {
     }
   };
   // console.log("nnnnnnnnnn",filteredRFI);
-  
+
 
   useEffect(() => {
     fetchSentRfi();
@@ -155,7 +155,7 @@ const AllSentRFI = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Fabricator</option>
-            {[...new Set(sentRfi.map((rfi) => rfi?.fabricator?.fabName))].map(
+            {[...new Set(sentRfi.map((rfi) => rfi?.fabricator?.fabName))].sort().map(
               (name) => (
                 <option key={name} value={name}>
                   {name}
@@ -170,7 +170,7 @@ const AllSentRFI = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Project</option>
-            {[...new Set(sentRfi.map((rfi) => rfi?.project?.name))].map(
+            {[...new Set(sentRfi.map((rfi) => rfi?.project?.name))].sort().map(
               (name) => (
                 <option key={name} value={name}>
                   {name}
@@ -185,8 +185,8 @@ const AllSentRFI = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Status</option>
-            <option value="open">Open</option>
             <option value="closed">Closed</option>
+            <option value="open">Open</option>
           </select>
         </div>
 

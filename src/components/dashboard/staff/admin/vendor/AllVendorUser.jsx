@@ -70,18 +70,18 @@ const AllVendorUser = () => {
         sortOrder.key === "city"
           ? a.vendor.city
           : sortOrder.key === "state"
-          ? a.vendor.state
-          : sortOrder.key === "country"
-          ? a.vendor.country
-          : `${a.f_name} ${a.m_name} ${a.l_name}`; // Vendor Name
+            ? a.vendor.state
+            : sortOrder.key === "country"
+              ? a.vendor.country
+              : `${a.f_name} ${a.m_name} ${a.l_name}`; // Vendor Name
       const bValue =
         sortOrder.key === "city"
           ? b.vendor.city
           : sortOrder.key === "state"
-          ? b.vendor.state
-          : sortOrder.key === "country"
-          ? b.vendor.country
-          : `${b.f_name} ${b.m_name} ${b.l_name}`; // Vendor Name
+            ? b.vendor.state
+            : sortOrder.key === "country"
+              ? b.vendor.country
+              : `${b.f_name} ${b.m_name} ${b.l_name}`; // Vendor Name
 
       // Compare values
       if (aValue < bValue) return sortOrder.order === "asc" ? -1 : 1;
@@ -121,7 +121,7 @@ const AllVendorUser = () => {
             onChange={handleFilterChange}
           >
             <option value="">Filter by Vendor</option>
-            {Array.from(new Set(vendors.map((ven) => ven.vendor.name))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.vendor.name))).sort().map(
               (vendor) => (
                 <option key={vendor} value={vendor}>
                   {vendor}
@@ -136,7 +136,7 @@ const AllVendorUser = () => {
             onChange={handleFilterChange}
           >
             <option value="">Filter by Country</option>
-            {Array.from(new Set(vendors.map((ven) => ven.vendor.country))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.vendor.country))).sort().map(
               (country) => (
                 <option key={country} value={country}>
                   {country}
@@ -151,7 +151,7 @@ const AllVendorUser = () => {
             className="border p-2 rounded"
           >
             <option value="">Filter by State</option>
-            {Array.from(new Set(vendors.map((ven) => ven.vendor.state))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.vendor.state))).sort().map(
               (state) => (
                 <option key={state} value={state}>
                   {state}
@@ -166,7 +166,7 @@ const AllVendorUser = () => {
             className="border p-2 rounded"
           >
             <option value="">Filter by City</option>
-            {Array.from(new Set(vendors.map((ven) => ven.vendor.city))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.vendor.city))).sort().map(
               (city) => (
                 <option key={city} value={city}>
                   {city}
@@ -254,8 +254,8 @@ const AllVendorUser = () => {
       {
         selectedVendorUser && (
           <GetVendorUser
-          vendorUserId= {selectedVendorUser}
-          onClose= {handleModalClose}
+            vendorUserId={selectedVendorUser}
+            onClose={handleModalClose}
           />
         )
       }

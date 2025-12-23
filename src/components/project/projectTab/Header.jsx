@@ -26,17 +26,17 @@ const Header = ({ projectData, filterStage, setFilterStage, dateFilter, setDateF
                         className="w-full p-2 border rounded text-sm"
                     >
                         <option value="all">All Stages</option>
-                        <option value="RFI">(RFI) Request for Information</option>
-                        <option value="IFA">(IFA) Issue for Approval</option>
                         <option value="BFA">(BFA) Back from Approval</option>
                         <option value="BFA_M">(BFA-M) Back from Approval - Markup</option>
-                        <option value="RIFA">(RIFA) Re-issue for Approval</option>
-                        <option value="RBFA">(RBFA) Return Back from Approval</option>
-                        <option value="IFC">(IFC) Issue for Construction</option>
                         <option value="BFC">(BFC) Back from Construction</option>
-                        <option value="RIFC">(RIFC) Re-issue for Construction</option>
-                        <option value="REV">(REV) Revision</option>
                         <option value="CO">(CO#) Change Order</option>
+                        <option value="IFA">(IFA) Issue for Approval</option>
+                        <option value="IFC">(IFC) Issue for Construction</option>
+                        <option value="RBFA">(RBFA) Return Back from Approval</option>
+                        <option value="REV">(REV) Revision</option>
+                        <option value="RFI">(RFI) Request for Information</option>
+                        <option value="RIFA">(RIFA) Re-issue for Approval</option>
+                        <option value="RIFC">(RIFC) Re-issue for Construction</option>
                     </select>
                 </div>
 

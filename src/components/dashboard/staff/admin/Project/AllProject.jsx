@@ -167,7 +167,7 @@ const AllProjects = () => {
           className="w-full p-2 border rounded"
         >
           <option value="">All Fabricator</option>
-          {fabricators?.map((fab) => (
+          {[...(fabricators || [])].sort((a, b) => (a.fabName || "").toLowerCase().localeCompare((b.fabName || "").toLowerCase())).map((fab) => (
             <option key={fab.id} value={fab.fabName}>
               {fab.fabName}
             </option>
@@ -180,12 +180,12 @@ const AllProjects = () => {
           className="w-full p-2 border rounded"
         >
           <option value="">All Status</option>
-          <option value="ASSIGNED">ASSIGNED</option>
           <option value="ACTIVE">ACTIVE</option>
-          <option value="ON-HOLD">ON-HOLD</option>
-          <option value="INACTIVE">INACTIVE</option>
-          <option value="DELAY">DELAY</option>
+          <option value="ASSIGNED">ASSIGNED</option>
           <option value="COMPLETE">COMPLETED</option>
+          <option value="DELAY">DELAY</option>
+          <option value="INACTIVE">INACTIVE</option>
+          <option value="ON-HOLD">ON-HOLD</option>
         </select>
       </div>
 

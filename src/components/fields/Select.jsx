@@ -19,7 +19,12 @@ function Select(
   const searchRef = useRef(null);
 
   useEffect(() => {
-    setFilteredOptions(options);
+    const sortedOptions = [...options].sort((a, b) => {
+      const labelA = (a?.label || "").toString().toLowerCase();
+      const labelB = (b?.label || "").toString().toLowerCase();
+      return labelA.localeCompare(labelB);
+    });
+    setFilteredOptions(sortedOptions);
   }, [options]);
 
   useEffect(() => {
@@ -81,9 +86,8 @@ function Select(
             searchRef.current?.focus();
           }, 100);
         }}
-        className={`flex items-center justify-between p-2 text-sm border border-gray-400 rounded-md bg-white cursor-pointer ${
-          isOpen ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-300"
-        } ${className || ""}`}
+        className={`flex items-center justify-between p-2 text-sm border border-gray-400 rounded-md bg-white cursor-pointer ${isOpen ? "border-blue-500 ring-2 ring-blue-100" : "border-gray-300"
+          } ${className || ""}`}
       >
         <div className="flex-1">
           {isOpen ? (
@@ -110,9 +114,8 @@ function Select(
           )}
         </div>
         <svg
-          className={`w-4 h-4 text-gray-400 transition-transform ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
+          className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? "transform rotate-180" : ""
+            }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

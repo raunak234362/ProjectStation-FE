@@ -147,6 +147,7 @@ const AllFabricator = () => {
                 new Set(fabricators?.map((fab) => fab?.headquaters?.[filterKey]))
               )
                 .filter(Boolean)
+                .sort()
                 .map((val) => (
                   <option key={val} value={val}>{val}</option>
                 ))}
@@ -156,10 +157,10 @@ const AllFabricator = () => {
 
         {/* Table Section */}
         <div className="overflow-x-auto rounded-md border max-h-[55vh]">
-        <table
-          {...getTableProps()}
-          className="min-w-[800px] w-full border-collapse text-sm text-center"
-        >
+          <table
+            {...getTableProps()}
+            className="min-w-[800px] w-full border-collapse text-sm text-center"
+          >
             <thead className="sticky top-0 bg-teal-200/80 z-10">
               {headerGroups.map(headerGroup => (
                 <tr {...headerGroup.getHeaderGroupProps()} className="bg-teal-200/70">

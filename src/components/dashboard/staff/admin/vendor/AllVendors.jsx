@@ -99,7 +99,7 @@ const AllVendors = () => {
             onChange={handleFilterChange}
           >
             <option value="">Filter by Country</option>
-            {Array.from(new Set(vendors.map((ven) => ven.country))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.country))).sort().map(
               (country) => (
                 <option key={country} value={country}>
                   {country}
@@ -114,7 +114,7 @@ const AllVendors = () => {
             className="border p-2 rounded"
           >
             <option value="">Filter by State</option>
-            {Array.from(new Set(vendors.map((ven) => ven.state))).map(
+            {Array.from(new Set(vendors.map((ven) => ven.state))).sort().map(
               (state) => (
                 <option key={state} value={state}>
                   {state}
@@ -129,7 +129,7 @@ const AllVendors = () => {
             className="border p-2 rounded"
           >
             <option value="">Filter by City</option>
-            {Array.from(new Set(vendors.map((ven) => ven.city))).map((city) => (
+            {Array.from(new Set(vendors.map((ven) => ven.city))).sort().map((city) => (
               <option key={city} value={city}>
                 {city}
               </option>

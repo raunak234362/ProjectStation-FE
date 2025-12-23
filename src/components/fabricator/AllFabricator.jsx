@@ -162,6 +162,7 @@ const AllFabricator = () => {
                 )
               )
                 .filter(Boolean)
+                .sort()
                 .map((val) => (
                   <option key={val} value={val}>
                     {val}
@@ -216,7 +217,7 @@ const AllFabricator = () => {
                       onClick={() => handleViewClick(row.original.id)}
                       className="hover:bg-gray-100"
                     >
-                       <td className="px-4 py-2 border">{index + 1}</td>
+                      <td className="px-4 py-2 border">{index + 1}</td>
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}

@@ -376,14 +376,14 @@ const ClientAllProjects = () => {
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value)}
               >
+                <option value="budget-desc">Budget (High → Low)</option>
+                <option value="budget-asc">Budget (Low → High)</option>
+                <option value="end-asc">End Date (Newest)</option>
+                <option value="end-desc">End Date (Oldest)</option>
                 <option value="name-asc">Name (A → Z)</option>
                 <option value="name-desc">Name (Z → A)</option>
                 <option value="start-asc">Start Date (Newest)</option>
                 <option value="start-desc">Start Date (Oldest)</option>
-                <option value="end-asc">End Date (Newest)</option>
-                <option value="end-desc">End Date (Oldest)</option>
-                <option value="budget-asc">Budget (Low → High)</option>
-                <option value="budget-desc">Budget (High → Low)</option>
               </select>
               <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-gray-400" />
             </div>
@@ -391,8 +391,8 @@ const ClientAllProjects = () => {
             {/* View Toggle */}
             <button
               className={`p-2 rounded-md ${viewMode === "grid"
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
               onClick={() => setViewMode("grid")}
             >
@@ -401,8 +401,8 @@ const ClientAllProjects = () => {
 
             <button
               className={`p-2 rounded-md ${viewMode === "list"
-                  ? "bg-blue-100 text-blue-600"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
               onClick={() => setViewMode("list")}
             >

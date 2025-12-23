@@ -127,7 +127,7 @@ const ClientAllProjects = () => {
     };
   };
 
-// console.log("Filtered Projects:", filteredProjects);
+  // console.log("Filtered Projects:", filteredProjects);
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6 border-b border-gray-200">
@@ -157,9 +157,9 @@ const ClientAllProjects = () => {
                 >
                   <option value="all">All Statuses</option>
                   <option value="ACTIVE">Active</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="COMPLETE">Complete</option>
                   <option value="ASSIGNED">Assigned</option>
+                  <option value="COMPLETE">Complete</option>
+                  <option value="IN_PROGRESS">In Progress</option>
                   <option value="IN_REVIEW">In Review</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -186,21 +186,19 @@ const ClientAllProjects = () => {
             </div>
             <div className="flex space-x-2">
               <button
-                className={`p-2 rounded-md ${
-                  viewMode === "grid"
+                className={`p-2 rounded-md ${viewMode === "grid"
                     ? "bg-blue-100 text-blue-600"
                     : "text-gray-500 hover:bg-gray-100"
-                }`}
+                  }`}
                 onClick={() => setViewMode("grid")}
               >
                 <LayoutGrid className="w-5 h-5" />
               </button>
               <button
-                className={`p-2 rounded-md ${
-                  viewMode === "list"
+                className={`p-2 rounded-md ${viewMode === "list"
                     ? "bg-blue-100 text-blue-600"
                     : "text-gray-500 hover:bg-gray-100"
-                }`}
+                  }`}
                 onClick={() => setViewMode("list")}
               >
                 <ListFilter className="w-5 h-5" />
