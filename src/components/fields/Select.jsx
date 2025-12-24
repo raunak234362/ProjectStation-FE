@@ -22,6 +22,14 @@ function Select(
     const sortedOptions = [...options].sort((a, b) => {
       const labelA = (a?.label || "").toString().toLowerCase();
       const labelB = (b?.label || "").toString().toLowerCase();
+
+      // Prioritize labels starting with "all"
+      const isAllA = labelA.startsWith("all");
+      const isAllB = labelB.startsWith("all");
+
+      if (isAllA && !isAllB) return -1;
+      if (!isAllA && isAllB) return 1;
+
       return labelA.localeCompare(labelB);
     });
     setFilteredOptions(sortedOptions);

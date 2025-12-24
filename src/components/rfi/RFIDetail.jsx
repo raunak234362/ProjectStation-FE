@@ -1,4 +1,5 @@
 import RenderFiles from "../RenderFiles";
+import Button from "../fields/Button";
 /* eslint-disable react/prop-types */
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col w-full">
@@ -9,7 +10,8 @@ const InfoItem = ({ label, value }) => (
   </div>
 );
 
-const RFIDetail = ({ rfi, rfiId }) => {
+const RFIDetail = ({ rfi, rfiId, onEdit }) => {
+  const userType = sessionStorage.getItem("userType");
 
   const statusText = rfi?.status === "replied" ? "Replied" : "No Reply";
   return (
@@ -24,14 +26,26 @@ const RFIDetail = ({ rfi, rfiId }) => {
             {new Date(rfi.date).toLocaleString()}
           </h4>
         </div>
-        <span
-          className={`px-4 py-1 rounded-full text-sm font-semibold ${statusText === "Replied"
-            ? "bg-green-100 text-green-700"
-            : "bg-yellow-100 text-yellow-700"
-            }`}
-        >
-          {statusText}
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            className={`px-4 py-1 rounded-full text-sm font-semibold ${statusText === "Replied"
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-yellow-700"
+              }`}
+          >
+            {statusText}
+          </span>
+          {(userType === "admin" ||
+            userType === "deputy-general-manager" ||
+            userType === "department-manager") && onEdit && (
+              <Button
+                onClick={onEdit}
+                className="bg-white text-teal-600 hover:bg-gray-100 font-semibold px-4 py-2 rounded-lg shadow-sm"
+              >
+                Edit
+              </Button>
+            )}
+        </div>
       </div>
 
       {/* Content Grid */}

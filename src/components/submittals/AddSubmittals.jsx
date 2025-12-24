@@ -58,6 +58,7 @@ const AddSubmittals = ({ projectData, setActiveTab }) => {
     formState: { errors },
   } = useForm();
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const recipientID = watch("recipient_id");
   console.log("Selected Recipient ID:", recipientID);
@@ -111,6 +112,7 @@ const AddSubmittals = ({ projectData, setActiveTab }) => {
     console.log("Sending Data:", submittalData); // Debugging
 
     try {
+      setLoading(true);
       const response = await Service.addSubmittal(submittalData);
       toast.success("Submittal created successfully");
       console.log("Submittal created successfully:", response);
@@ -133,6 +135,8 @@ const AddSubmittals = ({ projectData, setActiveTab }) => {
     } catch (error) {
       toast.error("Error creating Submittal");
       console.error("Error creating Submittal:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -205,7 +209,7 @@ const AddSubmittals = ({ projectData, setActiveTab }) => {
                 </div>
 
                 <div className="w-full my-5">
-                  <Button type="submit">Send Message</Button>
+                  <Button type="submit" loading={loading}>Send Message</Button>
                 </div>
               </form>
             </div>

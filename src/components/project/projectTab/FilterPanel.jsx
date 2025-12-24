@@ -22,14 +22,18 @@ const FilterPanel = ({
     return (
         <div className="grid grid-cols-1 gap-4 p-4 mb-6 rounded-lg bg-gray-50 md:grid-cols-4">
             <div>
-                <CustomSelect value={filterUserId} onChange={(e) => setFilterUserId(e.target.value)}>
-                    <option value="all">All Users</option>
-                    {userData.map((user) => (
-                        <option key={user.id} value={user.id}>
-                            {user.f_name} {user.l_name}
-                        </option>
-                    ))}
-                </CustomSelect>
+                <CustomSelect
+                    label="User"
+                    value={filterUserId}
+                    onChange={(_, value) => setFilterUserId(value)}
+                    options={[
+                        { label: "All Users", value: "all" },
+                        ...(userData?.map((user) => ({
+                            label: `${user.f_name} ${user.l_name}`,
+                            value: user.id,
+                        })) || []),
+                    ]}
+                />
             </div>
             <div>
                 <CustomSelect
@@ -59,13 +63,15 @@ const FilterPanel = ({
                     label="Task Type"
                     className="w-full p-2 border border-gray-300 rounded-md"
                     value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                >
-                    <option value="all">All Types</option>
-                    {uniqueTypes.map((type) => (
-                        <option key={type} value={type}>{type}</option>
-                    ))}
-                </CustomSelect>
+                    onChange={(_, value) => setFilterType(value)}
+                    options={[
+                        { label: "All Types", value: "all" },
+                        ...(uniqueTypes?.map((type) => ({
+                            label: type,
+                            value: type,
+                        })) || []),
+                    ]}
+                />
             </div>
             <div>
                 <DateFilter dateFilter={dateFilter} setDateFilter={setDateFilter} />

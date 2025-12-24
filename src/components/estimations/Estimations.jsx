@@ -21,7 +21,7 @@ const Estimations = () => {
     totalEstimatedTime: "120 hours",
   };
 
-  const fetchEstimation = async()=>{
+  const fetchEstimation = async () => {
     try {
       const response = await Service.allEstimations();
       setEstimationData(response);
@@ -30,14 +30,14 @@ const Estimations = () => {
       console.error("Error fetching estimation data:", error);
     }
   }
-  
+
   console.log("Fetched Estimation Data:", estimationData);
   useEffect(() => {
     fetchEstimation();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-6 ">
+    <div className="bg-gray-100 p-4 md:p-6 ">
       <h1 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8 text-gray-800">
         Estimation Dashboard
       </h1>
@@ -83,11 +83,10 @@ const Estimations = () => {
                   <td className="p-3 text-gray-700">{assignment.estimator}</td>
                   <td className="p-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        assignment.status === "Completed"
+                      className={`px-2 py-1 rounded-full text-xs ${assignment.status === "Completed"
                           ? "bg-green-100 text-green-700"
                           : "bg-yellow-100 text-yellow-700"
-                      }`}
+                        }`}
                     >
                       {assignment.status}
                     </span>

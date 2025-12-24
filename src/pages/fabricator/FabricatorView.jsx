@@ -5,7 +5,7 @@ import { AddFabricator, AllFabricator } from "../../components";
 const FabricatorView = () => {
     const [activeTab, setActiveTab] = useState('allFabricator');
     return (
-        <div className="w-full overflow-y-hidden">
+        <div className="w-full">
             <div className="flex flex-col w-full h-full">
                 <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
                     <h1 className="text-2xl py-2 font-bold text-white">Fabricators Details</h1>
@@ -24,14 +24,14 @@ const FabricatorView = () => {
                         </button>
                     </div>
                 </div>
-                <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
+                <div className="flex-grow p-2 h-[89vh] flex flex-col">
                     {activeTab === 'addFabricator' && (
-                        <div>
+                        <div className="flex-1 overflow-auto">
                             <AddFabricator />
                         </div>
                     )}
                     {activeTab === 'allFabricator' && (
-                        <div>
+                        <div className="flex-1 h-full">
                             <AllFabricator />
                         </div>
                     )}

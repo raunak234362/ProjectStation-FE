@@ -9,6 +9,7 @@ import SubmittalDetail from "./SubmittalDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 import ResponseSubmittals from "./response/SubmittalsResponse";
+import EditSubmittals from "./EditSubmittals";
 
 // ---------------- FileLinks ----------------
 
@@ -19,6 +20,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   const [submittalResponse, setSubmittalResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showResponseForm, setShowResponseForm] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
@@ -119,6 +121,28 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   const toggleResponseForm = () => {
     setShowResponseForm((prev) => !prev);
   };
+
+  const handleApprove = async () => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      if (userType === "admin") {
+        formData.append("isAproovedByAdmin", true);
+      } else if (userType === "deputy-general-manager") {
+        formData.append("isDeputyManagerAprooved", true);
+      } else if (userType === "department-manager") {
+        formData.append("isDeptManagerAprooved", true);
+      }
+      await Service.updateSubmittal(submittalId, formData);
+      toast.success("Submittal approved successfully");
+      fetchSubmittals();
+    } catch (error) {
+      toast.error("Failed to approve Submittal");
+      console.error("Error approving Submittal:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   if (!isOpen) return null;
 
   if (loading || !submittal) {
@@ -136,7 +160,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   // ---- Main UI ----
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[90%] w-10/12  rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white h-[100%] w-full  rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
         <div className="sticky top-2 z-10 flex justify-between items-center p-2 mx-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
@@ -152,6 +176,28 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
           </button>
         </div>
 
+        <div className="flex justify-end gap-3 px-6 pt-4">
+          {(userType === "admin" ||
+            userType === "deputy-general-manager" ||
+            userType === "department-manager") && (
+              <>
+                {((userType === "admin" ||
+                  userType === "deputy-general-manager" ||
+                  userType === "department-manager") &&
+                  !submittal?.isAproovedByAdmin &&
+                  !submittal?.isDeputyManagerAprooved &&
+                  !submittal?.isDeptManagerAprooved) && (
+                    <Button
+                      onClick={handleApprove}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      Approve Submittal
+                    </Button>
+                  )}
+              </>
+            )}
+        </div>
+
         {/* Body */}
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           {/* Submittal Detail + Client Response Form */}
@@ -159,6 +205,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
             <SubmittalDetail
               submittal={submittal}
               submittalId={submittalId}
+              onEdit={() => setShowEditModal(true)}
             />
             {userType === "client" && (
               <div className="flex flex-col gap-4">
@@ -268,6 +315,13 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         <ResponseFromClient
           handleViewModalClose={() => setSelectedResponseId(null)}
           responseData={selectedResponseId}
+        />
+      )}
+      {showEditModal && (
+        <EditSubmittals
+          submittal={submittal}
+          onUpdate={fetchSubmittals}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </div>

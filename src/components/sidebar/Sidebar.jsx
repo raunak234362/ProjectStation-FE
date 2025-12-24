@@ -154,7 +154,7 @@ const Sidebar = () => {
   const canView = (roles) => roles.includes(userType);
 
   return (
-    <div className="md:h-screen h-[95vh] w-64 bg-white/70 md:border-4 text-black md:rounded-xl rounded-lg flex flex-col justify-between">
+    <div className="h-[95vh] md:h-[100vh] w-64 bg-white/70 md:border-4 text-black md:rounded-xl rounded-lg flex flex-col justify-between">
       <nav className="p-0 md:p-5 space-y-3">
         <img src="logo.png" alt="" className="md:block hidden" />
         <ul className="flex flex-col gap-5">

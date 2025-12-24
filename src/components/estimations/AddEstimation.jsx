@@ -27,6 +27,7 @@ const AddEstimation = () => {
   const [joditContent, setJoditContent] = useState("");
   const [rfq, setRfq] = useState([]);
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const joditConfig = {
     height: 100,
@@ -107,14 +108,20 @@ const AddEstimation = () => {
         : null,
     };
     try {
+      setLoading(true);
       const response = await Service.addEstimation(estData);
       const created = response?.data || null;
       // Update the list signal so tables re-render without refresh
       estimationsSignal.value = [created || estData, ...(estimationsSignal.value || [])];
       toast.success("Estimation added successfully!");
+      reset();
+      setJoditContent("");
+      setFiles([]);
     } catch (error) {
       console.error("Error adding estimation:", error);
       toast.error("Failed to add estimation. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -198,6 +205,7 @@ const AddEstimation = () => {
           <Button
             type="submit"
             className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+            loading={loading}
           >
             Submit
           </Button>

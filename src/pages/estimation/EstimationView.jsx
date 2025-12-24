@@ -24,7 +24,7 @@ const EstimationView = () => {
   }, []);
 
   return (
-    <div className="w-full overflow-y-hidden">
+    <div className="w-full">
       <div className="flex flex-col w-full h-full">
         <div className="px-3 flex flex-col justify-between items-start bg-gradient-to-t from-teal-100 to-teal-400 border-b rounded-md ">
           <h1 className="text-2xl py-2 font-bold text-white">
@@ -44,28 +44,26 @@ const EstimationView = () => {
             {userType === "estimator-head" ? null : (
               <button
                 onClick={() => setActiveTab("addEstimation")}
-                className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                  activeTab === "addEstimation"
+                className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "addEstimation"
                     ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                     : "md:text-base text-sm bg-white"
-                }`}
+                  }`}
               >
                 Add Estimation
               </button>
             )}
             <button
               onClick={() => setActiveTab("allEstimation")}
-              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${
-                activeTab === "allEstimation"
+              className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "allEstimation"
                   ? "text-base md:text-base bg-teal-500 text-white font-semibold"
                   : "md:text-base text-sm bg-white"
-              }`}
+                }`}
             >
               All Estimation
             </button>
           </div>
         </div>
-        <div className="flex-grow h-[85vh] overflow-y-auto">
+        <div className="flex-grow">
           {activeTab === "Estimations" && (
             <div>
               <Estimations />

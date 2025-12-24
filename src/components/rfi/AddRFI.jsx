@@ -39,6 +39,7 @@ const AddRFI = ({ projectData, setActiveTab }) => {
     formState: { errors },
   } = useForm();
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Text editor
   const joditConfig = {
@@ -115,6 +116,7 @@ const AddRFI = ({ projectData, setActiveTab }) => {
     console.log("Sending Data:", rfiData); // Debugging
 
     try {
+      setLoading(true);
       const response = await Service.addRFI(rfiData);
       toast.success("RFI created successfully");
       console.log("RFI created successfully:", response);
@@ -137,6 +139,8 @@ const AddRFI = ({ projectData, setActiveTab }) => {
     } catch (error) {
       toast.error("Error creating RFI");
       console.error("Error creating RFI:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -209,7 +213,7 @@ const AddRFI = ({ projectData, setActiveTab }) => {
                 </div>
 
                 <div className="w-full my-5">
-                  <Button type="submit">Send Message</Button>
+                  <Button type="submit" loading={loading}>Send Message</Button>
                 </div>
               </form>
             </div>

@@ -45,6 +45,7 @@ const AddProject = ({ setActiveTab }) => {
   const userType = sessionStorage.getItem("userType");
   const [rfq, setRfq] = useState([]);
   const [joditContent, setJoditContent] = useState("");
+  const [loading, setLoading] = useState(false);
   const departmentData = useSelector((state) => state.userData?.departmentData);
   const fabricatorData = useSelector(
     (state) => state.fabricatorData?.fabricatorData
@@ -136,6 +137,7 @@ const AddProject = ({ setActiveTab }) => {
       detailingMisc: Boolean(data.detailingMisc),
     };
     try {
+      setLoading(true);
       const response = await Service.addProject(projectData);
       toast.success("Project Added Successfully");
 
@@ -151,6 +153,8 @@ const AddProject = ({ setActiveTab }) => {
       }
     } catch (error) {
       toast.error("Error Adding Project");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -328,6 +332,7 @@ const AddProject = ({ setActiveTab }) => {
             <Button
               type="submit"
               className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+              loading={loading}
             >
               Add Project
             </Button>

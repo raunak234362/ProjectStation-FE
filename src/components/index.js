@@ -54,6 +54,7 @@ import AddBankAccount from "./bankAccounts/AddBankAccount.jsx";
 //utils
 import ReusableTable from "../util/ReusableTable.jsx";
 import DateFilter from "../util/DateFilter.jsx";
+import DataTable from "./DataTable.jsx";
 export {
   Button,
   WBTDashboard,
@@ -91,4 +92,5 @@ export {
   Submittals,
   // AllCO,
   ErrorBoundary,
+  DataTable,
 };

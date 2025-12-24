@@ -2,9 +2,9 @@
 /* eslint-disable react/prop-types */
 
 import { useCallback, useMemo, useState } from "react";
-import { useSortBy, useTable } from "react-table";
 import { useSignals } from "@preact/signals-react/runtime";
 import GetMilestone from "./GetMilestone";
+import DataTable from "../DataTable";
 
 const TaskProgressBar = ({ progress, status }) => {
   const getProgressColor = (status, progress) => {
@@ -18,7 +18,7 @@ const TaskProgressBar = ({ progress, status }) => {
   const displayProgress = Math.min(100, Math.max(0, Math.round(progress || 0)));
 
   return (
-    <div className="flex items-center gap-2 w-full">
+    <div className="flex items-center gap-2 w-full min-w-[150px]">
       <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-4">
         <div
           className={`h-4 rounded-full transition-all duration-300 ${color}`}
@@ -34,7 +34,6 @@ const TaskProgressBar = ({ progress, status }) => {
 
 const AllMilestone = ({ milestoneData, projectData }) => {
   useSignals();
-  console.log("milestoneData in AllMilestone:", milestoneData.value);
 
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -115,25 +114,23 @@ const AllMilestone = ({ milestoneData, projectData }) => {
       });
   }, [milestoneData.value, projectData?.tasks, projectData?.startDate]);
 
-  console.log("Filtered milestone data:", data);
-
   const columns = useMemo(
     () => [
-
       {
-        Header: "Subject",
-        accessor: "subject",
+        header: "Subject",
+        accessorKey: "subject",
+        enableColumnFilter: true,
       },
       {
-        Header: "Approval Date",
-        accessor: "approvalDate",
-        Cell: ({ value }) =>
-          value ? new Date(value).toLocaleDateString() : "-",
+        header: "Approval Date",
+        accessorKey: "approvalDate",
+        cell: ({ getValue }) =>
+          getValue() ? new Date(getValue()).toLocaleDateString() : "-",
       },
       {
-        Header: "Status",
-        accessor: "status",
-        Cell: ({ row }) => (
+        header: "Status",
+        accessorKey: "status",
+        cell: ({ row }) => (
           <TaskProgressBar
             status={row.original.status}
             progress={row.original.calculatedProgress}
@@ -143,9 +140,6 @@ const AllMilestone = ({ milestoneData, projectData }) => {
     ],
     []
   );
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
 
   const handleRowClick = useCallback((milestone) => {
     setSelectedMilestone(milestone);
@@ -158,75 +152,13 @@ const AllMilestone = ({ milestoneData, projectData }) => {
   }, []);
 
   return (
-    <section className="w-full  bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans">
-      <div className=" mx-auto">
-        <div className="overflow-x-auto">
-          <table
-            {...getTableProps()}
-            className="min-w-full border-collapse border border-neutral-200 dark:border-neutral-700"
-          >
-            <thead className="bg-gray-100 dark:bg-gray-800">
-              {headerGroups.map((headerGroup, headerGroupIdx) => (
-                <tr
-                  {...headerGroup.getHeaderGroupProps()}
-                  key={headerGroup.id || headerGroupIdx}
-                >
-                  {headerGroup.headers.map((column, colIdx) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      key={column.id || colIdx}
-                      className="px-4 py-3 text-left text-sm sm:text-base font-semibold text-gray-800 dark:text-gray-200 border-b border-neutral-200 dark:border-neutral-700 cursor-pointer"
-                    >
-                      {column.render("Header")}
-                      <span>
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? " 🔽"
-                            : " 🔼"
-                          : ""}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {rows.length > 0 ? (
-                rows.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr
-                      {...row.getRowProps()}
-                      key={row.id || row.index}
-                      className="hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                      onClick={() => handleRowClick(row.original)}
-                    >
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
-                          key={cell.column.id}
-                          className="px-4 py-3 text-sm sm:text-base text-gray-600 dark:text-gray-300 border-b border-neutral-200 dark:border-neutral-700"
-                        >
-                          {cell.render("Cell")}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="px-4 py-4 text-center text-sm sm:text-base text-gray-600 dark:text-gray-300"
-                  >
-                    No valid milestone data available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <section className="w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans p-4">
+      <DataTable
+        columns={columns}
+        data={data}
+        onRowClick={handleRowClick}
+        searchPlaceholder="Search milestones..."
+      />
       {isModalOpen && (
         <GetMilestone milestone={selectedMilestone} onClose={closeModal} />
       )}

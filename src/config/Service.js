@@ -1769,6 +1769,48 @@ class Service {
     }
   }
 
+  // Edit Submittal
+  static async editSubmittal(submittalId, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(
+        `/api/submittals/update/${submittalId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
+  //update Rfi
+  static async updateRFI(rfiId, formData) {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await api.put(
+        `/api/RFI/update/${rfiId}/`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      throw error;
+    }
+  }
+
   //response rfi
   static async respondRFI(rfiId, formData) {
     try {

@@ -147,7 +147,7 @@ const SalesDashboard = () => {
   }
 
   return (
-    <div className="w-full h-[100vh] p-4 bg-gray-50 rounded-lg overflow-y-auto">
+    <div className="w-full h-full p-4 bg-gray-50 rounded-lg overflow-y-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8 w-full">
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -183,8 +183,8 @@ const SalesDashboard = () => {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`flex-1 px-6 py-3 rounded-lg font-medium capitalize transition-all ${activeTab === tab
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
+              ? "bg-white text-indigo-600 shadow-sm font-semibold"
+              : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
               }`}
           >
             {tab}
