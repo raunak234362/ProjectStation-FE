@@ -41,22 +41,20 @@ const CO = ({ projectData }) => {
             {userType === "client" || userType === "staff" ? null : (
               <button
                 onClick={() => setActiveTab("sendCO")}
-                className={`py-3 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "sendCO"
+                className={`py-3 px-1 border-b-2 font-medium text-sm ${activeTab === "sendCO"
                     ? "border-teal-500 text-teal-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
+                  }`}
               >
                 Send CO
               </button>
             )}
             <button
               onClick={() => setActiveTab("allCO")}
-              className={`py-3 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "allCO"
+              className={`py-3 px-1 border-b-2 font-medium text-sm ${activeTab === "allCO"
                   ? "border-teal-500 text-teal-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                }`}
             >
               View CO
             </button>
@@ -65,7 +63,7 @@ const CO = ({ projectData }) => {
         <div className="flex-grow p-2 h-[85vh] overflow-y-auto">
           {activeTab === "sendCO" && (
             <div>
-              <SendCO projectData={projectData} fetchCO={fetchCO} />
+              <SendCO projectData={projectData} fetchCO={fetchCO} setActiveTab={setActiveTab} />
             </div>
           )}
           {activeTab === "allCO" && (

@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Service from "../../config/Service";
 import { Button } from "../index";
 import numWords from "num-words";
@@ -12,10 +13,10 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
   const [loading, setLoading] = useState(true);
   console.log(invoice);
 
- 
+
   const ACCENT_COLOR = "teal-500";
- 
-  
+
+
   const fetchInvoice = async () => {
     try {
       setLoading(true);
@@ -42,20 +43,19 @@ const GetInvoice = ({ invoiceId, isOpen, onClose }) => {
     if (invoiceId && isOpen) fetchInvoice();
   }, [invoiceId, isOpen]);
 
- const subtotal =
-   invoice?.invoiceItems?.reduce((sum, item) => {
+  const subtotal =
+    invoice?.invoiceItems?.reduce((sum, item) => {
       // Safely calculate total USD, prioritizing existing totalUSD if available
       const totalUSD =
         parseFloat(item.totalUSD) ||
         (parseFloat(item.rateUSD) || 0) * (parseInt(item.unit) || 0);
       return sum + totalUSD;
-   }, 0) || 0;
+    }, 0) || 0;
 
-const grandTotal = subtotal;
+  const grandTotal = subtotal;
 
-const grandTotalInWords = `${numWords(Math.floor(grandTotal))} ${
-  currency === "USD" ? "US Dollars" : "Canadian Dollars"
-} Only`;
+  const grandTotalInWords = `${numWords(Math.floor(grandTotal))} ${currency === "USD" ? "US Dollars" : "Canadian Dollars"
+    } Only`;
 
 
   if (!isOpen) return null;
@@ -77,9 +77,8 @@ const grandTotalInWords = `${numWords(Math.floor(grandTotal))} ${
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center overflow-y-auto p-4 md:pt-10 font-sans">
       <div
-        className={`bg-white w-[95vw] max-w-4xl rounded-xl shadow-2xl relative transition-all duration-300 transform max-h-[95vh] overflow-y-auto ${
-          isOpen ? "scale-100" : "scale-95"
-        }`}
+        className={`bg-white w-[95vw] max-w-4xl rounded-xl shadow-2xl relative transition-all duration-300 transform max-h-[95vh] overflow-y-auto ${isOpen ? "scale-100" : "scale-95"
+          }`}
       >
         <button
           onClick={onClose}

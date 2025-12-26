@@ -16,7 +16,7 @@ import toast, { Toaster } from "react-hot-toast";
 import JoditEditor from "jodit-react";
 import { prependRFI } from "../../signals";
 
-const AddRFI = ({ projectData }) => {
+const AddRFI = ({ projectData, setActiveTab }) => {
   const project = projectData || {};
   const fabricatorID = project?.fabricatorID;
   const projectID = project?.id;
@@ -34,11 +34,12 @@ const AddRFI = ({ projectData }) => {
     register,
     setValue,
     handleSubmit,
-    
+
     watch,
     formState: { errors },
   } = useForm();
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Text editor
   const joditConfig = {
@@ -48,7 +49,8 @@ const AddRFI = ({ projectData }) => {
     enter: "p", // Use paragraph as default block element
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
     link: {
       processPastedLink: true,
       openInNewTabCheckbox: true,
@@ -69,7 +71,7 @@ const AddRFI = ({ projectData }) => {
 
   const clientName = selectedFabricator
     ? clientData?.find((client) => client.id === selectedFabricator.clientID)
-        ?.name
+      ?.name
     : "";
   console.log("Client Name:", clientName);
 
@@ -114,6 +116,7 @@ const AddRFI = ({ projectData }) => {
     console.log("Sending Data:", rfiData); // Debugging
 
     try {
+      setLoading(true);
       const response = await Service.addRFI(rfiData);
       toast.success("RFI created successfully");
       console.log("RFI created successfully:", response);
@@ -129,9 +132,15 @@ const AddRFI = ({ projectData }) => {
           title: "New Task",
         });
       }
+      // Switch back to the list view
+      if (setActiveTab) {
+        setActiveTab("allRFI");
+      }
     } catch (error) {
       toast.error("Error creating RFI");
       console.error("Error creating RFI:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -204,7 +213,7 @@ const AddRFI = ({ projectData }) => {
                 </div>
 
                 <div className="w-full my-5">
-                  <Button type="submit">Send Message</Button>
+                  <Button type="submit" loading={loading}>Send Message</Button>
                 </div>
               </form>
             </div>

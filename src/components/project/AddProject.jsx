@@ -9,8 +9,9 @@ import Service from "../../config/Service";
 import JoditEditor from "jodit-react";
 import { useEffect, useState } from "react";
 import { showRFQs } from "../../store/rfqSlice";
+import { addProject } from "../../store/projectSlice";
 
-const AddProject = () => {
+const AddProject = ({ setActiveTab }) => {
   const dispatch = useDispatch();
   const {
     register,
@@ -44,6 +45,7 @@ const AddProject = () => {
   const userType = sessionStorage.getItem("userType");
   const [rfq, setRfq] = useState([]);
   const [joditContent, setJoditContent] = useState("");
+  const [loading, setLoading] = useState(false);
   const departmentData = useSelector((state) => state.userData?.departmentData);
   const fabricatorData = useSelector(
     (state) => state.fabricatorData?.fabricatorData
@@ -57,7 +59,7 @@ const AddProject = () => {
       label: `${user.f_name} ${user.l_name}`,
       value: user.id,
     }));
-    console.log("",managerOption)
+  console.log("", managerOption)
 
   // Watch values
   const selectedRfqId = watch("rfqId");
@@ -117,7 +119,8 @@ const AddProject = () => {
     enter: "p",
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
   };
 
   const onSubmit = async (data) => {
@@ -134,13 +137,24 @@ const AddProject = () => {
       detailingMisc: Boolean(data.detailingMisc),
     };
     try {
-      await Service.addProject(projectData);
+      setLoading(true);
+      const response = await Service.addProject(projectData);
       toast.success("Project Added Successfully");
+
+      if (response?.data) {
+        dispatch(addProject(response.data));
+      }
+
       setJoditContent("");
       setValue("description", "");
       reset();
+      if (setActiveTab) {
+        setActiveTab("allProject");
+      }
     } catch (error) {
       toast.error("Error Adding Project");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -318,6 +332,7 @@ const AddProject = () => {
             <Button
               type="submit"
               className="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold"
+              loading={loading}
             >
               Add Project
             </Button>

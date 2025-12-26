@@ -1,116 +1,116 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
-import { useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Service from "../../../../../config/Service";
 import Button from "../../../../fields/Button";
 import GetSentRFI from "./GetSentRFI";
-
+import DataTable from "../../../../DataTable";
 
 const AllReceivedRFI = () => {
   const [RFI, setRFI] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedRFI, setSelectedRFI] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchREceivedRfi = async () => {
+  const fetchReceivedRfi = async () => {
     try {
+      setLoading(true);
       const rfi = await Service.inboxRFI();
-      console.log(rfi);
       if (rfi) {
-        setRFI(rfi.data);
-      } else {
-        console.log("RFI not found");
+        setRFI(rfi.data || []);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching RFI:", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
   useEffect(() => {
-    fetchREceivedRfi();
-  }, [])
+    fetchReceivedRfi();
+  }, []);
 
-  const handleViewClick = async (fabricatorId) => {
+  const handleViewClick = (rfiId) => {
+    setSelectedRFI(rfiId);
+    setIsModalOpen(true);
+  };
 
-    setSelectedRFI(fabricatorId)
-    setIsModalOpen(true)
-  }
+  const handleModalClose = () => {
+    setSelectedRFI(null);
+    setIsModalOpen(false);
+  };
 
-  console.log(selectedRFI)
-
-  const handleModalClose = async () => {
-    setSelectedRFI(null)
-    setIsModalOpen(false)
-  }
-
+  const columns = useMemo(
+    () => [
+      {
+        header: "Sl.No",
+        cell: (info) => info.row.index + 1,
+      },
+      {
+        header: "Project Name",
+        accessorFn: (row) => row?.project?.name || "N/A",
+        id: "projectName",
+        filterType: "select",
+        filterOptions: [...new Set(RFI.map(r => r.project?.name).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
+      },
+      {
+        header: "Mail ID",
+        accessorFn: (row) => row?.recepients?.email || "N/A",
+        id: "mailId",
+      },
+      {
+        header: "Subject/Remarks",
+        accessorKey: "subject",
+      },
+      {
+        header: "Date",
+        accessorKey: "date",
+        cell: (info) => new Date(info.getValue()).toDateString(),
+      },
+      {
+        header: "RFI Status",
+        accessorFn: (row) => row?.rfiresponse === null ? "No Reply" : "Replied",
+        id: "status",
+        filterType: "select",
+        filterOptions: [
+          { label: "No Reply", value: "No Reply" },
+          { label: "Replied", value: "Replied" },
+        ],
+      },
+      {
+        header: "Action",
+        id: "actions",
+        cell: (info) => (
+          <Button onClick={() => handleViewClick(info.row.original.id)}>
+            View
+          </Button>
+        ),
+      },
+    ],
+    [RFI]
+  );
 
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="h-auto p-4 mt-5">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border-collapse md:text-lg rounded-xl">
-            <thead>
-              <tr className="bg-teal-200/70">
-                <th className="px-2 py-1">Sl.No</th>
-                <th className="px-2 py-1">Project Name</th>
-                <th className="px-2 py-1">Mail ID</th>
-                <th className="px-2 py-1">Subject/Remarks</th>
-                <th className="px-2 py-1">Date</th>
-                <th className="px-2 py-1">RFI Status</th>
-                {/* <th className="px-2 py-1">RFI Forward</th> */}
-                <th className="px-2 py-1">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RFI?.length === 0 ? (
-                <tr className="bg-white">
-                  <td colSpan="9" className="text-center">
-                    No received RFI Found
-                  </td>
-                </tr>
-              ) : (
-                RFI?.map((rfi, index) => (
-                  <tr key={rfi?.id} className="border hover:bg-blue-gray-100">
-                    <td className="px-2 py-1 text-left border">{index + 1}</td>
+    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">All Received RFIs</h2>
 
-                    <td className="px-2 py-1 border">
-                      {rfi?.project.name || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi?.recepients.email || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi?.subject || "No remarks"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {new Date(rfi?.date).toDateString() || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi?.rfiresponse === null ? "No Reply" : "Replied"}
-                    </td>
-                    {/* <td className="px-2 py-1 border">
-                      <button className="px-2 py-1 bg-teal-300 rounded">
-                        Forward
-                      </button>
-                    </td> */}
-                    <td className="px-2 py-1 border">
-                      <Button onClick={() => handleViewClick(rfi.id)}>
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         </div>
-        {selectedRFI && (
-          <GetSentRFI
-            rfiId={selectedRFI}
-            isOpen={isModalOpen}
-            onClose={handleModalClose}
-          />
-        )}
-      </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={RFI}
+          searchPlaceholder="Search RFIs..."
+        />
+      )}
+
+      {selectedRFI && (
+        <GetSentRFI
+          rfiId={selectedRFI}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };

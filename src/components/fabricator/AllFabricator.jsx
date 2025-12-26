@@ -4,18 +4,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useTable, useSortBy } from "react-table";
-import { Button, GetFabricator } from "../index.js";
+import { GetFabricator } from "../index.js";
+import DataTable from "../DataTable";
 import Service from "../../config/Service.js";
 import { loadFabricator } from "../../store/fabricatorSlice.js";
 
 const AllFabricator = () => {
   const fabricators = useSelector(
-    (state) => state?.fabricatorData?.fabricatorData
+    (state) => state?.fabricatorData?.fabricatorData || []
   );
-  const [filteredFabricators, setFilteredFabricators] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({ country: "", state: "", city: "" });
   const [selectedFabricator, setSelectedFabricator] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const dispatch = useDispatch();
@@ -27,55 +24,17 @@ const AllFabricator = () => {
       dispatch(loadFabricator(response));
     } catch (error) {
       console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    if (fabricators) {
-      getAllFabricators();
+    } finally {
       setLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    setFilteredFabricators(fabricators);
-  }, [fabricators]);
-
-  // Filtering and searching logic
-  useEffect(() => {
-    let result = fabricators?.filter((fab) => {
-      const searchMatch =
-        fab?.fabName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.city
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.state
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase()) ||
-        fab?.headquaters?.country
-          ?.toLowerCase()
-          .includes(searchQuery.toLowerCase());
-
-      const filterMatch =
-        (!filters.country || fab.headquaters?.country === filters.country) &&
-        (!filters.state || fab.headquaters?.state === filters.state) &&
-        (!filters.city || fab.headquaters?.city === filters.city);
-
-      return searchMatch && filterMatch;
-    });
-
-    setFilteredFabricators(result);
-  }, [searchQuery, filters, fabricators]);
-
-  const handleSearch = (e) => setSearchQuery(e.target.value);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleViewClick = (id) => {
-    setSelectedFabricator(id);
+  useEffect(() => {
+    getAllFabricators();
+  }, []);
+
+  const handleViewClick = (row) => {
+    setSelectedFabricator(row.id);
     setIsModalOpen(true);
   };
 
@@ -84,154 +43,48 @@ const AllFabricator = () => {
     setIsModalOpen(false);
   };
 
-  // Columns for react-table
+  // Columns for DataTable
   const columns = useMemo(
     () => [
       {
-        Header: "Name",
-        accessor: "fabName",
+        header: "Name",
+        accessorKey: "fabName",
+        enableColumnFilter: true,
       },
       {
-        Header: "City",
-        accessor: (row) => row?.headquaters?.city,
+        header: "City",
+        accessorFn: (row) => row?.headquaters?.city || "N/A",
         id: "city",
+        filterType: "select",
+        filterOptions: [...new Set(fabricators.map(f => f.headquaters?.city).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "State",
-        accessor: (row) => row?.headquaters?.state,
+        header: "State",
+        accessorFn: (row) => row?.headquaters?.state || "N/A",
         id: "state",
+        filterType: "select",
+        filterOptions: [...new Set(fabricators.map(f => f.headquaters?.state).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Country",
-        accessor: (row) => row?.headquaters?.country,
+        header: "Country",
+        accessorFn: (row) => row?.headquaters?.country || "N/A",
         id: "country",
+        filterType: "select",
+        filterOptions: [...new Set(fabricators.map(f => f.headquaters?.country).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
     ],
-    []
+    [fabricators]
   );
-
-  const tableInstance = useTable(
-    { columns, data: filteredFabricators },
-    useSortBy
-  );
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
-
-  const renderSkeletonRows = (count = 10) => {
-    return Array.from({ length: count }).map((_, rowIdx) => (
-      <tr key={rowIdx} className="animate-pulse">
-        {columns.map((_, colIdx) => (
-          <td key={colIdx} className="px-4 py-2 border">
-            <div className="h-4 bg-gray-300 rounded w-full"></div>
-          </td>
-        ))}
-      </tr>
-    ));
-  };
 
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="mt-5 bg-white h-auto p-4">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search by name, city, state or country"
-          className="border p-2 rounded w-full mb-4"
-          value={searchQuery}
-          onChange={handleSearch}
+    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] h-full">
+      <div className="mt-5 bg-white h-full p-4">
+        <DataTable
+          columns={columns}
+          data={fabricators}
+          onRowClick={handleViewClick}
+          searchPlaceholder="Search fabricators..."
         />
-
-        {/* Filter Section */}
-        <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {["country", "state", "city"].map((filterKey) => (
-            <select
-              key={filterKey}
-              name={filterKey}
-              value={filters[filterKey]}
-              onChange={handleFilterChange}
-              className="border p-2 rounded"
-            >
-              <option value="">
-                Filter by{" "}
-                {filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}
-              </option>
-              {Array.from(
-                new Set(
-                  fabricators?.map((fab) => fab?.headquaters?.[filterKey])
-                )
-              )
-                .filter(Boolean)
-                .map((val) => (
-                  <option key={val} value={val}>
-                    {val}
-                  </option>
-                ))}
-            </select>
-          ))}
-        </div>
-
-        {/* Table Section */}
-        <div className="overflow-x-auto rounded-md border max-h-[75vh]">
-          <table
-            {...getTableProps()}
-            className="min-w-[800px] w-full border-collapse text-sm text-center"
-          >
-            <thead className="sticky top-0 bg-teal-200/80 z-10">
-              {headerGroups.map((headerGroup) => (
-                <tr
-                  {...headerGroup.getHeaderGroupProps()}
-                  className="bg-teal-200/70"
-                >
-                  <th className="px-4 py-2 font-semibold border whitespace-nowrap">
-                    S.No
-                  </th>
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="px-2 py-1 cursor-pointer"
-                    >
-                      {column.render("Header")}
-                      {column.isSorted && (column.isSortedDesc ? "" : "")}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {loading ? (
-                renderSkeletonRows(8)
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-4 text-center">
-                    No Projects Found
-                  </td>
-                </tr>
-              ) : (
-                rows.map((row, index) => {
-                  prepareRow(row);
-                  return (
-                    <tr
-                      {...row.getRowProps()}
-                      onClick={() => handleViewClick(row.original.id)}
-                      className="hover:bg-gray-100"
-                    >
-                       <td className="px-4 py-2 border">{index + 1}</td>
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
-                          className="px-4 py-2 border"
-                        >
-                          {cell.render("Cell")}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
 
         {/* Modal */}
         {selectedFabricator && (

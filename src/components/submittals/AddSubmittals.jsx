@@ -14,8 +14,9 @@ import JoditEditor from "jodit-react";
 import Service from "../../config/Service";
 import socket from "../../socket";
 import toast, { Toaster } from "react-hot-toast";
+import { prependSubmittal } from "../../signals";
 
-const AddSubmittals = ({ projectData }) => {
+const AddSubmittals = ({ projectData, setActiveTab }) => {
   const project = projectData || {};
   const fabricatorID = project?.fabricatorID;
   const projectID = project?.id;
@@ -32,7 +33,8 @@ const AddSubmittals = ({ projectData }) => {
     enter: "p", // Use paragraph as default block element
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
     link: {
       processPastedLink: true,
       openInNewTabCheckbox: true,
@@ -56,6 +58,7 @@ const AddSubmittals = ({ projectData }) => {
     formState: { errors },
   } = useForm();
   const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const recipientID = watch("recipient_id");
   console.log("Selected Recipient ID:", recipientID);
@@ -64,9 +67,9 @@ const AddSubmittals = ({ projectData }) => {
   );
   const clientName = selectedFabricator
     ? clientData?.find((client) => client.id === selectedFabricator.clientID)
-        ?.name
+      ?.name
     : "";
-  console.log("Client Name:", clientName);
+  console.log("Client Name:", selectedFabricator);
 
   const onFilesChange = (updatedFiles) => {
     setFiles(updatedFiles);
@@ -109,6 +112,7 @@ const AddSubmittals = ({ projectData }) => {
     console.log("Sending Data:", submittalData); // Debugging
 
     try {
+      setLoading(true);
       const response = await Service.addSubmittal(submittalData);
       toast.success("Submittal created successfully");
       console.log("Submittal created successfully:", response);
@@ -119,9 +123,20 @@ const AddSubmittals = ({ projectData }) => {
           title: "New Task",
         });
       }
+      // Optimistically update the submittals list
+      const created = response?.data?.data || response?.data || null;
+      if (created) {
+        prependSubmittal(created);
+      }
+      // Switch back to the list view
+      if (setActiveTab) {
+        setActiveTab("allSubmittals");
+      }
     } catch (error) {
       toast.error("Error creating Submittal");
       console.error("Error creating Submittal:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -194,7 +209,7 @@ const AddSubmittals = ({ projectData }) => {
                 </div>
 
                 <div className="w-full my-5">
-                  <Button type="submit">Send Message</Button>
+                  <Button type="submit" loading={loading}>Send Message</Button>
                 </div>
               </form>
             </div>

@@ -1,33 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import Input from "../fields/Input";
 import Button from "../fields/Button";
 import { useSelector } from "react-redux";
-import { CustomSelect } from "../index";
 import Service from "../../config/Service";
 //onSubmit th
 const AddBankAccount = () => {
   const {
     register,
     handleSubmit,
-    setValue,
     watch,
     reset,
-    formState: { errors },
   } = useForm();
 
   // Redux data (Invoice list from store)
-  const invoices = useSelector(
-    (state) => state?.invoiceData?.invoiceData || []
-  );
-
-  // Dropdown options for invoices
-  const invoiceOptions = invoices.map((inv) => ({
-    label: `${inv.invoiceNumber} - ${inv.customerName}`,
-    value: inv.id,
-  }));
-
   const selectedInvoiceId = watch("invoiceId");
 
   // Auto-populate logic (optional, if you want to auto-fill fields when invoice changes)
@@ -40,7 +27,7 @@ const AddBankAccount = () => {
   // Submit logic
   const onSubmit = async (formData) => {
     const payload = {
-      invoiceId: formData.invoiceId, 
+      invoiceId: formData.invoiceId,
       abaRoutingNumber: formData.abaRoutingNumber,
       accountNumber: formData.accountNumber,
       accountType: formData.accountType,
@@ -54,16 +41,16 @@ const AddBankAccount = () => {
     console.log("Bank Account Payload ===>", payload);
 
     try {
-      const response = await Service.AddBankAccount(payload);
-      console.log("Bank details added successfully:", response);
-      reset(); 
+      await Service.AddBankAccount(payload);
+      console.log("Bank details added successfully");
+      reset();
     } catch (error) {
       console.error("Error adding bank account:", error);
     }
   };
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-3xl mx-auto">
+    <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full mx-auto">
       {/* Header */}
       <header className="mb-6 border-b pb-4 border-teal-200">
         <h1 className="text-3xl font-extrabold text-teal-700">

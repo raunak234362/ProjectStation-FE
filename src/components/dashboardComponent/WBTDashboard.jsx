@@ -388,7 +388,7 @@ const WBTDashboard = () => {
 
   if (error) {
     return (
-      <div className="w-full h-[100vh] flex items-center justify-center text-red-600">
+      <div className="w-full h-full flex items-center justify-center text-red-600">
         {error}
       </div>
     );
@@ -396,7 +396,7 @@ const WBTDashboard = () => {
 
   return (
     <SkeletonTheme baseColor="#e5e7eb" highlightColor="#f3f4f6">
-      <div className="w-full h-[100vh] p-4 bg-gray-50 rounded-lg overflow-y-auto">
+      <div className="w-full p-4 bg-gray-50 rounded-lg">
         <div className=" mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
@@ -505,33 +505,30 @@ const WBTDashboard = () => {
                     <div className="flex">
                       <button
                         onClick={() => setActiveChart("bar")}
-                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                          activeChart === "bar"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-500 hover:text-gray-700"
-                        }`}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "bar"
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                          }`}
                       >
                         <BarChart3 className="w-4 h-4" />
                         Project Task Overview
                       </button>
                       <button
                         onClick={() => setActiveChart("pie")}
-                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                          activeChart === "pie"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-500 hover:text-gray-700"
-                        }`}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "pie"
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                          }`}
                       >
                         <PieChart className="w-4 h-4" />
                         Task Distribution
                       </button>
                       <button
                         onClick={() => setActiveChart("line")}
-                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${
-                          activeChart === "line"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-500 hover:text-gray-700"
-                        }`}
+                        className={`px-6 py-4 flex items-center gap-2 text-sm font-medium transition-colors ${activeChart === "line"
+                          ? "text-blue-600 border-b-2 border-blue-600"
+                          : "text-gray-500 hover:text-gray-700"
+                          }`}
                       >
                         <LineChart className="w-4 h-4" />
                         Task Trends
@@ -550,9 +547,8 @@ const WBTDashboard = () => {
                           <div
                             className="min-w-full"
                             style={{
-                              height: `${
-                                projectTaskData?.labels?.length * 40
-                              }px`,
+                              height: `${projectTaskData?.labels?.length * 40
+                                }px`,
                             }}
                           >
                             <Bar
@@ -595,7 +591,7 @@ const WBTDashboard = () => {
                                           window.innerWidth < 500 ? 15 : 25;
                                         return label.length > maxLength
                                           ? label.substring(0, maxLength) +
-                                              "..."
+                                          "..."
                                           : label;
                                       },
                                     },

@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import Button from "../../fields/Button";
 import EditCoDetail from "./EditCoDetail";
 import { openCoListTableInNewTab } from "../../../util/coTableUtils";
+import RenderFiles from "../../RenderFiles";
 
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col w-full">
@@ -30,8 +31,8 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
     selectedCO?.status?.toLowerCase() === "approved"
       ? "bg-green-100 text-green-700"
       : selectedCO?.status?.toLowerCase() === "pending"
-      ? "bg-yellow-100 text-yellow-700"
-      : "bg-gray-100 text-gray-700";
+        ? "bg-yellow-100 text-yellow-700"
+        : "bg-gray-100 text-gray-700";
 
   return (
     <div className="w-full bg-white p-6 rounded-xl shadow-lg border border-gray-200">
@@ -75,7 +76,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
               : "Not available"
           }
         />
-      
+
         <InfoItem
           label="Approved"
           value={selectedCO?.isAproovedByAdmin ? "Yes" : "No"}
@@ -100,23 +101,7 @@ const CoDetail = ({ selectedCO, fetchCO }) => {
             Files:
           </span>
           <div className="flex flex-wrap gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            {selectedCO?.files?.length ? (
-              selectedCO.files.map((file) => (
-                <a
-                  key={file.id}
-                  href={`${import.meta.env.VITE_BASE_URL}/api/co/viewfile/${
-                    selectedCO.id
-                  }/${file.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-teal-600 underline hover:text-teal-800"
-                >
-                  {file.originalName || "Unnamed File"}
-                </a>
-              ))
-            ) : (
-              <span className="text-gray-400 text-sm">No files attached</span>
-            )}
+            <RenderFiles files={selectedCO.files} table="changeOrders" parentId={selectedCO.id} />
           </div>
         </div>
 

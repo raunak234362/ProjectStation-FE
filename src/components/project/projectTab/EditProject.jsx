@@ -2,14 +2,17 @@
 /* eslint-disable react/prop-types */
 
 import AddFiles from "./AddFiles";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import JoditEditor from "jodit-react";
 import toast from "react-hot-toast";
 import Service from "../../../config/Service";
-import { updateProjectData } from "../../../store/projectSlice";
+import { updateProjectData, deleteProject } from "../../../store/projectSlice";
+import { projectData as projectSignal } from "../../../signals/projectData";
 import Input from "../../fields/Input";
-import { Button, CustomSelect } from "../..";
+import { Button, CustomSelect, Toggle } from "../..";
+import SectionTitle from "../../../util/SectionTitle";
 
 const EditProject = ({ project, onUpdate, onClose }) => {
   const [teamOptions, setTeamOptions] = useState([]);
@@ -25,10 +28,11 @@ const EditProject = ({ project, onUpdate, onClose }) => {
     formState: { errors },
     reset,
     setValue,
+    control,
   } = useForm({
     defaultValues: {
       name: project?.name || "",
-      fabricator: project?.fabricator?.id || "",
+      fabricatorID: project?.fabricator?.id || "",
       description: project?.description || "",
       duration: project?.duration || "",
       startDate: project?.startDate || "",
@@ -36,8 +40,9 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       endDate: project?.endDate || "",
       estimatedHours: project?.estimatedHours || "",
       status: project?.status || "",
+      tools: project?.tools || "",
       stage: project?.stage || "",
-      manager: project?.manager?.id || "",
+      managerID: project?.manager?.id || "",
       fileData: project?.files || "",
     },
   });
@@ -71,7 +76,12 @@ const EditProject = ({ project, onUpdate, onClose }) => {
         project?.id,
         projectData
       );
-      dispatch(updateProjectData(updatedProject?.data));
+      const updatedData = updatedProject?.data;
+      dispatch(updateProjectData(updatedData));
+
+      // Update signal for immediate refresh
+      projectSignal.value = { ...projectSignal.value, ...updatedData };
+
       toast.success("Project updated successfully");
 
       if (onUpdate) {
@@ -89,8 +99,8 @@ const EditProject = ({ project, onUpdate, onClose }) => {
       const response = await Service.deleteProject(project?.id);
       console.log("Delete response", response);
       toast.success("Project deleted successfully!");
+      dispatch(deleteProject(project?.id));
       onClose(true);
-      window.location.reload();
     } catch (error) {
       toast.error("Error deleting project!");
       console.error("Error deleting project:", error);
@@ -120,11 +130,27 @@ const EditProject = ({ project, onUpdate, onClose }) => {
               />
             </div>
             <div className="my-2">
-              <Input
-                label="Project Description"
-                type="text"
-                defaultValue={project?.description}
-                {...register("description")}
+              <label className="font-bold text-sm text-gray-700">
+                Project Description
+              </label>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <JoditEditor
+                    value={field.value}
+                    config={{
+                      readonly: false,
+                      askBeforePasteHTML: false,
+                      askBeforePasteFromWord: false,
+                      defaultActionOnPaste: "insert_as_html",
+                      processPasteHTML: true,
+                    }}
+                    tabIndex={1} // tabIndex of textarea
+                    onBlur={(newContent) => field.onChange(newContent)} // preferred to use only this option to update the content for performance reasons
+                    onChange={(newContent) => { }}
+                  />
+                )}
               />
             </div>
             <div className="my-2">
@@ -140,7 +166,7 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 {...register("managerID")}
                 onChange={setValue}
               />
-              {errors.manager && (
+              {errors.managerID && (
                 <div className="text-red-500">This field is required</div>
               )}
             </div>
@@ -176,6 +202,19 @@ const EditProject = ({ project, onUpdate, onClose }) => {
             </div>
             <div className="my-2">
               <CustomSelect
+                label="Tools"
+                name="tools"
+                options={[
+                  { label: "SDS-2", value: "SDS2" },
+                  { label: "TEKLA", value: "TEKLA" },
+                ]}
+                defaultValue={project?.tools}
+                {...register("tools")}
+                onChange={setValue}
+              />
+            </div>
+            <div className="my-2">
+              <CustomSelect
                 label="Stage"
                 name="stage"
                 options={[
@@ -203,12 +242,8 @@ const EditProject = ({ project, onUpdate, onClose }) => {
                 options={[
                   { label: "ACTIVE", value: "ACTIVE" },
                   { label: "ON-HOLD", value: "ONHOLD" },
-                  { label: "INACTIVE", value: "INACTIVE" },
-                  { label: "DELAY", value: "DELAY" },
                   { label: "REOPEN", value: "REOPEN" },
                   { label: "COMPLETE", value: "COMPLETE" },
-                  { label: "SUBMIT", value: "SUBMIT" },
-                  { label: "SUSPEND", value: "SUSPEND" },
                   { label: "CANCEL", value: "CANCEL" },
                 ]}
                 defaultValue={project?.projectStatus}
@@ -219,11 +254,45 @@ const EditProject = ({ project, onUpdate, onClose }) => {
             <div className="my-2 h-full z-50">
               <CustomSelect
                 label="Team"
-                name="team"
+                name="teamID"
                 options={teamOptions}
                 className="w-full"
-                {...register("team")}
+                {...register("teamID")}
                 onChange={setValue}
+              />
+            </div>
+
+            <SectionTitle title="Connection Design Scope" />
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Toggle
+                label="Main Design"
+                {...register("connectionDesign")}
+                onChange={(value) => setValue("connectionDesign", value)}
+              />
+              <Toggle
+                label="Misc Design"
+                {...register("miscDesign")}
+                onChange={(value) => setValue("miscDesign", value)}
+              />
+              <Toggle
+                label="Custom Design"
+                {...register("customerDesign")}
+                onChange={(value) => setValue("customerDesign", value)}
+              />
+            </div>
+
+            {/* Detailing Scope */}
+            <SectionTitle title="Detailing Scope" />
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <Toggle
+                label="Main Steel"
+                {...register("detailingMain")}
+                onChange={(value) => setValue("detailingMain", value)}
+              />
+              <Toggle
+                label="Miscellaneous Steel"
+                {...register("detailingMisc")}
+                onChange={(value) => setValue("detailingMisc", value)}
               />
             </div>
 

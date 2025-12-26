@@ -1,9 +1,12 @@
 /* eslint-disable react/prop-types */
 
+import { useState } from "react";
 import { useSignals } from "@preact/signals-react/runtime";
+import EditMileston from "./EditMileston";
 
-const GetMilestone = ({ milestone, onClose }) => {
+const GetMilestone = ({ milestone, onClose, onUpdate }) => {
   useSignals();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!milestone) return null;
 
@@ -14,12 +17,20 @@ const GetMilestone = ({ milestone, onClose }) => {
           <h2 className="text-xl font-semibold text-gray-800">
             Milestone Details
           </h2>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
-          >
-            Close
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Edit
+            </button>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600"
+            >
+              Close
+            </button>
+          </div>
         </div>
         <div className="space-y-4">
           <div>
@@ -64,6 +75,16 @@ const GetMilestone = ({ milestone, onClose }) => {
         </div>
         <div className="mt-6 flex justify-end"></div>
       </div>
+      {isEditModalOpen && (
+        <EditMileston
+          milestone={milestone}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={(updatedMilestone) => {
+            if (onUpdate) onUpdate(updatedMilestone);
+            setIsEditModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };

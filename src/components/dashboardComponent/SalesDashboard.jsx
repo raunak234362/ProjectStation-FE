@@ -44,7 +44,7 @@ const SalesDashboard = () => {
         formatCurrency(p.value || 0)
       ])
     ].map(row => row.join(",")).join("\n")
-    
+
     const blob = new Blob([csvContent], { type: "text/csv" })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement("a")
@@ -147,7 +147,7 @@ const SalesDashboard = () => {
   }
 
   return (
-    <div className="w-full h-[100vh] p-4 bg-gray-50 rounded-lg overflow-y-auto">
+    <div className="w-full h-full p-4 bg-gray-50 rounded-lg overflow-y-auto">
       {/* Header */}
       <div className="flex justify-between items-center mb-8 w-full">
         <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
@@ -160,11 +160,11 @@ const SalesDashboard = () => {
             className="px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           >
             <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
+            <option value="week">This Week</option>
             <option value="year">This Year</option>
+            <option value="today">Today</option>
           </select>
           <Button
             onClick={handleExport}
@@ -182,11 +182,10 @@ const SalesDashboard = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 px-6 py-3 rounded-lg font-medium capitalize transition-all ${
-              activeTab === tab
-                ? "bg-white text-indigo-600 shadow-sm font-semibold"
-                : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
-            }`}
+            className={`flex-1 px-6 py-3 rounded-lg font-medium capitalize transition-all ${activeTab === tab
+              ? "bg-white text-indigo-600 shadow-sm font-semibold"
+              : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
+              }`}
           >
             {tab}
           </button>
@@ -315,7 +314,7 @@ const SalesDashboard = () => {
                 className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
               >
                 <option value="">All Status</option>
-                {["RFQ", "ASSIGNED", "ACTIVE", "ON-HOLD", "INACTIVE", "DELAY", "AWARDED", "COMPLETED"].map(
+                {["ACTIVE", "ASSIGNED", "AWARDED", "COMPLETED", "DELAY", "INACTIVE", "ON-HOLD", "RFQ"].map(
                   (status) => (
                     <option key={status} value={status}>
                       {status}
@@ -329,7 +328,7 @@ const SalesDashboard = () => {
                 className="px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
               >
                 <option value="">All Fabricators</option>
-                {uniqueFabricators.map((fab) => (
+                {[...uniqueFabricators].sort().map((fab) => (
                   <option key={fab} value={fab}>
                     {fab}
                   </option>

@@ -30,7 +30,8 @@ const AddFiles = ({ projectId, onUpdate, onClose }) => {
     enter: "p", // Use paragraph as default block element
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
     link: {
       processPastedLink: true,
       openInNewTabCheckbox: true,
@@ -104,6 +105,7 @@ const AddFiles = ({ projectId, onUpdate, onClose }) => {
     onUpdate();
     toast.success("Document uploaded successfully");
     console.log("Document uploaded successfully:", response);
+    onClose();
   };
 
   return (

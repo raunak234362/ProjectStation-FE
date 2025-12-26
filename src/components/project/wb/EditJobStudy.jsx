@@ -4,8 +4,11 @@ import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Input, Button } from "../../index";
 import Service from "../../../config/Service";
+import { useDispatch } from "react-redux";
+import { updateWorkBreakdown } from "../../../store/projectSlice";
 
 const EditJobStudy = ({ jobStudy, onClose }) => {
+  const dispatch = useDispatch();
   const { handleSubmit, control } = useForm({
     defaultValues: {
       description: jobStudy.description,
@@ -24,6 +27,14 @@ const EditJobStudy = ({ jobStudy, onClose }) => {
         execTime: Number(data.execTime),
       });
       console.log("Updated Job Study:", response);
+      const updatedData = {
+        id: jobStudy.id,
+        description: data.description,
+        QtyNo: Number(data.QtyNo),
+        unitTime: Number(data.unitTime),
+        execTime: Number(data.execTime),
+      };
+      dispatch(updateWorkBreakdown(updatedData));
       onClose();
     } catch (error) {
       console.error("Error updating job study:", error);

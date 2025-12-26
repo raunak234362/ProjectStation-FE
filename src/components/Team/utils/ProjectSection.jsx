@@ -26,14 +26,14 @@ const ProjectsSection = ({ projects }) => {
                     {project.status || "Unknown"}
                   </span>
                 </span>
-                <span className="text-gray-500">
+                {/* <span className="text-gray-500">
                   Deadline:{" "}
                   <span className="font-medium">
                     {project.deadline
                       ? new Date(project.deadline).toLocaleDateString()
                       : "N/A"}
                   </span>
-                </span>
+                </span> */}
               </div>
             </div>
           ))}

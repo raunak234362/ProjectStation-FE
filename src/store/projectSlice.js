@@ -6,6 +6,7 @@ const initialState = {
   submittals: [],
   changeOrder: [],
   workBreakdown: [],
+  milestones: [],
 };
 
 const projectSlice = createSlice({
@@ -51,6 +52,11 @@ const projectSlice = createSlice({
         (changeOrder) => changeOrder.id !== action.payload
       );
     },
+    updateCO: (state, action) => {
+      state.changeOrder = state.changeOrder.map((co) =>
+        co.id === action.payload.id ? { ...co, ...action.payload } : co
+      );
+    },
     addRFI: (state, action) => {
       state.rfiData.push(action.payload);
       localStorage.setItem("rfiData", JSON.stringify(state.rfiData));
@@ -60,6 +66,24 @@ const projectSlice = createSlice({
     },
     deleteRFI: (state, action) => {
       state.rfiData = state.rfiData.filter((rfi) => rfi.id !== action.payload);
+    },
+    showMilestones: (state, action) => {
+      state.milestones = action.payload;
+    },
+    addMilestone: (state, action) => {
+      state.milestones.push(action.payload);
+    },
+    updateMilestoneData: (state, action) => {
+      state.milestones = state.milestones.map((milestone) =>
+        milestone.id === action.payload.id
+          ? { ...milestone, ...action.payload }
+          : milestone
+      );
+    },
+    deleteMilestone: (state, action) => {
+      state.milestones = state.milestones.filter(
+        (milestone) => milestone.id !== action.payload
+      );
     },
   },
 });
@@ -72,9 +96,14 @@ export const {
   addCO,
   showCO,
   deleteCO,
+  updateCO,
   addRFI,
   showRFIs,
   deleteRFI,
+  showMilestones,
+  addMilestone,
+  updateMilestoneData,
+  deleteMilestone,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

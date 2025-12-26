@@ -4,38 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
-import { X } from "lucide-react";
+import { X, Share2, Download } from "lucide-react";
 import SubmittalDetail from "./SubmittalDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
 import ResponseSubmittals from "./response/SubmittalsResponse";
+import EditSubmittals from "./EditSubmittals";
 
 // ---------------- FileLinks ----------------
-const FileLinks = ({ files, submittalId, isResponse = false, responseId }) => {
-  const baseURL = import.meta.env.VITE_BASE_URL?.replace(/\/$/, "");
 
-  if (!Array.isArray(files) || files.length === 0) {
-    return <span className="text-sm text-gray-500">Not available</span>;
-  }
-
-  return files.map((file, index) => {
-    const fileUrl = isResponse
-      ? `${baseURL}/api/Submittals/submittals/${responseId}/${file.id}`
-      : `${baseURL}/api/Submittals/submittals/${submittalId}/${file.id}`;
-
-    return (
-      <a
-        key={file.id || index}
-        href={fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-teal-600 hover:underline block"
-      >
-        {file.originalName || `File ${index + 1}`}
-      </a>
-    );
-  });
-};
 
 // ---------------- GetSubmittals ----------------
 const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
@@ -43,6 +20,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   const [submittalResponse, setSubmittalResponse] = useState([]);
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showResponseForm, setShowResponseForm] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
@@ -143,6 +121,28 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   const toggleResponseForm = () => {
     setShowResponseForm((prev) => !prev);
   };
+
+  const handleApprove = async () => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      if (userType === "admin") {
+        formData.append("isAproovedByAdmin", true);
+      } else if (userType === "deputy-general-manager") {
+        formData.append("isDeputyManagerAprooved", true);
+      } else if (userType === "department-manager") {
+        formData.append("isDeptManagerAprooved", true);
+      }
+      await Service.updateSubmittal(submittalId, formData);
+      toast.success("Submittal approved successfully");
+      fetchSubmittals();
+    } catch (error) {
+      toast.error("Failed to approve Submittal");
+      console.error("Error approving Submittal:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   if (!isOpen) return null;
 
   if (loading || !submittal) {
@@ -160,7 +160,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
   // ---- Main UI ----
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[90%] w-10/12  rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white h-[100%] w-full  rounded-lg shadow-lg overflow-hidden">
         {/* Header */}
         <div className="sticky top-2 z-10 flex justify-between items-center p-2 mx-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
@@ -176,24 +176,45 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
           </button>
         </div>
 
+        <div className="flex justify-end gap-3 px-6 pt-4">
+          {(userType === "admin" ||
+            userType === "deputy-general-manager" ||
+            userType === "department-manager") && (
+              <>
+                {((userType === "admin" ||
+                  userType === "deputy-general-manager" ||
+                  userType === "department-manager") &&
+                  !submittal?.isAproovedByAdmin &&
+                  !submittal?.isDeputyManagerAprooved &&
+                  !submittal?.isDeptManagerAprooved) && (
+                    <Button
+                      onClick={handleApprove}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      Approve Submittal
+                    </Button>
+                  )}
+              </>
+            )}
+        </div>
+
         {/* Body */}
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           {/* Submittal Detail + Client Response Form */}
           <div className={`grid gap-4 `}>
             <SubmittalDetail
               submittal={submittal}
-              FileLinks={FileLinks}
               submittalId={submittalId}
+              onEdit={() => setShowEditModal(true)}
             />
             {userType === "client" && (
               <div className="flex flex-col gap-4">
                 <Button
                   onClick={toggleResponseForm}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
-                    showResponseForm
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-teal-600 hover:bg-teal-700"
-                  }`}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${showResponseForm
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-teal-600 hover:bg-teal-700"
+                    }`}
                 >
                   {showResponseForm ? "Close Response Form" : "Add Response"}
                 </Button>
@@ -209,7 +230,7 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
                 )}
               </div>
             )}
-           
+
           </div>
 
           {/* Responses Table */}
@@ -294,6 +315,13 @@ const GetSubmittals = ({ submittalId, isOpen, onClose }) => {
         <ResponseFromClient
           handleViewModalClose={() => setSelectedResponseId(null)}
           responseData={selectedResponseId}
+        />
+      )}
+      {showEditModal && (
+        <EditSubmittals
+          submittal={submittal}
+          onUpdate={fetchSubmittals}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </div>

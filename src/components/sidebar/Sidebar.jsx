@@ -35,7 +35,7 @@ const Sidebar = () => {
       icon: <LayoutDashboard />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "client",
@@ -49,7 +49,7 @@ const Sidebar = () => {
       label: "Fabricator",
       to: "fabricator",
       icon: <Building2 />,
-      roles: ["admin", "deputy-manager", "sales", "department-manager"],
+      roles: ["admin", "deputy-general-manager", "sales", "department-manager"],
     },
     {
       label: "Project",
@@ -57,7 +57,7 @@ const Sidebar = () => {
       icon: <SquareKanban />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "PMO",
         "department-manager",
         "project-manager",
@@ -72,7 +72,7 @@ const Sidebar = () => {
       icon: <MessageSquareQuote />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "sales",
         "client",
         "department-manager",
@@ -85,7 +85,7 @@ const Sidebar = () => {
       icon: <ChartCandlestick />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "user",
         "sales",
@@ -98,7 +98,7 @@ const Sidebar = () => {
       icon: <Database />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "human-resource",
@@ -111,10 +111,10 @@ const Sidebar = () => {
       roles: ["admin", "PMO", "client"],
     },
     {
-      label: "Back Accounts",
+      label: "Bank Accounts",
       to: "bank-accounts",
       icon: <Database />,
-      roles: ["admin", "PMO", "client"],
+      roles: ["admin", "PMO"],
     },
     {
       label: "Chats",
@@ -122,7 +122,7 @@ const Sidebar = () => {
       icon: <MessageSquare />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "department-manager",
         "project-manager",
         "user",
@@ -130,17 +130,19 @@ const Sidebar = () => {
         "estimator-head",
       ],
     },
+
     {
       label: "Profile",
       to: "profile",
       icon: <CgProfile />,
       roles: [
         "admin",
-        "deputy-manager",
+        "deputy-general-manager",
         "user",
         "client",
         "estimator",
         "sales",
+        "PMO",
         "project-manager",
         "department-manager",
         "human-resource",
@@ -152,7 +154,7 @@ const Sidebar = () => {
   const canView = (roles) => roles.includes(userType);
 
   return (
-    <div className="md:h-screen h-[95vh] w-64 bg-white/70 md:border-4 text-black md:rounded-xl rounded-lg flex flex-col justify-between">
+    <div className="h-[95vh] md:h-[100vh] w-64 bg-white/70 md:border-4 text-black md:rounded-xl rounded-lg flex flex-col justify-between">
       <nav className="p-0 md:p-5 space-y-3">
         <img src="logo.png" alt="" className="md:block hidden" />
         <ul className="flex flex-col gap-5">

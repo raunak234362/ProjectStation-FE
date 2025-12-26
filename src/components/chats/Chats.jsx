@@ -84,7 +84,7 @@ const Chats = () => {
 
 
   return (
-     <div className="w-full h-screen flex overflow-hidden bg-white rounded-md shadow-lg relative">
+    <div className="w-full h-full flex overflow-hidden bg-white rounded-md shadow-lg relative">
 
       {/* Desktop View: Sidebar + Chat */}
       <div className="hidden md:flex w-full h-full">

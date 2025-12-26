@@ -331,8 +331,8 @@ const ProjectDashboard = () => {
           ? 1
           : -1
         : aValue < bValue
-        ? 1
-        : -1;
+          ? 1
+          : -1;
     });
 
     setProjectFilter(filtered);
@@ -455,7 +455,7 @@ const ProjectDashboard = () => {
     : 0;
 
   return (
-    <div className="w-full min-h-screen p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="w-full p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="w-full mx-auto">
         <div className="mb-6 sm:mb-8">
           <h1 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">
@@ -538,33 +538,30 @@ const ProjectDashboard = () => {
               <div className="flex min-w-max">
                 <button
                   onClick={() => setActiveChart("bar")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${
-                    activeChart === "bar"
-                      ? "text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "bar"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                    }`}
                 >
                   <BarChart3 className="w-4 h-4" />
                   Fabricator Task Overview
                 </button>
                 <button
                   onClick={() => setActiveChart("pie")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${
-                    activeChart === "pie"
-                      ? "text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "pie"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                    }`}
                 >
                   <PieChart className="w-4 h-4" />
                   Task Distribution
                 </button>
                 <button
                   onClick={() => setActiveChart("line")}
-                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${
-                    activeChart === "line"
-                      ? "text-blue-600 border-b-2 border-blue-600"
-                      : "text-gray-500 hover:text-gray-700"
-                  }`}
+                  className={`px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2 text-xs sm:text-sm font-medium transition-colors ${activeChart === "line"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                    }`}
                 >
                   <LineChart className="w-4 h-4" />
                   Task Trends
@@ -585,65 +582,65 @@ const ProjectDashboard = () => {
                   {userType === "department-manager"
                     ? null
                     : activeChart === "bar" && (
-                        <Bar
-                          data={barData}
-                          options={{
-                            indexAxis: "y", // This makes the bar chart horizontal
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: "top",
-                                labels: {
-                                  usePointStyle: true,
-                                  boxWidth: 6,
-                                  font: {
-                                    size: 12,
-                                  },
-                                },
-                              },
-                              tooltip: {
-                                backgroundColor: "rgba(0, 0, 0, 0.8)",
-                                padding: 12,
-                                titleFont: {
-                                  size: 14,
-                                },
-                                bodyFont: {
-                                  size: 13,
-                                },
-                                cornerRadius: 8,
-                              },
-                            },
-                            scales: {
-                              x: {
-                                beginAtZero: true,
-                                grid: {
-                                  color: "rgba(0, 0, 0, 0.05)",
-                                },
-                                stacked: true,
-                              },
-                              y: {
-                                grid: {
-                                  display: false,
-                                },
-                                stacked: true,
-                                ticks: {
-                                  // Ensure fabricator names are fully visible
-                                  callback: function (value) {
-                                    const label = this.getLabelForValue(value);
-                                    // Truncate long fabricator names on small screens
-                                    const maxLength =
-                                      window.innerWidth < 768 ? 15 : 25;
-                                    return label.length > maxLength
-                                      ? label.substring(0, maxLength) + "..."
-                                      : label;
-                                  },
+                      <Bar
+                        data={barData}
+                        options={{
+                          indexAxis: "y", // This makes the bar chart horizontal
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: "top",
+                              labels: {
+                                usePointStyle: true,
+                                boxWidth: 6,
+                                font: {
+                                  size: 12,
                                 },
                               },
                             },
-                          }}
-                        />
-                      )}
+                            tooltip: {
+                              backgroundColor: "rgba(0, 0, 0, 0.8)",
+                              padding: 12,
+                              titleFont: {
+                                size: 14,
+                              },
+                              bodyFont: {
+                                size: 13,
+                              },
+                              cornerRadius: 8,
+                            },
+                          },
+                          scales: {
+                            x: {
+                              beginAtZero: true,
+                              grid: {
+                                color: "rgba(0, 0, 0, 0.05)",
+                              },
+                              stacked: true,
+                            },
+                            y: {
+                              grid: {
+                                display: false,
+                              },
+                              stacked: true,
+                              ticks: {
+                                // Ensure fabricator names are fully visible
+                                callback: function (value) {
+                                  const label = this.getLabelForValue(value);
+                                  // Truncate long fabricator names on small screens
+                                  const maxLength =
+                                    window.innerWidth < 768 ? 15 : 25;
+                                  return label.length > maxLength
+                                    ? label.substring(0, maxLength) + "..."
+                                    : label;
+                                },
+                              },
+                            },
+                          },
+                        }}
+                      />
+                    )}
 
                   {activeChart === "pie" && (
                     <Pie
@@ -760,11 +757,13 @@ const ProjectDashboard = () => {
             className="w-full p-2 border rounded"
           >
             <option value="">All Fabricator</option>
-            {fabricators?.map((fab) => (
-              <option key={fab.id} value={fab.fabName}>
-                {fab.fabName}
-              </option>
-            ))}
+            {[...(fabricators || [])]
+              .sort((a, b) => (a.fabName || "").toLowerCase().localeCompare((b.fabName || "").toLowerCase()))
+              .map((fab) => (
+                <option key={fab.id} value={fab.fabName}>
+                  {fab.fabName}
+                </option>
+              ))}
           </select>
           <select
             name="status"
@@ -773,12 +772,12 @@ const ProjectDashboard = () => {
             className="w-full p-2 border rounded"
           >
             <option value="">All Status</option>
-            <option value="ASSIGNED">ASSIGNED</option>
             <option value="ACTIVE">ACTIVE</option>
-            <option value="ON-HOLD">ON-HOLD</option>
-            <option value="INACTIVE">INACTIVE</option>
-            <option value="DELAY">DELAY</option>
+            <option value="ASSIGNED">ASSIGNED</option>
             <option value="COMPLETE">COMPLETED</option>
+            <option value="DELAY">DELAY</option>
+            <option value="INACTIVE">INACTIVE</option>
+            <option value="ON-HOLD">ON-HOLD</option>
           </select>
         </div>
 

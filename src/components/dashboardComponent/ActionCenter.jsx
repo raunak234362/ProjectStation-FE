@@ -87,9 +87,9 @@ const ActionCenter = () => {
     setIsLoading(true);
     try {
       const [rfiRes, subRes, coRes] = await Promise.all([
-        Service.inboxRFI(),
-        Service.reciviedSubmittal(),
-        Service.allReceivedCO(),
+        Service?.inboxRFI(),
+        Service?.reciviedSubmittal(),
+        Service?.allReceivedCO(),
       ]);
 
       let rfqDetail;
@@ -137,7 +137,7 @@ const ActionCenter = () => {
             Array.isArray(res.childResponses) && res.childResponses.length === 0
         )
     ),
-    co: coList.filter(
+    co: coList?.filter(
       (item) =>
         !item?.coResponses ||
         (Array.isArray(item.coResponses) && item.coResponses.length === 0)

@@ -2,10 +2,10 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line react/prop-types
 import { useMemo, useState } from "react";
-import { useTable, useSortBy } from "react-table";
 import GetEstimation from "./getEstimation/GetEstimation";
 import { useSignals } from "@preact/signals-react/runtime";
 import { estimationsSignal } from "../../signals";
+import DataTable from "../DataTable";
 
 const AllEstimations = () => {
   useSignals();
@@ -13,44 +13,44 @@ const AllEstimations = () => {
   console.log("All Estimations Data:", estimationData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEstimation, setSelectedEstimation] = useState(null);
+
   const columns = useMemo(
     () => [
       {
-        Header: "Estimation No.",
-        accessor: "estimationNumber",
+        header: "Estimation No.",
+        accessorKey: "estimationNumber",
+        enableColumnFilter: true,
       },
       {
-        Header: "Project Name",
-        accessor: "projectName",
+        header: "Project Name",
+        accessorKey: "projectName",
+        enableColumnFilter: true,
       },
       {
-        Header: "Tools",
-        accessor: "tools",
+        header: "Tools",
+        accessorKey: "tools",
       },
       {
-        Header: "Status",
-        accessor: "status",
+        header: "Status",
+        accessorKey: "status",
+        filterType: "select",
+        filterOptions: [...new Set(estimationData.map(e => e.status).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Estimate Date",
-        accessor: "estimateDate",
-        Cell: ({ value }) => new Date(value).toLocaleDateString(),
+        header: "Estimate Date",
+        accessorKey: "estimateDate",
+        cell: ({ getValue }) => new Date(getValue()).toLocaleDateString(),
       },
       {
-        Header: "Created By",
-        accessor: "createdBy.username",
+        header: "Created By",
+        accessorKey: "createdBy.username",
       },
     ],
-    []
+    [estimationData]
   );
 
-  const data = useMemo(() => estimationData || [], [estimationData]);
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data }, useSortBy);
-
-  const handleViewClick = (estID) => {
-    setSelectedEstimation(estID);
+  const handleViewClick = (row) => {
+    setSelectedEstimation(row);
     setIsModalOpen(true);
   };
 
@@ -60,75 +60,13 @@ const AllEstimations = () => {
   };
 
   return (
-    <div className="overflow-x-auto mt-4 border rounded-lg">
-      <table
-        {...getTableProps()}
-        className="min-w-full divide-y divide-gray-200 text-sm text-left"
-      >
-        <thead className="bg-gray-50">
-          {headerGroups.map((headerGroup, headerGroupIdx) => (
-            <tr
-              {...headerGroup.getHeaderGroupProps()}
-              key={headerGroup.id || headerGroupIdx}
-            >
-              {headerGroup.headers.map((column, colIdx) => (
-                <th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  className="px-4 py-3 font-semibold text-gray-700 tracking-wider cursor-pointer"
-                  key={column.id || colIdx}
-                >
-                  {column.render("Header")}
-                  <span className="ml-1 text-xs">
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-
-        <tbody
-          {...getTableBodyProps()}
-          className="bg-white divide-y divide-gray-100"
-        >
-          {rows.length > 0 ? (
-            rows.map((row) => {
-              prepareRow(row);
-              return (
-                <tr
-                  {...row.getRowProps()}
-                  className="hover:bg-gray-50"
-                  key={row.id}
-                  onClick={() => handleViewClick(row.original)}
-                >
-                  {row.cells.map((cell) => (
-                    <td
-                      {...cell.getCellProps()}
-                      className="px-4 py-2 text-gray-700"
-                      key={cell.column.id}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })
-          ) : (
-            <tr>
-              <td
-                colSpan={columns.length}
-                className="px-4 py-6 text-center text-gray-500"
-              >
-                No estimations available.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+    <div className="mt-4 bg-white rounded-xl shadow-lg md:w-full w-[95vw] mx-auto p-4 m-2">
+      <DataTable
+        columns={columns}
+        data={estimationData || []}
+        onRowClick={handleViewClick}
+        searchPlaceholder="Search estimations..."
+      />
       {selectedEstimation && (
         <GetEstimation
           estimation={selectedEstimation}
