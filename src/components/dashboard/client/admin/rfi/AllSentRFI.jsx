@@ -153,7 +153,7 @@ const AllSentRFI = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Fabricator</option>
-            {[...new Set(sentRfi.map((rfi) => rfi?.fabricator?.fabName))].map(
+            {[...new Set(sentRfi.map((rfi) => rfi?.fabricator?.fabName))].sort().map(
               (name) => (
                 <option key={name} value={name}>
                   {name}
@@ -172,7 +172,7 @@ const AllSentRFI = () => {
               ...new Set(
                 sentRfi.map((rfi) => rfi?.project?.name)
               ),
-            ].map((name) => (
+            ].sort().map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
@@ -185,8 +185,8 @@ const AllSentRFI = () => {
             className="px-2 py-1 border border-gray-300 rounded"
           >
             <option value="">Filter by Status</option>
-            <option value="open">Open</option>
             <option value="closed">Closed</option>
+            <option value="open">Open</option>
           </select>
         </div>
 

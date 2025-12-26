@@ -6,7 +6,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 
-const SendCoTable = ({ data, fetchCO }) => {
+const SendCoTable = ({ data, fetchCO, setActiveTab }) => {
 
   const id = data?.id;
   console.log(data);
@@ -65,6 +65,9 @@ const SendCoTable = ({ data, fetchCO }) => {
       const response = await Service.addCOTable(rows, id);
       toast.success("CO created successfully");
       fetchCO();
+      if (setActiveTab) {
+        setActiveTab("allCO");
+      }
     } catch (error) {
       console.error("Error creating CO:", error);
     }

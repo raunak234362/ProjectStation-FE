@@ -91,11 +91,11 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                     }
                   >
                     <option value="all">All Time</option>
-                    <option value="week">By Week</option>
                     <option value="month">By Month</option>
+                    <option value="week">By Week</option>
                     <option value="year">By Year</option>
-                    <option value="range">Month Range</option>
                     <option value="dateRange">Date Range</option>
+                    <option value="range">Month Range</option>
                     <option value="specificDate">Specific Date</option>
                   </select>
                 </div>
@@ -103,29 +103,29 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                 {(dateFilter?.type === "month" ||
                   dateFilter?.type === "year" ||
                   dateFilter?.type === "range") && (
-                  <div className="mb-3">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Year
-                    </label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                      value={dateFilter.year || ""}
-                      onChange={(e) =>
-                        setDateFilter({
-                          ...dateFilter,
-                          year: Number(e.target.value),
-                        })
-                      }
-                    >
-                      <option value="">Select Year</option>
-                      {years.map((year) => (
-                        <option key={year} value={year}>
-                          {year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Year
+                      </label>
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                        value={dateFilter.year || ""}
+                        onChange={(e) =>
+                          setDateFilter({
+                            ...dateFilter,
+                            year: Number(e.target.value),
+                          })
+                        }
+                      >
+                        <option value="">Select Year</option>
+                        {years.map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                 {dateFilter?.type === "week" && (
                   <div className="mb-3">
@@ -138,8 +138,8 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                       value={
                         dateFilter.weekStart
                           ? new Date(dateFilter.weekStart)
-                              .toISOString()
-                              .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                           : ""
                       }
                       onChange={(e) => {
@@ -245,8 +245,8 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                         value={
                           dateFilter.startDate
                             ? new Date(dateFilter.startDate)
-                                .toISOString()
-                                .split("T")[0]
+                              .toISOString()
+                              .split("T")[0]
                             : ""
                         }
                         onChange={(e) =>
@@ -267,8 +267,8 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                         value={
                           dateFilter.endDate
                             ? new Date(dateFilter.endDate)
-                                .toISOString()
-                                .split("T")[0]
+                              .toISOString()
+                              .split("T")[0]
                             : ""
                         }
                         onChange={(e) =>
@@ -294,8 +294,8 @@ const DateFilter = ({ dateFilter, setDateFilter }) => {
                       value={
                         dateFilter.date
                           ? new Date(dateFilter.date)
-                              .toISOString()
-                              .split("T")[0]
+                            .toISOString()
+                            .split("T")[0]
                           : ""
                       }
                       onChange={(e) =>

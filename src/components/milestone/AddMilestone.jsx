@@ -31,7 +31,8 @@ const AddMilestone = ({ projectData, onSubmit }) => {
     enter: "p", // Use paragraph as default block element
     processPasteHTML: true,
     askBeforePasteHTML: false,
-    defaultActionOnPaste: "custom",
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
     link: {
       processPastedLink: true,
       openInNewTabCheckbox: true,

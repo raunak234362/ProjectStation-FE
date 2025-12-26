@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
 import Button from "../../fields/Button";
 import DateFilter from "../../../util/DateFilter";
+import { FaFilePdf } from "react-icons/fa";
 
-const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, onDateFilterChange }) => {
+const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, onDateFilterChange, onGenerateReport }) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
       <h1 className="text-2xl font-bold text-gray-800">Team Performance Dashboard</h1>
@@ -21,6 +22,14 @@ const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, on
         </div>
         <div className="flex items-center gap-2">
           <DateFilter dateFilter={dateFilter} setDateFilter={onDateFilterChange} />
+          <button
+            onClick={onGenerateReport}
+            className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-md hover:bg-red-600 transition-colors shadow-sm"
+            title="Download Full Report"
+          >
+            <FaFilePdf />
+            Report
+          </button>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import Service from "../../config/Service";
 import SendCoTable from "./SendCoTable";
 import { prependCO } from "../../signals";
 
-const SendCO = ({ projectData, fetchCO }) => {
+const SendCO = ({ projectData, fetchCO, setActiveTab }) => {
   // Step 1 form
   const {
     register,
@@ -213,7 +213,7 @@ const SendCO = ({ projectData, fetchCO }) => {
               </div>
             </form>
             {/* {isModalOpen && <SendCoTable data={dataCO.id} onClose={handleModalClose} />} */}
-            {click && save && <SendCoTable data={dataCO} />}
+            {click && save && <SendCoTable data={dataCO} fetchCO={fetchCO} setActiveTab={setActiveTab} />}
           </div>
         </div>
       </div>

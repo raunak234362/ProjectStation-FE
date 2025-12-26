@@ -5,42 +5,13 @@ import { Button } from "../index";
 import toast from "react-hot-toast";
 import Service from "../../config/Service";
 import RFIResponse from "./response/RFIResponse";
-import { X } from "lucide-react";
+import { X, Share2, Download } from "lucide-react";
 import RFIDetail from "./RFIDetail";
 import { useSortBy, useTable } from "react-table";
 import ResponseFromClient from "./response/ResponseFromClient";
+import EditRFI from "./EditRFI";
 
-const FileLinks = ({ files, rfiId, isResponse = false, responseId }) => {
-  const baseURL = import.meta.env.VITE_BASE_URL;
-  const responseID = responseId;
-  const rfiID = rfiId;
-  if (!Array.isArray(files) || files.length === 0) {
-    return <span className="text-sm text-gray-500">Not available</span>;
-  }
 
-  return files.map((file, index) => {
-    const fileUrl = isResponse
-      ? `${baseURL.replace(
-          /\/$/,
-          ""
-        )}/api/RFI/rfi/response/viewfile/${responseID}/${file.id}`
-      : `${baseURL.replace(/\/$/, "")}/api/RFI/rfi/viewfile/${rfiID}/${
-          file.id
-        }`;
-
-    return (
-      <a
-        key={file.id || index}
-        href={fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm text-teal-600 hover:underline block"
-      >
-        {file.originalName || `File ${index + 1}`}
-      </a>
-    );
-  });
-};
 
 const GetRFI = ({ rfiId, isOpen, onClose }) => {
   console.log(rfiId);
@@ -50,6 +21,7 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const [showResponseForm, setShowResponseForm] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const userType = useMemo(() => sessionStorage.getItem("userType") || "", []);
 
   const fetchRFI = useCallback(async () => {
@@ -152,6 +124,28 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
   const toggleResponseForm = () => {
     setShowResponseForm((prev) => !prev);
   };
+
+  const handleApprove = async () => {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      if (userType === "admin") {
+        formData.append("isAproovedByAdmin", true);
+      } else if (userType === "deputy-general-manager") {
+        formData.append("isDeputyManagerAprooved", true);
+      } else if (userType === "department-manager") {
+        formData.append("isDeptManagerAprooved", true);
+      }
+      await Service.updateRFI(rfi_Id, formData);
+      toast.success("RFI approved successfully");
+      fetchRFI();
+    } catch (error) {
+      toast.error("Failed to approve RFI");
+      console.error("Error approving RFI:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     if (isOpen && rfi_Id) {
       fetchRFI();
@@ -176,7 +170,7 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white h-[90%] w-10/12 rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-white h-[100%] w-full rounded-lg shadow-lg overflow-hidden">
         <div className="sticky top-2 z-10 flex justify-between items-center p-2 mx-2 bg-gradient-to-r from-teal-400 to-teal-100 border-b rounded-t-md">
           <div className="text-lg text-white font-medium">
             <span className="font-bold">Subject:</span> {subject || "N/A"}
@@ -190,18 +184,40 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
           </button>
         </div>
 
+
+
         <div className="px-6 pt-5 pb-6 overflow-y-auto h-full space-y-6">
           <div className={`grid gap-4 `}>
-            <RFIDetail rfi={rfi} FileLinks={FileLinks} rfiId={rfi_Id} />
+            <RFIDetail rfi={rfi} rfiId={rfi_Id} onEdit={() => setShowEditModal(true)} />
+            <div className="flex justify-end gap-3 px-6 pt-4">
+              {(userType === "admin" ||
+                userType === "deputy-general-manager" ||
+                userType === "department-manager") && (
+                  <>
+                    {((userType === "admin" ||
+                      userType === "deputy-general-manager" ||
+                      userType === "department-manager") &&
+                      !rfi?.isAproovedByAdmin &&
+                      !rfi?.isDeputyManagerAprooved &&
+                      !rfi?.isDeptManagerAprooved) && (
+                        <Button
+                          onClick={handleApprove}
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                        >
+                          Approve RFI
+                        </Button>
+                      )}
+                  </>
+                )}
+            </div>
             {userType === "client" && (
               <div className="flex flex-col gap-4">
                 <Button
                   onClick={toggleResponseForm}
-                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${
-                    showResponseForm
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-teal-600 hover:bg-teal-700"
-                  }`}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white ${showResponseForm
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-teal-600 hover:bg-teal-700"
+                    }`}
                 >
                   {showResponseForm ? "Close Response Form" : "Add Response"}
                 </Button>
@@ -215,8 +231,10 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
                     />
                   </div>
                 )}
+
               </div>
             )}
+
           </div>
 
           <section>
@@ -298,6 +316,13 @@ const GetRFI = ({ rfiId, isOpen, onClose }) => {
         <ResponseFromClient
           handleViewModalClose={handleViewModalClose}
           responseData={selectedResponseId}
+        />
+      )}
+      {showEditModal && (
+        <EditRFI
+          rfi={rfi}
+          onUpdate={fetchRFI}
+          onClose={() => setShowEditModal(false)}
         />
       )}
     </div>

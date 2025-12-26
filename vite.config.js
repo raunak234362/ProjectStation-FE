@@ -9,7 +9,7 @@ export default defineConfig({
       registerType: "prompt",
       includeAssets: ["favicon.svg", "robots.txt", "apple-touch-icon.png"],
       workbox: {
-        maximumFileSizeToCacheInBytes: 12 * 1024 * 1024, // 12 MB
+        maximumFileSizeToCacheInBytes: 48 * 1024 * 1024, // 12 MB
       },
       manifest: {
         name: "My App",

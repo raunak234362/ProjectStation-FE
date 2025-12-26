@@ -33,16 +33,20 @@ const Notes = ({ projectId, toggleForm }) => {
     cleanHTML: {
       removeEmptyElements: true, // Additional cleanup for empty elements
     },
+    askBeforePasteHTML: false,
+    askBeforePasteFromWord: false,
+    defaultActionOnPaste: "insert_as_html",
+    processPasteHTML: true,
   };
 
- 
+
   const fetchNotes = async () => {
     const response = await Service.getNotesByProjectId(projectId);
     console.log("Fetched Notes:", response.data);
     setNotes(response.data);
   };
 
- const onSubmit = async (data) => {
+  const onSubmit = async (data) => {
     try {
       console.log("Form Data:", JSON.stringify(data, null, 2));
       const response = await Service.addNotes(data, projectId);
@@ -97,22 +101,22 @@ const Notes = ({ projectId, toggleForm }) => {
                   Stage:
                 </label>
                 <select
-                  {...register("stage", {required: "Stage is required" })}
+                  {...register("stage", { required: "Stage is required" })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 >
                   <option value="">Select Stage</option>
                   {[
-                    "RFI",
-                    "IFA",
                     "BFA",
                     "BFA_M",
-                    "RIFA",
-                    "RBFA",
-                    "IFC",
                     "BFC",
-                    "RIFC",
-                    "REV",
                     "CO#",
+                    "IFA",
+                    "IFC",
+                    "RBFA",
+                    "REV",
+                    "RFI",
+                    "RIFA",
+                    "RIFC",
                   ].map((stage) => (
                     <option key={stage} value={stage}>
                       {stage}
@@ -136,7 +140,7 @@ const Notes = ({ projectId, toggleForm }) => {
             </form>
           </div>
           <div className="bg-white w-full h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">
-           <span className="font-bold text-gray-700">Notes:</span>
+            <span className="font-bold text-gray-700">Notes:</span>
             <div>
               {notes?.length === 0 ? (
                 <p>No notes available for this project.</p>

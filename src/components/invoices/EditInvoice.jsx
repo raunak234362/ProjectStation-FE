@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { CustomSelect } from "../index";
@@ -17,7 +17,6 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     watch,
     control,
     reset,
-    formState: { errors },
   } = useForm({
     defaultValues: {
       invoiceItems: [],
@@ -30,8 +29,6 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
   const [grandTotal, setGrandTotal] = useState(0);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [bankLoading, setBankLoading] = useState(true);
-
-  const projects = useSelector((state) => state.projectData?.projectData || []);
   const fabricatorData = useSelector(
     (state) => state.fabricatorData?.fabricatorData
   );
@@ -40,9 +37,6 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
   const fabricatorID = watch("fabricatorId");
 
   // Filtered dropdowns
-  const filteredProjects = projects?.filter(
-    (p) => p.fabricatorID === fabricatorID
-  );
   const filteredClients = clientData?.filter(
     (c) => c.fabricatorId === fabricatorID
   );
@@ -57,9 +51,8 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     value: client?.id,
   }));
   const bankAccountOptions = bankAccounts?.map((bank) => ({
-    label: `${
-      bank.bankInfo || "Bank"
-    } - A/C No: XXXX${bank.accountNumber?.slice(-4)}`,
+    label: `${bank.bankInfo || "Bank"
+      } - A/C No: XXXX${bank.accountNumber?.slice(-4)}`,
     value: bank.id,
   }));
 
@@ -183,7 +176,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
     };
 
     try {
-      const response = await Service.editInvoice(invoiceId, payload);
+      await Service.editInvoice(invoiceId, payload);
       toast.success("Invoice updated successfully!");
       onSave?.();
       onClose?.();
@@ -379,7 +372,7 @@ const EditInvoice = ({ invoiceId, isOpen, onClose, onSave }) => {
               readOnly
             />
             <div className="bg-teal-50 p-4 rounded-lg text-right font-semibold">
-              
+
               {/* IGST/GST removed as requested */}
               <p className="text-xl font-bold">
                 Total Invoice Value: {selectedCurrency === "CAD" ? "C$" : "$"}

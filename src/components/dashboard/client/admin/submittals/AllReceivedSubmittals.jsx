@@ -1,98 +1,106 @@
-/* eslint-disable no-unused-vars */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Service from "../../../../../config/Service";
 import GetSentSubmittals from "../../../client/admin/submittals/GetSentSubmittals";
 import Button from "../../../../fields/Button";
+import DataTable from "../../../../DataTable";
 
 const AllReceivedSubmittals = () => {
-  const [submittals, setSubmittals] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [submittals, setSubmittals] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSubmittal, setSelectedSubmittal] = useState(null);
+
   const handleViewClick = (submittal) => {
     setSelectedSubmittal(submittal);
-    setResponse(true);
   };
 
-  const handleModalClose = async () => {
+  const handleModalClose = () => {
     setSelectedSubmittal(null);
-    setIsModalOpen(false);
+  };
+
+  const fetchSubmittals = async () => {
+    try {
+      setLoading(true);
+      const response = await Service.reciviedSubmittal();
+      setSubmittals(response?.data || []);
+    } catch (error) {
+      console.error("Error fetching submittals:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    (async () => {
-      const response = await Service.reciviedSubmittal();
-      setSubmittals(response.data);
-    })();
+    fetchSubmittals();
   }, []);
 
-  console.log("submiIIIIIIIIIIIIIIIIIIIIIIIttals", submittals);
+  const columns = useMemo(
+    () => [
+      {
+        header: "Project Name",
+        accessorFn: (row) => row.project?.name || "N/A",
+      },
+      {
+        header: "Subject/Remarks",
+        accessorKey: "subject",
+      },
+      {
+        header: "Recipients",
+        accessorFn: (row) => row.sender?.username || "N/A",
+      },
+      {
+        header: "Date",
+        accessorKey: "date",
+        cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+      },
+      {
+        header: "RFI Status",
+        accessorKey: "Stage",
+      },
+      {
+        header: "Stage",
+        accessorFn: (row) =>
+          row.submittalsResponse === null ? "Not Replied" : "Replied",
+      },
+      {
+        header: "Actions",
+        id: "actions",
+        cell: (info) => (
+          <Button onClick={() => handleViewClick(info.row.original)}>
+            View
+          </Button>
+        ),
+      },
+    ],
+    []
+  );
 
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="h-auto p-4 mt-5">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border-collapse md:text-lg rounded-xl">
-            <thead>
-              <tr className="bg-teal-200/70">
-                <th className="px-2 py-1 border">Project Name</th>
-                <th className="px-2 py-1 border">Subject/Remarks</th>
-                <th className="px-2 py-1 border">Recipients</th>
-                <th className="px-2 py-1 border">Date</th>
-                <th className="px-2 py-1 border">RFI Status</th>
-                <th className="px-2 py-1 border">Stage</th>
-                <th className="px-2 py-1 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {submittals?.length === 0 ? (
-                <tr className="bg-white">
-                  <td colSpan="7" className="text-center">
-                    No sent RFI Found
-                  </td>
-                </tr>
-              ) : (
-                submittals?.map((project) => (
-                  <tr
-                    key={project.id}
-                    className="border hover:bg-blue-gray-100"
-                  >
-                    <td className="px-2 py-1 border">{project.project.name}</td>
-                    <td className="px-2 py-1 border">{project.subject}</td>
-                    <td className="px-2 py-1 border">
-                      {project.sender.username}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {new Date(project.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-2 py-1 border">{project.Stage}</td>
-                    <td className="px-2 py-1 border">
-                      {project.submittalsResponse === null
-                        ? "Not Replied"
-                        : "Replied"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      <Button onClick={() => handleViewClick(project)}>
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        All Received Submittals
+      </h2>
 
-            {/* Render modal outside the table */}
-            {selectedSubmittal && (
-              <GetSentSubmittals
-                submittalId={selectedSubmittal.id}
-                onClose={handleModalClose}
-              />
-            )}
-          </table>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         </div>
-      </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={submittals}
+          searchPlaceholder="Search submittals..."
+        />
+      )}
+
+      {selectedSubmittal && (
+        <GetSentSubmittals
+          submittalId={selectedSubmittal.id}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };
 
 export default AllReceivedSubmittals;
+

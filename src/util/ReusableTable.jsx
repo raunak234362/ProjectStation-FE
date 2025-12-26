@@ -97,9 +97,11 @@ const ReusableTable = ({
             className="w-full md:max-w-xs p-2 border rounded"
           >
             <option value="">All {filter.label}</option>
-            {filter.options.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
+            {[...filter.options]
+              .sort((a, b) => a.toString().toLowerCase().localeCompare(b.toString().toLowerCase()))
+              .map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
           </select>
         ))}
 

@@ -29,7 +29,7 @@ const SelectedWBTask = ({
   const [showTimeFormIndex, setShowTimeFormIndex] = useState(null);
   const [showQuantityFormIndex, setShowQuantityFormIndex] = useState(null); // state to track which subtask is being edited for quantity
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
@@ -93,24 +93,24 @@ const SelectedWBTask = ({
       const matchesSearch = subTask.description
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      
+
       // Quantity filter
-      const matchesQty = 
+      const matchesQty =
         (!qtyFilter.min || subTask.QtyNo >= parseFloat(qtyFilter.min)) &&
         (!qtyFilter.max || subTask.QtyNo <= parseFloat(qtyFilter.max));
-      
+
       // Execution time filter (convert to hours)
       const execHours = (subTask.execHr / 60);
-      const matchesExecTime = 
+      const matchesExecTime =
         (!execTimeFilter.min || execHours >= parseFloat(execTimeFilter.min)) &&
         (!execTimeFilter.max || execHours <= parseFloat(execTimeFilter.max));
-      
+
       // Check time filter (convert to hours)
       const checkHours = (subTask.checkHr / 60);
-      const matchesCheckTime = 
+      const matchesCheckTime =
         (!checkTimeFilter.min || checkHours >= parseFloat(checkTimeFilter.min)) &&
         (!checkTimeFilter.max || checkHours <= parseFloat(checkTimeFilter.max));
-      
+
       return matchesSearch && matchesQty && matchesExecTime && matchesCheckTime;
     });
 
@@ -118,7 +118,7 @@ const SelectedWBTask = ({
     if (sortBy !== "none") {
       filtered.sort((a, b) => {
         let aValue, bValue;
-        
+
         switch (sortBy) {
           case "description":
             aValue = a.description.toLowerCase();
@@ -139,7 +139,7 @@ const SelectedWBTask = ({
           default:
             return 0;
         }
-        
+
         if (typeof aValue === "string") {
           return sortOrder === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
         } else {
@@ -147,7 +147,7 @@ const SelectedWBTask = ({
         }
       });
     }
-    
+
     return filtered;
   }, [subTaskBD, searchTerm, qtyFilter, execTimeFilter, checkTimeFilter, sortBy, sortOrder]);
 
@@ -210,7 +210,7 @@ const SelectedWBTask = ({
               </Button>
             )}
           </div>
-          
+
           {/* Advanced Filters */}
           {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t text-sm">
@@ -222,19 +222,19 @@ const SelectedWBTask = ({
                     type="number"
                     placeholder="Min"
                     value={qtyFilter.min}
-                    onChange={(e) => setQtyFilter({...qtyFilter, min: e.target.value})}
+                    onChange={(e) => setQtyFilter({ ...qtyFilter, min: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
                     type="number"
                     placeholder="Max"
                     value={qtyFilter.max}
-                    onChange={(e) => setQtyFilter({...qtyFilter, max: e.target.value})}
+                    onChange={(e) => setQtyFilter({ ...qtyFilter, max: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              
+
               {/* Execution Time Filter */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Exec Time Range (Hr)</label>
@@ -244,7 +244,7 @@ const SelectedWBTask = ({
                     step="0.01"
                     placeholder="Min"
                     value={execTimeFilter.min}
-                    onChange={(e) => setExecTimeFilter({...execTimeFilter, min: e.target.value})}
+                    onChange={(e) => setExecTimeFilter({ ...execTimeFilter, min: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
@@ -252,12 +252,12 @@ const SelectedWBTask = ({
                     step="0.01"
                     placeholder="Max"
                     value={execTimeFilter.max}
-                    onChange={(e) => setExecTimeFilter({...execTimeFilter, max: e.target.value})}
+                    onChange={(e) => setExecTimeFilter({ ...execTimeFilter, max: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              
+
               {/* Check Time Filter */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Check Time Range (Hr)</label>
@@ -267,7 +267,7 @@ const SelectedWBTask = ({
                     step="0.01"
                     placeholder="Min"
                     value={checkTimeFilter.min}
-                    onChange={(e) => setCheckTimeFilter({...checkTimeFilter, min: e.target.value})}
+                    onChange={(e) => setCheckTimeFilter({ ...checkTimeFilter, min: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
@@ -275,12 +275,12 @@ const SelectedWBTask = ({
                     step="0.01"
                     placeholder="Max"
                     value={checkTimeFilter.max}
-                    onChange={(e) => setCheckTimeFilter({...checkTimeFilter, max: e.target.value})}
+                    onChange={(e) => setCheckTimeFilter({ ...checkTimeFilter, max: e.target.value })}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
-              
+
               {/* Sort Options */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Sort By</label>
@@ -290,11 +290,11 @@ const SelectedWBTask = ({
                     onChange={(e) => setSortBy(e.target.value)}
                     className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="none">None</option>
-                    <option value="description">Description</option>
-                    <option value="quantity">Quantity</option>
-                    <option value="execTime">Exec Time</option>
                     <option value="checkTime">Check Time</option>
+                    <option value="description">Description</option>
+                    <option value="execTime">Exec Time</option>
+                    <option value="none">None</option>
+                    <option value="quantity">Quantity</option>
                   </select>
                   <select
                     value={sortOrder}
@@ -308,7 +308,7 @@ const SelectedWBTask = ({
               </div>
             </div>
           )}
-          
+
           {/* Results Count */}
           <div className="mt-3 text-xs text-gray-600">
             Showing {filteredAndSortedSubTasks.length} of {subTaskBD.length} subtasks

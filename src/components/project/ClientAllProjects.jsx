@@ -10,11 +10,9 @@ import {
   Building2,
   CheckCircle2,
   ChevronDown,
-  Clock,
   LayoutGrid,
   List,
   Loader2,
-  MapPin,
   PauseCircle,
   Search,
   Users,
@@ -26,14 +24,13 @@ import { useTable, useSortBy } from "react-table";
 import ClientProjectStatus from "./clientProjectTab/ClientProjectStatus";
 
 // Format currency
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("en-US", {
+const formatCurrency = (amount) =>
+  new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount || 0);
-};
 
 // Format date
 const formatDate = (dateString) => {
@@ -49,11 +46,15 @@ const ClientAllProjects = () => {
   const projects =
     useSelector((state) => state?.projectData?.projectData) || [];
   const taskData = useSelector((state) => state?.taskData?.taskData) || [];
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
+  const [sortOption, setSortOption] = useState("name-asc");
+
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
+
   const token =
     typeof window !== "undefined" ? sessionStorage.getItem("token") : "";
   const dispatch = useDispatch();
@@ -105,7 +106,6 @@ const ClientAllProjects = () => {
     },
   };
 
-  // Status badge component
   const StatusBadge = ({ status }) => {
     const config = statusConfig[status] || statusConfig.ACTIVE;
     return (
@@ -118,13 +118,14 @@ const ClientAllProjects = () => {
     );
   };
 
-  // Calculate project progress consistently
+  // Calculate progress
   const calculateProjectProgress = (project) => {
     if (project?.tasks && Array.isArray(project.tasks)) {
       const completedStatuses = [
         "COMPLETE",
         "VALIDATE_COMPLETE",
         "COMPLETE_OTHER",
+        "USER_FAULT",
       ];
       const completedTasks = project.tasks.filter((task) =>
         completedStatuses.includes(task?.status)
@@ -139,12 +140,15 @@ const ClientAllProjects = () => {
       };
     }
 
-    // Fallback to taskData from Redux store
     const projectTasks = taskData.filter(
       (task) => task.project_id === project.id
     );
     const completedTasks = projectTasks.filter(
-      (task) => task.status === "COMPLETE"
+      (task) =>
+        task.status === "COMPLETE" ||
+        task.status === "VALIDATE_COMPLETE" ||
+        task.status === "COMPLETE_OTHER" ||
+        task.status === "USER_FAULT"
     ).length;
     const totalTasks = projectTasks.length;
 
@@ -156,7 +160,6 @@ const ClientAllProjects = () => {
     };
   };
 
-  // Enhanced projects with calculated progress
   const enhancedProjects = useMemo(() => {
     return projects.map((project) => ({
       ...project,
@@ -164,42 +167,68 @@ const ClientAllProjects = () => {
     }));
   }, [projects, taskData]);
 
-  // Filtering and sorting logic (used for react-table and grid)
+  // ✅ Filtering + Sorting applied to GRID & TABLE
   const filteredAndSortedProjects = useMemo(() => {
-    // Filter projects
-    const filtered = enhancedProjects.filter((project) => {
+    let filtered = enhancedProjects.filter((project) => {
       const matchesSearch =
         project?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
         project?.description?.toLowerCase()?.includes(searchTerm.toLowerCase());
+
       const matchesStatus =
         statusFilter === "all" || project?.status === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
 
-    // Sort projects manually for grid (react-table handles sorting in list)
-    // Here you might want to do a default sort on "name"
-    const sorted = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+    // ✅ Sorting logic
+    switch (sortOption) {
+      case "name-asc":
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "start-asc":
+        filtered.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+        break;
+      case "start-desc":
+        filtered.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+        break;
+      case "end-asc":
+        filtered.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+        break;
+      case "end-desc":
+        filtered.sort((a, b) => new Date(a.endDate) - new Date(b.endDate));
+        break;
+      case "budget-asc":
+        filtered.sort((a, b) => a.budget - b.budget);
+        break;
+      case "budget-desc":
+        filtered.sort((a, b) => b.budget - a.budget);
+        break;
+      default:
+        break;
+    }
 
-    return sorted;
-  }, [enhancedProjects, searchTerm, statusFilter]);
+    return filtered;
+  }, [enhancedProjects, searchTerm, statusFilter, sortOption]);
 
-  // Progress bar component
+  // Progress bar
   const ProgressBar = ({ percentage, showLabel = true }) => {
-    const getProgressColor = (percent) => {
+    const getColor = (percent) => {
       if (percent >= 80) return "bg-green-500";
       if (percent >= 60) return "bg-blue-500";
       if (percent >= 40) return "bg-yellow-500";
       return "bg-red-500";
     };
-
     return (
       <div className="flex items-center">
         <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
           <div
-            className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(
+            className={`h-2 rounded-full ${getColor(
               percentage
-            )}`}
-            style={{ width: `${Math.min(Math.max(percentage, 0), 100)}%` }}
+            )} transition-all`}
+            style={{ width: `${percentage}%` }}
           />
         </div>
         {showLabel && (
@@ -211,7 +240,7 @@ const ClientAllProjects = () => {
     );
   };
 
-  // ----- REACT-TABLE -----
+  // ✅ React Table
   const columns = useMemo(
     () => [
       {
@@ -233,7 +262,7 @@ const ClientAllProjects = () => {
       },
       {
         Header: "Contractor",
-        accessor: "fabricator", // shows as object, cell will fix display
+        accessor: "fabricator",
         Cell: ({ value }) => value?.fabName,
         sortType: (a, b) => {
           const aName = a.original.fabricator?.fabName || "";
@@ -252,22 +281,32 @@ const ClientAllProjects = () => {
           (a.original.progress?.percentage || 0) -
           (b.original.progress?.percentage || 0),
       },
+
+      // ✅ SORTABLE START DATE
       {
-        Header: "Timeline",
+        Header: "Start Date",
         accessor: "startDate",
-        disableSortBy: true,
-        Cell: ({ row }) =>
-          `${formatDate(row.original.startDate)} - ${formatDate(
-            row.original.endDate
-          )}`,
+        Cell: ({ value }) => formatDate(value),
+        sortType: (a, b) =>
+          new Date(a.original.startDate) - new Date(b.original.startDate),
       },
+
+      // ✅ SORTABLE END DATE
+      {
+        Header: "End Date",
+        accessor: "endDate",
+        Cell: ({ value }) => formatDate(value),
+        sortType: (a, b) =>
+          new Date(a.original.endDate) - new Date(b.original.endDate),
+      },
+
       {
         Header: "Budget",
         accessor: "budget",
         Cell: ({ value }) => formatCurrency(value),
       },
     ],
-    [formatDate, formatCurrency]
+    []
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -283,14 +322,8 @@ const ClientAllProjects = () => {
       useSortBy
     );
 
-  // NAVIGATION HANDLER
-  const handleRowClick = (projectId) => {
-    setSelectedProject(projectId);
-  };
-
-  const handleClose = () => {
-    setSelectedProject(null);
-  };
+  const handleRowClick = (projectId) => setSelectedProject(projectId);
+  const handleClose = () => setSelectedProject(null);
 
   if (isLoading) {
     return (
@@ -302,162 +335,151 @@ const ClientAllProjects = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow h-fit overflow-y-hidden">
+    <div className="bg-white rounded-lg shadow h-fit overflow-hidden">
       {/* Header */}
-      <div className=" border-b border-gray-200  items-center">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-5 h-fit">
-          <h2 className="text-lg font-medium text-gray-900 sm:mb-0">
-            Projects
-          </h2>
-          <div className="flex flex-col sm:flex-row sm:space-y-0 sm:space-x-4">
+      <div className="border-b border-gray-200 p-4 px-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-medium text-gray-900">Projects</h2>
+
+          <div className="flex flex-wrap items-center gap-3 mt-2 sm:mt-0">
             {/* Search */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <Search className="w-5 h-5 text-gray-400" />
-              </div>
+              <Search className="absolute left-3 top-2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search projects..."
-                className="py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="py-2 pl-10 pr-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Filters */}
-            <div className="flex space-x-2">
-              {/* Status Filter */}
-              <div className="relative">
-                <select
-                  className="py-2 pl-3 pr-10 border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="all">All Status</option>
-                  <option value="ACTIVE">Active</option>
-                  <option value="COMPLETE">Completed</option>
-                  <option value="ONHOLD">On Hold</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                </div>
-              </div>
+            {/* Status Filter */}
+            <div className="relative">
+              <select
+                className="py-2 pl-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Status</option>
+                <option value="ACTIVE">Active</option>
+                <option value="COMPLETE">Completed</option>
+                <option value="ONHOLD">On Hold</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-gray-400" />
             </div>
 
-            {/* View Mode Toggle */}
-            <div className="flex space-x-2">
-              <button
-                className={`p-2 rounded-md ${
-                  viewMode === "grid"
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-500 hover:bg-gray-100"
-                }`}
-                onClick={() => setViewMode("grid")}
+            {/* ✅ Sort Dropdown */}
+            <div className="relative">
+              <select
+                className="py-2 pl-3 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value)}
               >
-                <LayoutGrid className="w-5 h-5" />
-              </button>
-              <button
-                className={`p-2 rounded-md ${
-                  viewMode === "list"
-                    ? "bg-blue-100 text-blue-600"
-                    : "text-gray-500 hover:bg-gray-100"
-                }`}
-                onClick={() => setViewMode("list")}
-              >
-                <List className="w-5 h-5" />
-              </button>
+                <option value="budget-desc">Budget (High → Low)</option>
+                <option value="budget-asc">Budget (Low → High)</option>
+                <option value="end-asc">End Date (Newest)</option>
+                <option value="end-desc">End Date (Oldest)</option>
+                <option value="name-asc">Name (A → Z)</option>
+                <option value="name-desc">Name (Z → A)</option>
+                <option value="start-asc">Start Date (Newest)</option>
+                <option value="start-desc">Start Date (Oldest)</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-3 w-4 h-4 text-gray-400" />
             </div>
+
+            {/* View Toggle */}
+            <button
+              className={`p-2 rounded-md ${viewMode === "grid"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-500 hover:bg-gray-100"
+                }`}
+              onClick={() => setViewMode("grid")}
+            >
+              <LayoutGrid className="w-5 h-5" />
+            </button>
+
+            <button
+              className={`p-2 rounded-md ${viewMode === "list"
+                ? "bg-blue-100 text-blue-600"
+                : "text-gray-500 hover:bg-gray-100"
+                }`}
+              onClick={() => setViewMode("list")}
+            >
+              <List className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Project List */}
-      <div className="p-2 h-[75vh] overflow-y-auto">
+      {/* Projects List */}
+      <div className="p-3 h-[75vh] overflow-y-auto">
         {filteredAndSortedProjects.length === 0 ? (
-          <div className=" text-center">
+          <div className="text-center">
             <Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No projects found
-            </h3>
+            <h3 className="text-lg font-medium">No projects found</h3>
             <p className="text-gray-500">
-              {searchTerm || statusFilter !== "all"
-                ? "Try adjusting your search or filter criteria."
-                : "No projects found matching your criteria."}
+              Try changing search or filter criteria.
             </p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 gap-3 max-md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredAndSortedProjects.map((project) => (
               <div
                 key={project.id}
                 onClick={() => handleRowClick(project.id)}
-                className="cursor-pointer overflow-hidden bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                className="cursor-pointer bg-white border rounded-lg shadow-sm hover:shadow-md transition p-3"
               >
-                <div className="p-3">
-                  <div className="flex items-start justify-between">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {project.name}
-                    </h3>
-                    <StatusBadge status={project.status} />
-                  </div>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium">{project.name}</h3>
+                  <StatusBadge status={project.status} />
+                </div>
 
-                  {/* Progress */}
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-1 text-sm">
-                      <span className="font-medium">Progress</span>
-                      <span>{project.progress.percentage}%</span>
-                    </div>
-                    <ProgressBar
-                      percentage={project.progress.percentage}
-                      showLabel={false}
-                    />
+                {/* Progress */}
+                <div className="mt-2 mb-3">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span>{project.progress.percentage}%</span>
                   </div>
-                  <div className="flex justify-between mb-4 text-sm">
-                    <div>
-                      <span className="font-medium">Budget:</span>
-                      <span className="ml-1">
-                        {formatCurrency(project.budget)}
-                      </span>
-                    </div>
-                    {/* <div>
-                      <span className="font-medium">Tasks:</span>
-                      <span className="ml-1">
-                        {project.progress.completedTasks}/
-                        {project.progress.totalTasks}
-                      </span>
-                    </div> */}
+                  <ProgressBar
+                    percentage={project.progress.percentage}
+                    showLabel={false}
+                  />
+                </div>
+
+                <div className="text-sm">
+                  <div>
+                    <span className="font-medium">Budget:</span>{" "}
+                    {formatCurrency(project.budget)}
                   </div>
                   <div>
-                    <span className="font-medium">Start:</span>
-                    <span className="ml-1">
-                      {formatDate(project.startDate)}
-                    </span>
+                    <span className="font-medium">Start:</span>{" "}
+                    {formatDate(project.startDate)}
                   </div>
                   <div>
-                    <span className="font-medium">Estimated Completion:</span>
-                    <span className="ml-1">{formatDate(project.endDate)}</span>
+                    <span className="font-medium">End:</span>{" "}
+                    {formatDate(project.endDate)}
                   </div>
                 </div>
-               
               </div>
             ))}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-md border max-h-[76vh]">
+          <div className="overflow-x-auto border rounded-md">
             <table
               {...getTableProps()}
-              className="min-w-[800px] w-full border-collapse text-sm text-center"
+              className="min-w-[800px] w-full border-collapse text-sm"
             >
               <thead className="bg-gray-50">
-                {headerGroups.map((headerGroup, hgIdx) => (
-                  <tr key={hgIdx} {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column, colIdx) => (
+                {headerGroups.map((headerGroup, i) => (
+                  <tr key={i} {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map((column, idx) => (
                       <th
-                        key={column.id || colIdx}
+                        key={idx}
                         {...column.getHeaderProps(
                           column.getSortByToggleProps()
                         )}
-                        className={`px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase cursor-pointer hover:bg-gray-100`}
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       >
                         <div className="flex items-center">
                           {column.render("Header")}
@@ -467,33 +489,34 @@ const ClientAllProjects = () => {
                             ) : (
                               <ArrowUpDown className="w-4 h-4 ml-1" />
                             )
-                          ) : column.canSort ? (
+                          ) : (
                             <ArrowUpDown className="w-4 h-4 ml-1 opacity-30" />
-                          ) : null}
+                          )}
                         </div>
                       </th>
                     ))}
                   </tr>
                 ))}
               </thead>
+
               <tbody
-                className="bg-white divide-y divide-gray-200"
                 {...getTableBodyProps()}
+                className="bg-white divide-y divide-gray-200"
               >
                 {rows.map((row) => {
                   prepareRow(row);
                   return (
                     <tr
-                      key={row.id || row.original.id}
+                      key={row.original.id}
                       {...row.getRowProps()}
                       className="hover:bg-gray-50 cursor-pointer"
                       onClick={() => handleRowClick(row.original.id)}
                     >
-                      {row.cells.map((cell, cellIdx) => (
+                      {row.cells.map((cell, i) => (
                         <td
-                          key={cell.column.id || cellIdx}
-                          className="px-6 py-4 whitespace-nowrap"
+                          key={i}
                           {...cell.getCellProps()}
+                          className="px-6 py-4 whitespace-nowrap"
                         >
                           {cell.render("Cell")}
                         </td>
@@ -506,6 +529,7 @@ const ClientAllProjects = () => {
           </div>
         )}
       </div>
+
       {selectedProject && (
         <ClientProjectStatus
           projectId={selectedProject}

@@ -8,9 +8,10 @@ import {
   File,
 } from "lucide-react";
 import { MdOutlineDescription } from "react-icons/md";
+import RenderFiles from "../RenderFiles";
 
 const RFQDetail = ({ data }) => {
-  
+
   const renderScope = (title, main, misc, custom) => (
     <div className="bg-gray-50 p-4 rounded-lg border shadow-sm space-y-2">
       <h4 className="font-semibold text-gray-800 text-sm uppercase tracking-wide border-b pb-1">
@@ -19,22 +20,20 @@ const RFQDetail = ({ data }) => {
       <div className="grid grid-cols-3 text-sm gap-y-2">
         <div>
           <span
-            className={`font-semibold ${
-              main
-                ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
-                : "text-red-600 bg-red-100 rounded-full px-2 py-1"
-            }`}
+            className={`font-semibold ${main
+              ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
+              : "text-red-600 bg-red-100 rounded-full px-2 py-1"
+              }`}
           >
             Main Design
           </span>
         </div>
         <div>
           <span
-            className={`font-semibold ${
-              misc
-                ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
-                : "text-red-600 bg-red-100 rounded-full px-2 py-1"
-            }`}
+            className={`font-semibold ${misc
+              ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
+              : "text-red-600 bg-red-100 rounded-full px-2 py-1"
+              }`}
           >
             Misc Design
           </span>{" "}
@@ -42,11 +41,10 @@ const RFQDetail = ({ data }) => {
         {custom !== undefined && (
           <div>
             <span
-              className={`font-semibold ${
-                custom
-                  ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
-                  : "text-red-600 bg-red-100 rounded-full px-2 py-1"
-              }`}
+              className={`font-semibold ${custom
+                ? "text-green-600 bg-green-100 rounded-full px-2 py-1"
+                : "text-red-600 bg-red-100 rounded-full px-2 py-1"
+                }`}
             >
               Connection Design
             </span>
@@ -94,7 +92,7 @@ const RFQDetail = ({ data }) => {
         <div className="grid grid-cols-2 gap-5">
           <div className="bg-white p-4 rounded-lg border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-            <CalendarDays className="text-blue-500 w-4 h-4" />
+              <CalendarDays className="text-blue-500 w-4 h-4" />
               <span className="font-semibold text-gray-800">Date</span>
             </div>
             <div className="text-gray-700 text-sm md:text-base leading-relaxed prose max-w-none">
@@ -103,7 +101,7 @@ const RFQDetail = ({ data }) => {
           </div>
           <div className="bg-white p-4 rounded-lg border shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-            <ClipboardList className="text-blue-500 w-4 h-4" />
+              <ClipboardList className="text-blue-500 w-4 h-4" />
               <span className="font-semibold text-gray-800">Status</span>
             </div>
             <div className="text-gray-700 text-sm md:text-base leading-relaxed prose max-w-none">
@@ -159,24 +157,7 @@ const RFQDetail = ({ data }) => {
             <span className="font-semibold text-gray-800">Files</span>
           </div>
           <div className="flex flex-wrap gap-3">
-            {data?.files?.length ? (
-              data.files.map((file) => (
-                <a
-                  key={file.id}
-                  href={`${import.meta.env.VITE_BASE_URL}/api/RFQ/rfq/${
-                    data.id
-                  }/${file.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-blue-600 text-sm font-medium underline hover:text-blue-800 transition-all"
-                >
-                  <FileText className="w-4 h-4" />
-                  {file.originalName || "Unnamed File"}
-                </a>
-              ))
-            ) : (
-              <span className="text-gray-400 text-sm">No files attached</span>
-            )}
+            <RenderFiles files={data.files} table="rFQ" parentId={data.id} />
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Clock, CheckCircle, ArrowUp } from "lucide-react";
+import { Clock, CheckCircle, ArrowUp, FileText } from "lucide-react";
 
 const TeamStatsCards = ({ teamStats }) => {
   return (
@@ -67,6 +67,22 @@ const TeamStatsCards = ({ teamStats }) => {
         <div className="mt-2 text-center">
           <div className="text-3xl font-bold text-gray-800">{teamStats.efficiency || 0}%</div>
           <div className="text-xs text-gray-500 mt-1">Hours worked vs assigned</div>
+        </div>
+      </div>
+
+      {/* Projects Card */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div className="flex items-center mb-2">
+          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-2">
+            <FileText className="h-5 w-5 text-blue-600" />
+          </div>
+          <h4 className="font-medium text-gray-800">Projects</h4>
+        </div>
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-600">Total:</span>
+            <span className="font-medium">{teamStats.projectCount || 0}</span>
+          </div>
         </div>
       </div>
 

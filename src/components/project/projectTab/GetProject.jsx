@@ -14,7 +14,7 @@ import {
 import EditProject from "./EditProject";
 import AddWB from "../wb/AddWB";
 import AddFiles from "./AddFiles";
-import RenderFiles from "../RenderFiles";
+import RenderFiles from "../../RenderFiles";
 
 // ------------------------ Reusable UI Components ------------------------
 const Button = ({
@@ -97,11 +97,10 @@ const Tabs = ({ tabs, activeTab, onChange }) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`py-3 px-1 border-b-2 font-medium text-sm ${
-            activeTab === tab.id
-              ? "border-teal-500 text-teal-600"
-              : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
+          className={`py-3 px-1 border-b-2 font-medium text-sm ${activeTab === tab.id
+            ? "border-teal-500 text-teal-600"
+            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
         >
           {tab.label}
         </button>
@@ -111,7 +110,7 @@ const Tabs = ({ tabs, activeTab, onChange }) => (
 );
 
 // ------------------------ Main Component ------------------------
-const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
+const GetProject = ({ projectId, projectData, fetchProjectByID, fetchFilesByProjectId, files }) => {
   const [activeTab, setActiveTab] = useState("details");
   const [selectedEditProject, setSelectedEditProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -212,9 +211,8 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                 </h4>
                 <p className="text-gray-800 font-semibold">
                   {projectData?.manager
-                    ? `${projectData?.manager?.f_name || ""} ${
-                        projectData?.manager?.l_name || ""
-                      }`
+                    ? `${projectData?.manager?.f_name || ""} ${projectData?.manager?.l_name || ""
+                    }`
                     : "Not available"}
                 </p>
               </div>
@@ -271,11 +269,10 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                     {/* Main Design */}
                     <div>
                       <h4
-                        className={`text-sm font-medium mb-1  ${
-                          projectData?.connectionDesign
-                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
-                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
-                        }`}
+                        className={`text-sm font-medium mb-1  ${projectData?.connectionDesign
+                          ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                          : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                          }`}
                       >
                         Main Design
                       </h4>
@@ -284,11 +281,10 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                     {/* Misc Design */}
                     <div>
                       <h4
-                        className={`text-sm font-medium mb-1  ${
-                          projectData?.miscDesign
-                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
-                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
-                        }`}
+                        className={`text-sm font-medium mb-1  ${projectData?.miscDesign
+                          ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                          : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                          }`}
                       >
                         Misc Design
                       </h4>
@@ -297,11 +293,10 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                     {/* Customer Design */}
                     <div>
                       <h4
-                        className={`text-sm font-medium mb-1  ${
-                          projectData?.customerDesign
-                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
-                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
-                        }`}
+                        className={`text-sm font-medium mb-1  ${projectData?.customerDesign
+                          ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                          : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                          }`}
                       >
                         Connection Design
                       </h4>
@@ -318,11 +313,10 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                     {/* Main Steel */}
                     <div>
                       <h4
-                        className={`text-sm font-medium mb-1  ${
-                          projectData?.detailingMain
-                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
-                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
-                        }`}
+                        className={`text-sm font-medium mb-1  ${projectData?.detailingMain
+                          ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                          : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                          }`}
                       >
                         Main Steel
                       </h4>
@@ -331,11 +325,10 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
                     {/* Miscellaneous Steel */}
                     <div>
                       <h4
-                        className={`text-sm font-medium mb-1  ${
-                          projectData?.detailingMisc
-                            ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
-                            : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
-                        }`}
+                        className={`text-sm font-medium mb-1  ${projectData?.detailingMisc
+                          ? "text-green-600 bg-green-200/70 rounded-xl px-2 py-1"
+                          : "text-red-600 bg-red-200/70 rounded-xl px-2 py-1"
+                          }`}
                       >
                         Miscellaneous Steel
                       </h4>
@@ -412,6 +405,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
       files={files}
       onAddFilesClick={handleAddFilesClick}
       formatDate={formatDate}
+      table="designDrawings"
     />
   );
 
@@ -438,7 +432,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
       {selectedEditProject && isModalOpen && (
         <EditProject
           project={selectedEditProject}
-          onUpdate={fetchProjectByID}
+          onUpdate={() => fetchProjectByID(true)}
           onClose={handleModalClose}
         />
       )}
@@ -448,7 +442,7 @@ const GetProject = ({ projectId, projectData, fetchProjectByID, files }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <AddFiles
             projectId={projectId}
-            onUpdate={fetchProjectByID}
+            onUpdate={() => fetchFilesByProjectId(true)}
             onClose={handleAddFilesClose}
           />
         </div>

@@ -144,11 +144,11 @@ const Dashboard = () => {
             className="px-4 py-2 border rounded-lg bg-white shadow-sm"
           >
             <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
+            <option value="week">This Week</option>
             <option value="year">This Year</option>
+            <option value="today">Today</option>
           </select>
         </div>
       </div>
@@ -288,7 +288,7 @@ const Dashboard = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Status</option>
-                  {["RFQ", "ASSIGNED", "ACTIVE", "ON-HOLD", "INACTIVE", "DELAY", "AWARDED", "COMPLETED"].map(
+                  {["ACTIVE", "ASSIGNED", "AWARDED", "COMPLETED", "DELAY", "INACTIVE", "ON-HOLD", "RFQ"].map(
                     (status) => (
                       <option key={status} value={status}>
                         {status}
@@ -302,7 +302,7 @@ const Dashboard = () => {
                   className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Fabricators</option>
-                  {uniqueFabricators.map((fab) => (
+                  {uniqueFabricators.sort().map((fab) => (
                     <option key={fab} value={fab}>
                       {fab}
                     </option>

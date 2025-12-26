@@ -307,7 +307,8 @@ const Overview = ({
       if (
         status === "COMPLETE" ||
         status === "VALIDATE_COMPLETE" ||
-        status === "COMPLETE_OTHER"
+        status === "COMPLETE_OTHER" ||
+        status === "USER_FAULT"
       ) {
         status = "COMPLETE";
       }
@@ -390,8 +391,13 @@ const Overview = ({
         stageHours.taken > 0
           ? ((stageHours.assigned / stageHours.taken) * 100).toFixed(1)
           : 0,
-      completedTasks: filteredTasks.filter((task) => task.status === "COMPLETE")
-        .length,
+      completedTasks: filteredTasks.filter(
+        (task) =>
+          task.status === "COMPLETE" ||
+          task.status === "VALIDATE_COMPLETE" ||
+          task.status === "COMPLETE_OTHER" ||
+          task.status === "USER_FAULT"
+      ).length,
       inProgressTasks: filteredTasks.filter(
         (task) => task.status === "IN_PROGRESS"
       ).length,
@@ -469,7 +475,8 @@ const Overview = ({
               (task) =>
                 task.status === "COMPLETE" ||
                 task.status === "VALIDATE_COMPLETE" ||
-                task.status === "COMPLETE_OTHER"
+                task.status === "COMPLETE_OTHER" ||
+                task.status === "USER_FAULT"
             ).length,
             component: (
               <ProgressBar
@@ -478,7 +485,8 @@ const Overview = ({
                     (task) =>
                       task.status === "COMPLETE" ||
                       task.status === "VALIDATE_COMPLETE" ||
-                      task.status === "COMPLETE_OTHER"
+                      task.status === "COMPLETE_OTHER" ||
+                      task.status === "USER_FAULT"
                   ).length
                 }
                 max={filteredTasks.length}
@@ -529,10 +537,10 @@ const Overview = ({
             value:
               totalTakenHours > 0
                 ? `${Math.round(
-                    ((totalAssignedHours * EFFICIENCY_FACTOR) /
-                      totalTakenHours) *
-                      100
-                  )}%`
+                  ((totalAssignedHours * EFFICIENCY_FACTOR) /
+                    totalTakenHours) *
+                  100
+                )}%`
                 : "0%",
             subtext:
               filterStage && filterStage !== "all" ? "Stage efficiency" : null,
@@ -544,10 +552,10 @@ const Overview = ({
             value:
               totalTakenHours > 0
                 ? `${Math.round(
-                    ((totalAssignedHours * FABRICATION_FACTOR) /
-                      totalTakenHours) *
-                      100
-                  )}%`
+                  ((totalAssignedHours * FABRICATION_FACTOR) /
+                    totalTakenHours) *
+                  100
+                )}%`
                 : "0%",
             subtext:
               filterStage && filterStage !== "all" ? "Stage efficiency" : null,
@@ -613,7 +621,11 @@ const Overview = ({
                 {
                   label: "Completed",
                   value: filteredTasks.filter(
-                    (task) => task.status === "COMPLETE"
+                    (task) =>
+                      task.status === "COMPLETE" ||
+                      task.status === "VALIDATE_COMPLETE" ||
+                      task.status === "COMPLETE_OTHER" ||
+                      task.status === "USER_FAULT"
                   ).length,
                   className: "text-teal-800",
                 },
@@ -709,9 +721,8 @@ const Overview = ({
                     >
                       <span className="text-gray-600">{label}:</span>
                       <span
-                        className={`font-semibold ${
-                          className || "text-gray-500"
-                        }`}
+                        className={`font-semibold ${className || "text-gray-500"
+                          }`}
                       >
                         {value} {label.includes("Efficiency") ? "" : "hours"}
                       </span>

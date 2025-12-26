@@ -1,112 +1,109 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Service from "../../../../../config/Service";
 import Button from "../../../../fields/Button";
 import GetSentSubmittals from "./GetSentSubmittals";
+import DataTable from "../../../../DataTable";
 
 const AllReceivedSubmittals = () => {
   const [submittals, setSubmittals] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSubmittals, setSelectedSubmittals] = useState(null);
+  const [selectedSubmittal, setSelectedSubmittal] = useState(null);
+
+  const fetchSubmittals = async () => {
+    try {
+      setLoading(true);
+      const response = await Service.reciviedSubmittal();
+      setSubmittals(response?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch submittals:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await Service.reciviedSubmittal();
-        setSubmittals(response.data);
-        console.log("Submittals:", response.data);
-      } catch (error) {
-        console.error("Failed to fetch submittals:", error);
-      }
-    })();
+    fetchSubmittals();
   }, []);
 
   const handleViewClick = (data) => {
-    console.log("View button clicked for:", data);
-    setSelectedSubmittals(data);
-    console.log("Selected Submittal ID:", selectedSubmittals);
+    setSelectedSubmittal(data);
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
-    setSelectedSubmittals(null);
+    setSelectedSubmittal(null);
     setIsModalOpen(false);
   };
 
+  const columns = useMemo(
+    () => [
+      {
+        header: "Fabricator Name",
+        accessorFn: (row) => row.fabricator?.fabName || "N/A",
+      },
+      {
+        header: "Project Name",
+        accessorFn: (row) => row.project?.name || "N/A",
+      },
+      {
+        header: "Subject/Remarks",
+        accessorKey: "subject",
+      },
+      {
+        header: "Recipients",
+        accessorFn: (row) => row.sender?.username || "N/A",
+      },
+      {
+        header: "Date",
+        accessorKey: "date",
+        cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+      },
+      {
+        header: "RFI Status",
+        accessorFn: () => "Open",
+      },
+      {
+        header: "Actions",
+        id: "actions",
+        cell: (info) => (
+          <Button onClick={() => handleViewClick(info.row.original)}>
+            View
+          </Button>
+        ),
+      },
+    ],
+    []
+  );
+
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="h-auto p-4 mt-5">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border-collapse md:text-lg rounded-xl">
-            <thead>
-              <tr className="bg-teal-200/70">
-                <th scope="col" className="px-2 py-1 text-left">
-                  Fabricator Name
-                </th>
-                <th scope="col" className="px-2 py-1 text-left">
-                  Project Name
-                </th>
-                <th scope="col" className="px-2 py-1">
-                  Subject/Remarks
-                </th>
-                <th scope="col" className="px-2 py-1">
-                  Recipients
-                </th>
-                <th scope="col" className="px-2 py-1">
-                  Date
-                </th>
-                <th scope="col" className="px-2 py-1">
-                  RFI Status
-                </th>
-                <th scope="col" className="px-2 py-1">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {submittals.length === 0 ? (
-                <tr className="bg-white">
-                  <td colSpan="7" className="text-center">
-                    No sent RFI Found
-                  </td>
-                </tr>
-              ) : (
-                submittals.map((project) => (
-                  <tr
-                    key={project.id}
-                    className="border hover:bg-blue-gray-100"
-                  >
-                    <td className="px-2 py-1 text-left border">
-                      {project.fabricator?.fabName}
-                    </td>
-                    <td className="px-2 py-1 border">{project.project.name}</td>
-                    <td className="px-2 py-1 border">{project.subject}</td>
-                    <td className="px-2 py-1 border">
-                      {project.sender.username}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {new Date(project.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-2 py-1 border">Open</td>
-                    <td className="px-2 py-1 border">
-                      <Button onClick={() => handleViewClick(project)}>
-                        View
-                      </Button>
-                      {isModalOpen && (
-                        <GetSentSubmittals
-                          data={project.id}
-                          onClose={handleModalClose}
-                        />
-                      )}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        All Received Submittals
+      </h2>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         </div>
-      </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={submittals}
+          searchPlaceholder="Search submittals..."
+        />
+      )}
+
+      {isModalOpen && selectedSubmittal && (
+        <GetSentSubmittals
+          submittalId={selectedSubmittal.id}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };
 
 export default AllReceivedSubmittals;
+

@@ -14,13 +14,14 @@ import {
 } from "../../../../index";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { projectData as projectSignal } from "../../../../../signals/projectData";
 const EditProject = ({ project, onClose }) => {
   const [teamOptions, setTeamOptions] = useState([]);
   const teams = useSelector((state) => state?.userData?.teamData);
   const [files, setFiles] = useState([]);
   console.log("Project", project);
   const dispatch = useDispatch();
-  
+
   const userData = useSelector(state => state.userData?.staffData)
   const {
     register,
@@ -60,7 +61,7 @@ const EditProject = ({ project, onClose }) => {
 
   const onSubmit = async (data) => {
     console.log(data);
-    const projectData={
+    const projectData = {
       ...data,
       approvalDate: data.approvalDate ? new Date(data.approvalDate).toISOString() : null,
       endDate: data.endDate ? new Date(data.endDate).toISOString() : null
@@ -68,6 +69,12 @@ const EditProject = ({ project, onClose }) => {
     try {
       const updatedProject = await Service.editProject(project?.id, projectData);
       dispatch(updateProjectData(updatedProject?.data));
+
+      // Update signal for immediate refresh
+      if (projectSignal.value && projectSignal.value.id === project?.id) {
+        projectSignal.value = { ...projectSignal.value, ...updatedProject?.data };
+      }
+
       toast.success("Project updated successfully");
       console.log("Successfully Updated Task: ", updatedProject?.data);
     } catch (error) {
@@ -149,7 +156,7 @@ const EditProject = ({ project, onClose }) => {
               />
             </div>
             <div className="my-2">
-            <Input
+              <Input
                 type="number"
                 label="Estimated Hours"
                 placeholder="HH"
@@ -157,8 +164,8 @@ const EditProject = ({ project, onClose }) => {
                 color="blue"
                 defaultValue={project?.estimatedHours}
                 min="0"
-                {...register("estimatedHours", { 
-                  setValueAs: (value) => parseInt(value, 10) || 0 
+                {...register("estimatedHours", {
+                  setValueAs: (value) => parseInt(value, 10) || 0
                 })}
               />
             </div>

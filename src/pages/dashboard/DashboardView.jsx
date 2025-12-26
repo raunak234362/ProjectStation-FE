@@ -12,7 +12,7 @@ const DashboardView = () => {
   }, [setSidebarOpen]);
 
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden md:flex-row bg-gradient-to-br from-gray-700 to-teal-200">
+    <div className="flex flex-col w-full h-full overflow-hidden md:flex-row bg-gradient-to-br from-gray-700 to-teal-200">
       <Toaster
         position="top-center"
         reverseOrder={false}
@@ -24,12 +24,12 @@ const DashboardView = () => {
           },
         }}
       />
-      <div className="flex flex-col w-full">
+      <div className="flex flex-col w-full h-full overflow-hidden">
         <NotificationReceiver />
         <div className="md:hidden mx-2 my-2 shadow-2xl drop-shadow-lg">
           <Header sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         </div>
-        <div className="flex flex-row">
+        <div className="flex flex-row flex-1 overflow-hidden">
           {/* Sidebar */}
           <div
             className={`fixed md:static flex flex-col md:bg-opacity-0 bg-white w-64 z-20 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -42,7 +42,7 @@ const DashboardView = () => {
 
           {/* Main Content */}
           <div
-            className={`flex w-full mx-2 border-4 rounded-lg border-white bg-gradient-to-t from-gray-50/70 to-gray-100/50 overflow-hidden flex-grow transition-all duration-300 ${sidebarOpen ? "md:ml-64 bg-black/80" : ""
+            className={`flex flex-col flex-1 mx-2 border-4 rounded-lg border-white bg-gradient-to-t from-gray-50/70 to-gray-100/50 overflow-y-auto transition-all duration-300 ${sidebarOpen ? "bg-black/80" : ""
               }`}
           >
             <Outlet />

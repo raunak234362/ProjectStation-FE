@@ -89,9 +89,8 @@ const Button = ({
 
 const Card = ({ children, className = "", hover = false }) => (
   <div
-    className={`bg-white rounded-xl border border-gray-200 shadow-sm ${
-      hover ? "hover:shadow-md transition-shadow duration-200" : ""
-    } ${className}`}
+    className={`bg-white rounded-xl border border-gray-200 shadow-sm ${hover ? "hover:shadow-md transition-shadow duration-200" : ""
+      } ${className}`}
   >
     {children}
   </div>
@@ -133,11 +132,10 @@ const Tabs = ({ tabs, activeTab, onChange, className = "" }) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
-            activeTab === tab.id
+          className={`whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
               ? "border-blue-500 text-blue-600"
               : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-          }`}
+            }`}
         >
           {tab.label}
         </button>
@@ -272,8 +270,8 @@ const getChartOptions = (type, labels) => ({
         type === "pie" && window.innerWidth < 768
           ? "bottom"
           : type === "pie"
-          ? "right"
-          : "top",
+            ? "right"
+            : "top",
       labels: {
         usePointStyle: true,
         boxWidth: 6,
@@ -292,25 +290,25 @@ const getChartOptions = (type, labels) => ({
   scales:
     type === "bar"
       ? {
-          x: {
-            beginAtZero: true,
-            grid: { color: "rgba(0, 0, 0, 0.05)" },
-            stacked: true,
-          },
-          y: {
-            grid: { display: false },
-            stacked: true,
-            ticks: {
-              callback: (value) => {
-                const label = labels[value];
-                const maxLength = window.innerWidth < 768 ? 15 : 25;
-                return label?.length > maxLength
-                  ? `${label.substring(0, maxLength)}...`
-                  : label;
-              },
+        x: {
+          beginAtZero: true,
+          grid: { color: "rgba(0, 0, 0, 0.05)" },
+          stacked: true,
+        },
+        y: {
+          grid: { display: false },
+          stacked: true,
+          ticks: {
+            callback: (value) => {
+              const label = labels[value];
+              const maxLength = window.innerWidth < 768 ? 15 : 25;
+              return label?.length > maxLength
+                ? `${label.substring(0, maxLength)}...`
+                : label;
             },
           },
-        }
+        },
+      }
       : undefined,
 });
 
@@ -504,7 +502,7 @@ const ClientDashboardLYT = () => {
     setModal({ isOpen: false, selectedProject: null });
 
   return (
-    <div className="w-full h-[100vh] md:overflow-y-hidden overflow-y-auto overflow-x-hidden">
+    <div className="w-full h-full md:overflow-y-hidden overflow-y-auto overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 py-4">
@@ -542,27 +540,24 @@ const ClientDashboardLYT = () => {
       </header>
 
       <div className="w-full md:grid md:grid-cols-[70%,29%] gap-2 flex flex-col-reverse space-y-2">
-        <div className="p-2 h-screen overflow-y-auto">
+        <div className="p-2 h-full overflow-y-auto">
           <Card className="mb-2 grid md:grid-cols-[33%,64%] grid-cols-1 gap-5 py-2">
             <StatCard
               title="Total Projects"
               value={projectData.length}
-              activeTitle={`${
-                projectData.filter((p) => p.status === "ACTIVE").length
-              } Active Projects`}
-              completeTitle={`${
-                projectData.filter((p) => p.status === "COMPLETE").length
-              } Completed Projects`}
-              OnHoldTitle={`${
-                projectData.filter((p) => p.status === "ONHOLD").length
-              } On Hold Projects`}
+              activeTitle={`${projectData.filter((p) => p.status === "ACTIVE").length
+                } Active Projects`}
+              completeTitle={`${projectData.filter((p) => p.status === "COMPLETE").length
+                } Completed Projects`}
+              OnHoldTitle={`${projectData.filter((p) => p.status === "ONHOLD").length
+                } On Hold Projects`}
               icon={<Building2 className="w-4 h-4 text-blue-600" />}
               color="bg-green-50"
               progress={
                 projectData.length > 0
                   ? (projectData.filter((p) => p.status === "COMPLETE").length /
-                      projectData.length) *
-                    100
+                    projectData.length) *
+                  100
                   : 0
               }
             />

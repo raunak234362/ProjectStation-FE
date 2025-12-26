@@ -134,7 +134,7 @@ const EmployeeStatus = ({ employee, onClose }) => {
 
     // Count tasks by status
     const tasksByStatus = filteredData.tasks.reduce((acc, task) => {
-      const status = task.status || "Unknown" 
+      const status = task.status || "Unknown"
       acc[status] = (acc[status] || 0) + 1
       return acc
     }, {})
@@ -274,11 +274,14 @@ const EmployeeStatus = ({ employee, onClose }) => {
                               value={dateFilter.month}
                               onChange={(e) => setDateFilter({ ...dateFilter, month: Number.parseInt(e.target.value) })}
                             >
-                              {months.map((month, index) => (
-                                <option key={month} value={index}>
-                                  {month}
-                                </option>
-                              ))}
+                              {months
+                                .map((month, index) => ({ name: month, originalIndex: index }))
+                                .sort((a, b) => a.name.localeCompare(b.name))
+                                .map((month) => (
+                                  <option key={month.name} value={month.originalIndex}>
+                                    {month.name}
+                                  </option>
+                                ))}
                             </select>
                           </div>
                         )}
@@ -464,15 +467,14 @@ const EmployeeStatus = ({ employee, onClose }) => {
                             </div>
                             <div className="flex flex-col items-end">
                               <span
-                                className={`text-xs px-2 py-1 rounded-full ${
-                                  task.status === "COMPLETE"
-                                    ? "bg-green-100 text-green-800"
-                                    : task.status === "IN_PROGRESS"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : task.status === "IN_REVIEW"
-                                        ? "bg-yellow-100 text-yellow-800"
-                                        : "bg-gray-100 text-gray-800"
-                                }`}
+                                className={`text-xs px-2 py-1 rounded-full ${task.status === "COMPLETE"
+                                  ? "bg-green-100 text-green-800"
+                                  : task.status === "IN_PROGRESS"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : task.status === "IN_REVIEW"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : "bg-gray-100 text-gray-800"
+                                  }`}
                               >
                                 {task.status || "Unknown"}
                               </span>
@@ -484,8 +486,8 @@ const EmployeeStatus = ({ employee, onClose }) => {
                                 Total Working Hours:{" "}
                                 {task.workingHourTask
                                   ? task.workingHourTask
-                                      .reduce((total, hour) => total + (hour.duration / 60 || 0), 0)
-                                      .toFixed(2)
+                                    .reduce((total, hour) => total + (hour.duration / 60 || 0), 0)
+                                    .toFixed(2)
                                   : "0.00"}{" "}
                                 hrs
                               </span>
@@ -555,15 +557,14 @@ const EmployeeStatus = ({ employee, onClose }) => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className={`h-2 rounded-full ${
-                            status === "COMPLETE"
-                              ? "bg-green-500"
-                              : status === "IN_PROGRESS"
-                                ? "bg-blue-500"
-                                : status === "IN_REVIEW"
-                                  ? "bg-yellow-500"
-                                  : "bg-gray-500"
-                          }`}
+                          className={`h-2 rounded-full ${status === "COMPLETE"
+                            ? "bg-green-500"
+                            : status === "IN_PROGRESS"
+                              ? "bg-blue-500"
+                              : status === "IN_REVIEW"
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
+                            }`}
                           style={{ width: `${(count / stats.taskCount) * 100}%` }}
                         ></div>
                       </div>

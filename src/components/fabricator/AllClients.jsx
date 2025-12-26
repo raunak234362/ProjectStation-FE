@@ -2,8 +2,8 @@
 /* eslint-disable react/prop-types */
 import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
-import { useTable } from "react-table";
 import { Button } from "../index";
+import DataTable from "../DataTable";
 import GetClientById from "./GetClientById";
 
 const AllClients = ({ fabricator }) => {
@@ -29,103 +29,60 @@ const AllClients = ({ fabricator }) => {
   const columns = useMemo(
     () => [
       {
-        Header: "S.No",
-        accessor: (_row, i) => i + 1,
-        id: "serial",
-      },
-      {
-        Header: "Client Name",
-        accessor: (row) =>
-          `${row?.f_name || ""} ${row?.m_name || ""} ${
-            row?.l_name || ""
-          }`.trim(),
+        header: "Client Name",
+        accessorFn: (row) =>
+          `${row?.f_name || ""} ${row?.m_name || ""} ${row?.l_name || ""
+            }`.trim(),
         id: "clientName",
+        enableColumnFilter: true,
       },
       {
-        Header: "Phone",
-        accessor: "phone",
+        header: "Phone",
+        accessorKey: "phone",
       },
       {
-        Header: "City",
-        accessor: "city",
+        header: "City",
+        accessorKey: "city",
+        filterType: "select",
+        filterOptions: [...new Set(filteredClientData.map(c => c.city).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "State",
-        accessor: "state",
+        header: "State",
+        accessorKey: "state",
+        filterType: "select",
+        filterOptions: [...new Set(filteredClientData.map(c => c.state).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Country",
-        accessor: "country",
+        header: "Country",
+        accessorKey: "country",
+        filterType: "select",
+        filterOptions: [...new Set(filteredClientData.map(c => c.country).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Actions",
-        Cell: ({ row }) => (
+        header: "Actions",
+        id: "actions",
+        cell: ({ row }) => (
           <Button onClick={() => handleViewClick(row.original.id)}>View</Button>
         ),
       },
     ],
-    []
+    [filteredClientData]
   );
 
-  const data = useMemo(() => filteredClientData || [], [filteredClientData]);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    useTable({ columns, data });
-
   return (
-    <div className="bg-white md:w-full w-[90vw] my-4">
-      <div className="bg-white p-5 overflow-x-auto">
-        <table
-          {...getTableProps()}
-          className="w-full border-collapse text-center text-sm md:text-base rounded-xl"
-        >
-          <thead>
-            {headerGroups.map((headerGroup) => (
-              <tr
-                {...headerGroup.getHeaderGroupProps()}
-                className="bg-teal-200/70"
-              >
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps()} className="px-3 py-2">
-                    {column.render("Header")}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="text-center py-4">
-                  No Client Found
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => {
-                prepareRow(row);
-                return (
-                  <tr
-                    {...row.getRowProps()}
-                    className="hover:bg-gray-100 border"
-                  >
-                    {row.cells.map((cell) => (
-                      <td {...cell.getCellProps()} className="border px-3 py-2">
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+    <div className="bg-white md:w-full w-[90vw] my-4 p-4">
+      <DataTable
+        columns={columns}
+        data={filteredClientData}
+        searchPlaceholder="Search clients..."
+      />
 
-        {selectedClient && (
-          <GetClientById
-            clientId={selectedClient}
-            onClose={handleModalClose}
-          />
-        )}
-      </div>
+      {selectedClient && (
+        <GetClientById
+          clientId={selectedClient}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 };
