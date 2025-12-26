@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../fields/Input";
@@ -7,7 +6,7 @@ import { useSelector } from "react-redux";
 import { CustomSelect } from "../index";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
-
+import numWords from "num-words";
 const InvoiceForm = () => {
   const {
     register,
@@ -22,7 +21,7 @@ const InvoiceForm = () => {
       currencyType: "USD",
     },
   });
-
+  const selectedCurrency = watch("currencyType");
 
   const projects = useSelector(
     (state) => state?.projectData?.projectData || []
@@ -43,7 +42,6 @@ const InvoiceForm = () => {
   const filteredClients = clientData?.filter(
     (client) => client.fabricatorId === fabricatorID
   );
-
 
   const fabricatorOptions = fabricatorData?.map((fab) => ({
     label: `${fab?.fabName}`,
@@ -68,10 +66,12 @@ const InvoiceForm = () => {
   const [grandTotal, setGrandTotal] = useState(0);
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-
+    const subscription = watch((value, { name }) => {
       const isRelevantChange =
-        name && (name.endsWith(".rateUSD") || name.endsWith(".unit"));
+        name &&
+        (name.endsWith(".rateUSD") ||
+          name.endsWith(".unit") ||
+          name === "currencyType");
       if (isRelevantChange) {
         const items = value.invoiceItems || [];
         let calculatedGrandTotal = 0;
@@ -79,7 +79,7 @@ const InvoiceForm = () => {
           const rate = parseFloat(row.rateUSD) || 0;
           const unit = parseInt(row.unit) || 0;
           const totalUSD = rate * unit;
-          setValue(`invoiceItems.${index}.totalUSD`, totalUSD.toFixed(2), {
+          setValue(`invoiceItems.${index}.totalUSD`, totalUSD, {
             shouldValidate: true,
           });
           calculatedGrandTotal += totalUSD;
@@ -87,16 +87,37 @@ const InvoiceForm = () => {
         setGrandTotal(calculatedGrandTotal);
       }
     });
+    {
+    }
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
+
+  const finalInvoiceValue = grandTotal;
+  const convertToCurrencyWords = (amount, currency = "USD") => {
+    if (!amount || isNaN(amount)) return "";
+
+    const [whole, fraction] = amount.toFixed(2).split(".");
+    const wholeInWords = numWords(parseInt(whole)).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const fractionInWords = numWords(parseInt(fraction)).replace(/\b\w/g, (c) =>
+      c.toUpperCase()
+    );
+    const currencyLabel =
+      currency === "CAD" ? "Canadian Dollars" : "US Dollars";
+      console.log("currency Selected-----", selectedCurrency);
+    return `${wholeInWords} ${currencyLabel} And ${fractionInWords} Cents Only`;
+      
+  };
+  const words = convertToCurrencyWords(finalInvoiceValue, selectedCurrency);
+
 
   useEffect(() => {
     const fetchAllBanks = async () => {
       setBankLoading(true);
       try {
-     
         const response = await Service.FetchAllBanks();
-        
+
         setBankAccounts(response.data?.data || response.data || []);
       } catch (error) {
         console.error("Error fetching all bank accounts:", error);
@@ -135,7 +156,6 @@ const InvoiceForm = () => {
       })()
     : [];
 
-
   useEffect(() => {
     const selectedAddress = watch("selectedAddress");
     if (selectedAddress) {
@@ -153,10 +173,7 @@ const InvoiceForm = () => {
     const selectedBankAccount = bankAccounts.find(
       (bank) => bank.id === formData.bankAccountId
     );
-
-    console.log(selectedBankAccount);
-
-    const finalInvoiceValue = grandTotal * 1.18;
+    console.log(formData);
 
     const formattedInvoiceItems = (formData.invoiceItems || []).map((item) => ({
       ...item,
@@ -184,12 +201,11 @@ const InvoiceForm = () => {
       address: formData.address,
       stateCode: formData.stateCode,
       GSTIN: formData.GSTIN,
-      invoiceNumber: formData.invoiceNumber,
       placeOfSupply: formData.placeOfSupply,
       jobName: formData.jobName,
       currencyType: formData.currencyType,
       TotalInvoiveValues: finalInvoiceValue.toFixed(2),
-      TotalInvoiveValuesinWords: formData.TotalInvoiveValuesinWords,
+      TotalInvoiveValuesinWords: words,
       invoiceItems: formattedInvoiceItems,
       accountInfo: accountInfoPayload,
     };
@@ -292,11 +308,11 @@ const InvoiceForm = () => {
             Invoice & Job Details
           </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            {/* <Input
               label="Invoice Number"
               placeholder="Invoice Number"
               {...register("invoiceNumber")}
-            />
+            /> */}
             <Input
               label="Job Name"
               placeholder="Job Name"
@@ -324,11 +340,21 @@ const InvoiceForm = () => {
               placeholder="Place of Supply"
               {...register("placeOfSupply")}
             />
-            <Input
-              label="Currency"
-              placeholder="Currency"
-              {...register("currencyType")}
-              readOnly
+            <CustomSelect
+              label={
+                <span>
+                  Currency <span className="text-red-500">*</span>
+                </span>
+              }
+              placeholder="Select Currency"
+              options={[
+                { label: "USD (United States Dollar)", value: "USD" },
+                { label: "CAD (Canadian Dollar)", value: "CAD" },
+              ]}
+              {...register("currencyType", {
+                required: "Currency is required",
+              })}
+              onChange={(field, value) => setValue("currencyType", value)}
             />
           </div>
         </fieldset>
@@ -506,15 +532,16 @@ const InvoiceForm = () => {
           <div className="flex flex-col justify-end">
             <Input
               label="Total Invoice Values in Words"
-              placeholder="Total Invoice Values in Words"
-              {...register("TotalInvoiveValuesinWords")}
+              value={words}
+              readOnly
+              className="bg-gray-100 font-semibold"
             />
           </div>
 
           {/* Calculated Totals */}
           <div className="bg-teal-50 p-4 rounded-lg shadow-md text-right">
             <div className="font-semibold text-gray-700 space-y-1">
-              <p className="flex justify-between">
+              {/* <p className="flex justify-between">
                 <span>Subtotal (Before Tax):</span>
                 <span className="text-teal-700">${grandTotal.toFixed(2)}</span>
               </p>
@@ -528,6 +555,13 @@ const InvoiceForm = () => {
                 <span>Final Invoice Value:</span>
                 <span className="text-teal-800">
                   ${(grandTotal * 1.18).toFixed(2)}
+                </span>
+              </p> */}
+              <p className="flex justify-between pt-1 text-xl font-extrabold">
+                <span>Final Invoice Value:</span>
+                <span className="text-teal-800">
+                  {selectedCurrency === "CAD" ? "C$" : "$"}
+                  {grandTotal.toFixed(2)}
                 </span>
               </p>
             </div>
