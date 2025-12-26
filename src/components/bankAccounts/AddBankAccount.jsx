@@ -62,7 +62,7 @@ const AddBankAccount = () => {
   };
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-3xl mx-auto">
+    <div className="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full mx-auto">
       {/* Header */}
       <header className="mb-6 border-b pb-4 border-teal-200">
         <h1 className="text-3xl font-extrabold text-teal-700">

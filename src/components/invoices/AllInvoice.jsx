@@ -106,7 +106,7 @@ const AllInvoice = () => {
   );
 
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] p-4">
+    <div className="bg-white/70 rounded-lg w-full p-4">
       <DataTable
         columns={columns}
         data={invoiceData}
