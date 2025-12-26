@@ -57,11 +57,6 @@ const projectSlice = createSlice({
         co.id === action.payload.id ? { ...co, ...action.payload } : co
       );
     },
-    updateCO: (state, action) => {
-      state.changeOrder = state.changeOrder.map((co) =>
-        co.id === action.payload.id ? { ...co, ...action.payload } : co
-      );
-    },
     addRFI: (state, action) => {
       state.rfiData.push(action.payload);
       localStorage.setItem("rfiData", JSON.stringify(state.rfiData));

@@ -8,7 +8,7 @@ import { useEffect, useState, useRef } from "react";
 import JoditEditor from "jodit-react";
 import toast from "react-hot-toast";
 import Service from "../../../config/Service";
-import { updateProjectData } from "../../../store/projectSlice";
+import { updateProjectData, deleteProject } from "../../../store/projectSlice";
 import { projectData as projectSignal } from "../../../signals/projectData";
 import Input from "../../fields/Input";
 import { Button, CustomSelect, Toggle } from "../..";

@@ -1,74 +1,35 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/jsx-key */
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, GetProject } from "../../../../index.js";
+import { Button } from "../../../../index.js";
 import Service from "../../../../../config/Service.js";
 import { showProjects } from "../../../../../store/projectSlice.js";
 import ProjectStatus from "../Project/ProjectStatus.jsx";
-import { useTable, useSortBy } from "react-table";
+import DataTable from "../../../../DataTable";
 
 const AllProjects = () => {
-  const projects = useSelector((state) => state?.projectData?.projectData);
-  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData);
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [projectFilter, setProjectFilter] = useState([]);
-  const [sortOrder, setSortOrder] = useState({ key: "name", order: "asc" });
-  const [filters, setFilters] = useState({
-    fabricator: "",
-    status: "",
-  });
-
+  const projects = useSelector((state) => state?.projectData?.projectData || []);
+  const fabricators = useSelector((state) => state?.fabricatorData?.fabricatorData || []);
+  const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    setProjectFilter(projects);
-  }, [projects]);
-
-  useEffect(() => {
-    filterAndSortData();
-  }, [searchQuery, filters, sortOrder, projects]);
-
-  const filterAndSortData = () => {
-    let filtered = projects?.filter((project) => {
-      const searchMatch = project?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-      const filterMatch =
-        (!filters?.fabricator || project?.fabricator?.fabName === filters?.fabricator) &&
-        (!filters?.status || project?.status === filters?.status);
-      return searchMatch && filterMatch;
-    });
-
-    filtered.sort((a, b) => {
-      let aKey = a[sortOrder?.key];
-      let bKey = b[sortOrder?.key];
-
-      if (sortOrder?.key === "fabricator") {
-        aKey = a.fabricator?.fabName || "";
-        bKey = b.fabricator?.fabName || "";
-      }
-
-      const aValue = typeof aKey === "string" ? aKey.toLowerCase() : aKey ?? "";
-      const bValue = typeof bKey === "string" ? bKey.toLowerCase() : bKey ?? "";
-
-      return sortOrder?.order === "asc"
-        ? aValue > bValue ? 1 : -1
-        : aValue < bValue ? 1 : -1;
-    });
-
-    setProjectFilter(filtered);
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      const response = await Service.allProject();
+      dispatch(showProjects(response || []));
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSearch = (e) => setSearchQuery(e.target.value);
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    fetchProjects();
+  }, []);
 
   const handleViewClick = (projectID) => {
     setSelectedProject(projectID);
@@ -79,163 +40,82 @@ const AllProjects = () => {
     setSelectedProject(null);
     setIsModalOpen(false);
   };
-  // console.log("------------------------------------->", projectFilter);
-  const data = useMemo(() => projectFilter || [], [projectFilter]);
 
   const columns = useMemo(
     () => [
       {
-        Header: "S.No",
-        accessor: (row, i) => i + 1,
-        id: "sno",
+        header: "S.No",
+        cell: (info) => info.row.index + 1,
       },
       {
-        Header: "Name",
-        accessor: "name",
+        header: "Name",
+        accessorKey: "name",
       },
       {
-        Header: "Fabricator",
-        accessor: (row) => row?.fabricator?.fabName || "N/A",
+        header: "Fabricator",
+        accessorFn: (row) => row?.fabricator?.fabName || "N/A",
         id: "fabricator",
+        filterType: "select",
+        filterOptions: [...new Set(projects.map(p => p.fabricator?.fabName).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Manager",
-        accessor: (row) => row?.manager?.f_name || "N/A",
+        header: "Manager",
+        accessorFn: (row) => row?.manager?.f_name || "N/A",
         id: "manager",
       },
       {
-        Header: "Status",
-        accessor: "status",
+        header: "Status",
+        accessorKey: "status",
+        filterType: "select",
+        filterOptions: [...new Set(projects.map(p => p.status).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
       },
       {
-        Header: "Start Date",
-        accessor: (row) => {
-          if (!row.startDate) return "N/A";
-          const date = new Date(row.startDate);
-          const mm = String(date.getMonth() + 1).padStart(2, "0");
-          const dd = String(date.getDate()).padStart(2, "0");
-          const yyyy = date.getFullYear();
-          return `${mm}-${dd}-${yyyy}`;
+        header: "Start Date",
+        accessorKey: "startDate",
+        cell: (info) => {
+          const value = info.getValue();
+          if (!value) return "N/A";
+          const date = new Date(value);
+          return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}-${date.getFullYear()}`;
         },
-        id: "startDate",
       },
       {
-        Header: "Approval Date",
-        accessor: (row) => {
-          if (!row.approvalDate) return "N/A";
-          const date = new Date(row.approvalDate);
-          const mm = String(date.getMonth() + 1).padStart(2, "0");
-          const dd = String(date.getDate()).padStart(2, "0");
-          const yyyy = date.getFullYear();
-          return `${mm}-${dd}-${yyyy}`;
+        header: "Approval Date",
+        accessorKey: "approvalDate",
+        cell: (info) => {
+          const value = info.getValue();
+          if (!value) return "N/A";
+          const date = new Date(value);
+          return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}-${date.getFullYear()}`;
         },
-        id: "approvalDate",
       },
       {
-        Header: "Actions",
-        Cell: ({ row }) => (
-          <Button onClick={() => handleViewClick(row.original.id)}>View</Button>
+        header: "Actions",
+        id: "actions",
+        cell: (info) => (
+          <Button onClick={() => handleViewClick(info.row.original.id)}>View</Button>
         ),
       },
     ],
-    []
+    [projects]
   );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable({ columns, data }, useSortBy);
 
   return (
     <div className="w-full p-4 rounded-lg bg-white/70">
-      {/* Search and Filters */}
-      <div className="flex flex-col gap-4 mb-4 md:flex-row">
-        <input
-          type="text"
-          placeholder="Search by name"
-          className="w-full p-2 border rounded"
-          value={searchQuery}
-          onChange={handleSearch}
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">All Projects</h2>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={projects}
+          searchPlaceholder="Search projects..."
         />
-        <select
-          name="fabricator"
-          value={filters.fabricator}
-          onChange={handleFilterChange}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">All Fabricator</option>
-          {[...(fabricators || [])].sort((a, b) => (a.fabName || "").toLowerCase().localeCompare((b.fabName || "").toLowerCase())).map((fab) => (
-            <option key={fab.id} value={fab.fabName}>
-              {fab.fabName}
-            </option>
-          ))}
-        </select>
-        <select
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">All Status</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="ASSIGNED">ASSIGNED</option>
-          <option value="COMPLETE">COMPLETED</option>
-          <option value="DELAY">DELAY</option>
-          <option value="INACTIVE">INACTIVE</option>
-          <option value="ON-HOLD">ON-HOLD</option>
-        </select>
-      </div>
+      )}
 
-      {/* Table Section */}
-      <div className="overflow-x-auto rounded-md border max-h-[80vh]">
-        <table
-          {...getTableProps()}
-          className="min-w-[800px] w-full border-collapse text-sm text-center"
-        >
-          <thead className="sticky top-0 z-10 bg-teal-200">
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="px-4 py-2 font-semibold border whitespace-nowrap"
-                  >
-                    {column.render("Header")}
-                    {column.isSorted ? (column.isSortedDesc ? " " : " ") : ""}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="py-4 text-center">
-                  No Projects Found
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => {
-                prepareRow(row);
-                return (
-                  <tr {...row.getRowProps()} className="hover:bg-gray-100">
-                    {row.cells.map((cell) => (
-                      <td {...cell.getCellProps()} className="px-4 py-2 border">
-                        {cell.render("Cell")}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal */}
       {selectedProject && (
         <ProjectStatus
           projectId={selectedProject}

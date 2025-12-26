@@ -60,7 +60,7 @@ const AllEstimations = () => {
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 bg-white rounded-xl shadow-lg md:w-full w-[95vw] mx-auto p-4 m-2">
       <DataTable
         columns={columns}
         data={estimationData || []}

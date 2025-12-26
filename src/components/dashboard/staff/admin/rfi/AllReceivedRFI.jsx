@@ -1,266 +1,128 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import React, { useMemo, useState, useEffect } from "react";
 import Service from "../../../../../config/Service";
-import { Button, Input } from "../../../../index";
+import { Button } from "../../../../index";
 import ViewRFI from "./ViewRFI";
-import { set } from "react-hook-form";
-
-// Utility function to get nested values safely
-const getNestedValue = (obj, path) => {
-  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
-};
-
+import DataTable from "../../../../DataTable";
 
 const AllReceivedRFI = () => {
   const [RFI, setRFI] = useState([]);
-  const [filteredRFI, setFilteredRFI] = useState(RFI);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({
-    fabricator: "",
-    project: "",
-    status: "",
-  });
+  const [loading, setLoading] = useState(true);
   const [selectedRFI, setSelectedRFI] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [click, setClick] = useState(false);
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
-  const fetchREceivedRfi = async () => {
+  const fetchReceivedRfi = async () => {
     try {
+      setLoading(true);
       const rfi = await Service.inboxRFI();
-      console.log(rfi.data);
       if (rfi) {
-        setRFI(rfi.data);
-      } else {
-        console.log("RFI not found");
+        setRFI(rfi.data || []);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching RFI:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchREceivedRfi();
+    fetchReceivedRfi();
   }, []);
 
-  useEffect(() => {
-    filterAndSort(RFI, searchTerm, filters);
-  }, [RFI, searchTerm, filters, sortConfig]);
-
-  const handleSearch = (e) => {
-    const term = e.target.value;
-    setSearchTerm(term);
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const filterAndSort = (data, term, filters) => {
-    let filteredData = data || [];
-
-    // Apply search filter
-    if (term) {
-      filteredData = filteredData.filter(
-        (rfi) =>
-          rfi.remarks.toLowerCase().includes(term.toLowerCase()) ||
-          rfi.email.toLowerCase().includes(term.toLowerCase())
-      );
-    }
-
-    // Apply dropdown filters
-    if (filters.fabricator) {
-      filteredData = filteredData.filter(
-        (rfi) =>
-          rfi?.fabricator?.name.toLowerCase() ===
-          filters.fabricator.toLowerCase()
-      );
-    }
-    if (filters.project) {
-      filteredData = filteredData.filter(
-        (rfi) =>
-          rfi?.fabricator?.project?.name?.toLowerCase() ===
-          filters.project.toLowerCase() ||
-          rfi?.project?.name?.toLowerCase() === filters.project.toLowerCase()
-      );
-    }
-    if (filters.status) {
-      filteredData = filteredData.filter(
-        (rfi) => rfi.status.toLowerCase() === filters.status.toLowerCase()
-      );
-    }
-
-    // Apply sorting
-    if (sortConfig.key) {
-      filteredData.sort((a, b) => {
-        const aValue = getNestedValue(a, sortConfig.key) || "";
-        const bValue = getNestedValue(b, sortConfig.key) || "";
-
-        if (typeof aValue === "string" && typeof bValue === "string") {
-          return sortConfig.direction === "asc"
-            ? aValue.localeCompare(bValue)
-            : bValue.localeCompare(aValue);
-        }
-
-        if (sortConfig.key === "date") {
-          return sortConfig.direction === "asc"
-            ? new Date(aValue) - new Date(bValue)
-            : new Date(bValue) - new Date(aValue);
-        }
-
-        return sortConfig.direction === "asc"
-          ? aValue - bValue
-          : bValue - aValue;
-      });
-    }
-
-    setFilteredRFI(filteredData);
-  };
-
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
   const handleViewClick = (rfiId) => {
-    setClick(true);
     setSelectedRFI(rfiId);
-  }
-  console.log("-------------------------------->", selectedRFI);
-  const handleModalClose = async () => {
-    setSelectedRFI(null);
-    setClick(false);
+    setIsModalOpen(true);
   };
+
+  const handleModalClose = () => {
+    setSelectedRFI(null);
+    setIsModalOpen(false);
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        header: "Fabricator Name",
+        accessorFn: (row) => row?.fabricator?.fabName || "N/A",
+        id: "fabricator",
+        filterType: "select",
+        filterOptions: [...new Set(RFI.map(r => r.fabricator?.fabName).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
+      },
+      {
+        header: "Client Name",
+        accessorFn: (row) => row?.recepients?.username || "N/A",
+        id: "clientName",
+      },
+      {
+        header: "Project Name",
+        accessorFn: (row) => row?.project?.name || "N/A",
+        id: "projectName",
+        filterType: "select",
+        filterOptions: [...new Set(RFI.map(r => r.project?.name).filter(Boolean))].sort().map(val => ({ label: val, value: val })),
+      },
+      {
+        header: "Mail ID",
+        accessorFn: (row) => row?.recepients?.email || "N/A",
+        id: "mailId",
+      },
+      {
+        header: "Subject/Remarks",
+        accessorKey: "subject",
+      },
+      {
+        header: "Date",
+        accessorKey: "date",
+        cell: (info) => info.getValue() || "N/A",
+      },
+      {
+        header: "RFI Status",
+        accessorFn: (row) => row?.status ? "No Reply" : "Replied",
+        id: "status",
+        filterType: "select",
+        filterOptions: [
+          { label: "No Reply", value: "No Reply" },
+          { label: "Replied", value: "Replied" },
+        ],
+      },
+      {
+        header: "Action",
+        id: "actions",
+        cell: (info) => (
+          <div className="flex gap-2">
+            <button className="px-2 py-1 bg-teal-300 rounded text-xs">
+              Forward
+            </button>
+            <Button
+              className="px-2 py-1 bg-blue-300 rounded text-xs"
+              onClick={() => handleViewClick(info.row.original.id)}
+            >
+              View
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [RFI]
+  );
+
   return (
-    <div className="bg-white/70 rounded-lg md:w-full w-[90vw]">
-      <div className="h-auto p-4 mt-5">
-        <div className="w-full mb-4">
-          <input
-            type="text"
-            placeholder="Search by remarks or recipient"
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full px-2 py-1 border border-gray-300 rounded "
-          />
+    <div className="bg-white/70 rounded-lg md:w-full w-[90vw] p-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">All Received RFIs</h2>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
         </div>
-        <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-3">
-          <select
-            name="fabricator"
-            value={filters.fabricator}
-            onChange={handleFilterChange}
-            className="px-2 py-1 border border-gray-300 rounded"
-          >
-            <option value="">Filter by Fabricator</option>
-            {[...new Set(RFI.map((rfi) => rfi?.fabricator?.fabName))].sort().map(
-              (name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              )
-            )}
-          </select>
-          <select
-            name="project"
-            value={filters.project}
-            onChange={handleFilterChange}
-            className="px-2 py-1 border border-gray-300 rounded"
-          >
-            <option value="">Filter by Project</option>
-            {[
-              ...new Set(
-                RFI.map(
-                  (rfi) => rfi?.fabricator?.project?.name || rfi?.project?.name
-                )
-              ),
-            ].sort().map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="status"
-            value={filters.status}
-            onChange={handleFilterChange}
-            className="px-2 py-1 border border-gray-300 rounded"
-          >
-            <option value="">Filter by Status</option>
-            <option value="closed">Closed</option>
-            <option value="open">Open</option>
-          </select>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border-collapse md:text-lg rounded-xl">
-            <thead>
-              <tr className="bg-teal-200/70">
-                <th className="px-2 py-1">Fabricator Name</th>
-                <th className="px-2 py-1">Client Name</th>
-                <th className="px-2 py-1">Project Name</th>
-                <th className="px-2 py-1">Mail ID</th>
-                <th className="px-2 py-1">Subject/Remarks</th>
-                <th className="px-2 py-1">Date</th>
-                <th className="px-2 py-1">RFI Status</th>
-                <th className="px-2 py-1">RFI Forward</th>
-                <th className="px-2 py-1">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {RFI?.length === 0 ? (
-                <tr className="bg-white">
-                  <td colSpan="9" className="text-center">
-                    No received RFI Found
-                  </td>
-                </tr>
-              ) : (
-                RFI?.map((rfi) => (
-                  <tr key={rfi?.id} className="border hover:bg-blue-gray-100">
-                    <td className="px-2 py-1 text-left border">
-                      {rfi?.fabricator.fabName || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 text-left border">
-                      {rfi.recepients?.username || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi?.project.name || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi.recepients?.email || "N/A"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      {rfi.subject || "No remarks"}
-                    </td>
-                    <td className="px-2 py-1 border">{rfi.date || "N/A"}</td>
-                    <td className="px-2 py-1 border">
-                      {rfi.status ? "No Reply" : "Replied"}
-                    </td>
-                    <td className="px-2 py-1 border">
-                      <button className="px-2 py-1 bg-teal-300 rounded">
-                        Forward
-                      </button>
-                    </td>
-                    <td className="px-2 py-1 border">
-                      <Button
-                        className="px-2 py-1 bg-blue-300 rounded"
-                        onClick={() => handleViewClick(rfi.id)}
-                      >
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {click && (
+      ) : (
+        <DataTable
+          columns={columns}
+          data={RFI}
+          searchPlaceholder="Search RFIs..."
+        />
+      )}
+
+      {isModalOpen && selectedRFI && (
         <ViewRFI
           rfiId={selectedRFI}
-          // isOpen={isModalOpen}
           onClose={handleModalClose}
         />
       )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import Input from "../fields/Input";
 import Button from "../fields/Button";
@@ -14,7 +14,6 @@ const InvoiceForm = () => {
     setValue,
     watch,
     control,
-    formState: { errors },
   } = useForm({
     defaultValues: {
       invoiceItems: [],
@@ -52,9 +51,8 @@ const InvoiceForm = () => {
     value: client.id,
   }));
   const bankAccountOptions = bankAccounts?.map((bank) => ({
-    label: `${
-      bank.bankInfo || "Bank"
-    } - A/C No: XXXX${bank.accountNumber?.slice(-4)}`,
+    label: `${bank.bankInfo || "Bank"
+      } - A/C No: XXXX${bank.accountNumber?.slice(-4)}`,
     value: bank.id,
   }));
 
@@ -87,8 +85,6 @@ const InvoiceForm = () => {
         setGrandTotal(calculatedGrandTotal);
       }
     });
-    {
-    }
     return () => subscription.unsubscribe();
   }, [watch, setValue]);
 
@@ -105,9 +101,9 @@ const InvoiceForm = () => {
     );
     const currencyLabel =
       currency === "CAD" ? "Canadian Dollars" : "US Dollars";
-      console.log("currency Selected-----", selectedCurrency);
+    console.log("currency Selected-----", selectedCurrency);
     return `${wholeInWords} ${currencyLabel} And ${fractionInWords} Cents Only`;
-      
+
   };
   const words = convertToCurrencyWords(finalInvoiceValue, selectedCurrency);
 
@@ -135,25 +131,23 @@ const InvoiceForm = () => {
 
   const addressOptions = selectedFabricator
     ? (() => {
-        const hq = selectedFabricator.headquaters || {};
-        const branchOptions =
-          selectedFabricator.branches?.map((b) => ({
-            label: `Branch - ${b.city || b.state || b.country}`,
-            value: `Branch - ${b.city || ""}, ${b.state || ""}, ${
-              b.country || ""
+      const hq = selectedFabricator.headquaters || {};
+      const branchOptions =
+        selectedFabricator.branches?.map((b) => ({
+          label: `Branch - ${b.city || b.state || b.country}`,
+          value: `Branch - ${b.city || ""}, ${b.state || ""}, ${b.country || ""
             }`,
-          })) || [];
+        })) || [];
 
-        return [
-          {
-            label: `Headquarters - ${hq.city || hq.state || hq.country}`,
-            value: `Headquarters - ${hq.city || ""}, ${hq.state || ""}, ${
-              hq.country || ""
+      return [
+        {
+          label: `Headquarters - ${hq.city || hq.state || hq.country}`,
+          value: `Headquarters - ${hq.city || ""}, ${hq.state || ""}, ${hq.country || ""
             }`,
-          },
-          ...branchOptions,
-        ];
-      })()
+        },
+        ...branchOptions,
+      ];
+    })()
     : [];
 
   useEffect(() => {

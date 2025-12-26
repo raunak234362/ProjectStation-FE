@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { AddBankAccount, AllBankAccounts } from "../../components";
-import ClientAllProjects from "../../components/project/ClientAllProjects";
-import ProjectDashboard from "../../components/project/ProjectDashboard";
-
 const BankAccounts = () => {
   const [activeTab, setActiveTab] = useState("allAccounts");
-  const userType = sessionStorage.getItem("userType");
   return (
     <div className="w-full">
       <div className="flex flex-col w-full h-full">
@@ -19,8 +15,8 @@ const BankAccounts = () => {
               <button
                 onClick={() => setActiveTab("addAccount")}
                 className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "addAccount"
-                    ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                    : "md:text-base text-sm bg-white"
+                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                  : "md:text-base text-sm bg-white"
                   }`}
               >
                 Add Accounts
@@ -30,8 +26,8 @@ const BankAccounts = () => {
             <button
               onClick={() => setActiveTab("allAccounts")}
               className={`px-1.5 md:px-4 py-2 rounded-lg rounded-b ${activeTab === "allAccounts"
-                  ? "text-base md:text-base bg-teal-500 text-white font-semibold"
-                  : "md:text-base text-sm bg-white"
+                ? "text-base md:text-base bg-teal-500 text-white font-semibold"
+                : "md:text-base text-sm bg-white"
                 }`}
             >
               All Accounts
