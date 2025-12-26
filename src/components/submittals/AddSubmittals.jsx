@@ -181,6 +181,7 @@ const AddSubmittals = ({ projectData, setActiveTab }) => {
                       {...register("subject")}
                     />
                   </div>
+                  
                   <div className="w-full my-3">
                     <JoditEditor
                       value={joditContent}

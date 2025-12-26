@@ -5,11 +5,11 @@ import { useSelector } from "react-redux";
 import FabricatorDetail from "./FabricatorDetail";
 import AddClient from "./AddClient";
 import AllClients from "./AllClients";
+import EditFabricator from "./EditFabricator";
 
 
 const GetFabricator = ({ fabricatorId, onClose }) => {
     const [activeTab, setActiveTab] = useState("fabDetails");
-    console.log("Fabricator ID:", fabricatorId);
 
     const fabData = useSelector((state) => state.fabricatorData?.fabricatorData);
 
@@ -69,7 +69,7 @@ const GetFabricator = ({ fabricatorId, onClose }) => {
                     )}
                     {activeTab === 'clientDetails' && (
                         <div className="text-sm text-gray-600">
-                          <AllClients fabricator={fabricator} />
+                            <AllClients fabricator={fabricator} />
                         </div>
                     )}
                 </div>

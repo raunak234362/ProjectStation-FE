@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "../index";
 import AddBranch from "./AddBranch";
+import EditFabricator from "./EditFabricator";
 
 const GetFabricator = ({ fabricator }) => {
     const dispatch = useDispatch();
@@ -11,11 +12,11 @@ const GetFabricator = ({ fabricator }) => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [showBranchModal, setShowBranchModal] = useState(false);
     const fabricatorData = useSelector((state) => state.fabricatorData?.fabricatorData);
-    
+
     const handleAddBranchClose = async () => {
-    // setSelectedFabricator(null);
-    setShowBranchModal(false);
-  };
+        // setSelectedFabricator(null);
+        setShowBranchModal(false);
+    };
 
     const renderInfo = (label, value) => (
         <div className="flex flex-col text-wrap">
@@ -79,27 +80,33 @@ const GetFabricator = ({ fabricator }) => {
                         <h3 className="text-lg font-semibold">Branch Details</h3>
                         <Button onClick={() => setShowBranchModal(true)}>Add Branch</Button>
                     </div>
-                {fabricator?.branches?.length > 0 ? (
-                    fabricator.branches.map((branch, index) => (
-                        <div key={index} className="rounded-lg ">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {renderInfo("Address", branch.address)}
-                                {renderInfo("City", branch.city)}
-                                {renderInfo("State", branch.state)}
-                                {renderInfo("Country", branch.country)}
-                                {renderInfo("Zipcode", branch.zip_code)}
+                    {fabricator?.branches?.length > 0 ? (
+                        fabricator.branches.map((branch, index) => (
+                            <div key={index} className="rounded-lg ">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {renderInfo("Address", branch.address)}
+                                    {renderInfo("City", branch.city)}
+                                    {renderInfo("State", branch.state)}
+                                    {renderInfo("Country", branch.country)}
+                                    {renderInfo("Zipcode", branch.zip_code)}
+                                </div>
+                                <div className="text-right mt-3">
+                                    {/* <Button onClick={() => console.log("Edit Branch", inIdex)}>Edit</Button> */}
+                                </div>
                             </div>
-                            <div className="text-right mt-3">
-                                {/* <Button onClick={() => console.log("Edit Branch", inIdex)}>Edit</Button> */}
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-sm text-gray-600">No branches added.</p>
-                )}
+                        ))
+                    ) : (
+                        <p className="text-sm text-gray-600">No branches added.</p>
+                    )}
                 </div>
                 {showBranchModal && (
-                    <AddBranch fabricator={fabricator} onBranchClose={handleAddBranchClose}/>
+                    <AddBranch fabricator={fabricator} onBranchClose={handleAddBranchClose} />
+                )}
+                {showEditModal && (
+                    <EditFabricator
+                        fabricator={fabricator}
+                        onClose={() => setShowEditModal(false)}
+                    />
                 )}
             </div>
         </div>
