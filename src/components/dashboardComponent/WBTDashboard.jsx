@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import AllProjects from "../project/AllProjects";
 import ActionCenter from "./ActionCenter";
-import NotificationsList from "./NotificationList";
+import NotificationsList from "./NotificationList"; 
 
 const WBTDashboard = () => {
   const userType = sessionStorage.getItem("userType");

@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+  /* eslint-disable no-unused-vars */
 /**
  * Utility functions for opening CoListTable in a new window/tab
  */

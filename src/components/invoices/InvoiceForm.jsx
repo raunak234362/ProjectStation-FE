@@ -393,7 +393,7 @@ const InvoiceForm = () => {
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-separate border-spacing-y-2 border-spacing-x-0">
-              <thead className="bg-teal-50 border-b border-gray-300 sticky top-0 z-10">
+              <thead className="bg-teal-50 border-b border-gray-300 sticky top-0 z-0  ">
                 <tr>
                   <th className="px-2 py-2 text-left">Sl. #</th>
                   <th className="px-2 py-2 text-left w-2/5">Description</th>

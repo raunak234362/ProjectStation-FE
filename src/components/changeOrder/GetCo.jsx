@@ -2,9 +2,6 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import CoDetail from "./details/CoDetail";
-// import CoListTable from "./details/CoListTable";
-// import SendCoTable from "./SendCoTable";
-// import { openCoListTableInNewTab } from "../../util/coTableUtils";
 import Button from "../fields/Button";
 import Service from "../../config/Service";
 import toast from "react-hot-toast";
@@ -103,30 +100,11 @@ const GetCo = ({ initialSelectedCO, onClose, fetchCO }) => {
                 )}
               </div>
             )}
-            {/* {userType === "client" && (
-              <ClientResponse coId={selectedCO.id} responseId={selectedCO.id} />
-            )} */}
+            
           </div>
           {Array.isArray(selectedCO?.CoRefersTo) &&
           selectedCO.CoRefersTo.length > 0 ? (
-            // <div>
-            //   <div className="flex justify-between items-center mb-2">
-            //     <h3 className="text-lg font-semibold">
-            //       Related Change Orders
-            //     </h3>
-            //     <Button
-            //       onClick={() => openCoListTableInNewTab(selectedCO)}
-            //       className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1 flex items-center gap-2"
-            //     >
-            //       <span>🔗</span>
-            //       Open in New Tab
-            //     </Button>
-            //   </div>
-            //   <CoListTable
-            //     selectedCO={selectedCO}
-            //     fetchCO={refreshSelectedCO}
-            //   />
-            // </div>
+         
             <div>
               <ResponseCard co={selectedCO} />
             </div>

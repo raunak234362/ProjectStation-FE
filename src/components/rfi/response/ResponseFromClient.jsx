@@ -26,7 +26,7 @@ const ResponseFromClient = ({ responseData, handleViewModalClose }) => {
   const childResponse = fetchResponseDetails?.childResponses[0];
   useEffect(() => {
     fetchResponseData();
-  }, []);
+  }, []); 
 
   console.log("Response Data:", responseData);
   const userType = sessionStorage.getItem("userType");

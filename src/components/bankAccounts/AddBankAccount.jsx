@@ -48,6 +48,7 @@ const AddBankAccount = () => {
       beneficiaryAddress: formData.beneficiaryAddress,
       bankInfo: formData.bankInfo,
       bankAddress: formData.bankAddress,
+      
     };
 
     console.log("Bank Account Payload ===>", payload);
