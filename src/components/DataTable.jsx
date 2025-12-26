@@ -112,7 +112,7 @@ export default function DataTable({
     onRowClick,
     detailComponent: DetailComponent,
     searchPlaceholder = "Search...",
-    pageSizeOptions = [10, 25, 50, 100],
+    pageSizeOptions = [20, 40, 60, 100],
     showColumnToggle = true,
 }) {
     const [globalFilter, setGlobalFilter] = useState("");
@@ -120,6 +120,10 @@ export default function DataTable({
     const [columnFilters, setColumnFilters] = useState([]);
     const [columnVisibility, setColumnVisibility] = useState({});
     const [expandedRowId, setExpandedRowId] = useState(null);
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: pageSizeOptions[0],
+    });
 
     const table = useReactTable({
         data,
@@ -129,11 +133,13 @@ export default function DataTable({
             sorting,
             columnFilters,
             columnVisibility,
+            pagination,
         },
         onGlobalFilterChange: setGlobalFilter,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         onColumnVisibilityChange: setColumnVisibility,
+        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
@@ -226,7 +232,7 @@ export default function DataTable({
             </div>
 
             {/* Table */}
-            <div className="flex-1 overflow-auto border rounded-lg">
+            <div className="flex-1 w-full overflow-auto border rounded-lg">
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50 sticky top-0 z-10">
                         {table.getHeaderGroups().map((headerGroup) => (
