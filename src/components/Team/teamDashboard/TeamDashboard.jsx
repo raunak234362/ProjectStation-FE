@@ -22,6 +22,7 @@ import ProjectsSection from "../utils/ProjectSection";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import toast from "react-hot-toast";
+import DailyWorkReportModal from "./DailyWorkReportModal";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -35,7 +36,9 @@ const TeamDashboard = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [allMemberStats, setAllMemberStats] = useState([]); // Store raw unfiltered stats
   const [monthlyEfficiency, setMonthlyEfficiency] = useState([]);
   const [dateFilter, setDateFilter] = useState({
     type: "all",
@@ -113,24 +116,14 @@ const TeamDashboard = () => {
 
         const validStats = memberStats.filter((stat) => stat !== null);
 
-        const filteredStats = validStats.map((memberStat) => {
-          const filteredTasks = filterTasksByDateRange(
-            memberStat.tasks,
-            dateFilter
-          );
-          return {
-            ...memberStat,
-            tasks: filteredTasks,
-          };
-        });
-
-        return { members: activeMembers, memberStats: filteredStats };
+        // Return raw data, filtering will be handled separately
+        return { members: activeMembers, memberStats: validStats };
       } catch (error) {
         console.error("Error fetching team stats:", error);
         return null;
       }
     },
-    [dateFilter]
+    []
   );
 
   // Handle team selection
@@ -140,15 +133,54 @@ const TeamDashboard = () => {
     const loadTeamData = async () => {
       setLoading(true);
       const data = await fetchTeamStats(selectedTeam);
+      console.log(data);
       if (data) {
         setTeamMembers(data.members);
-        calculateTeamSummary(data.memberStats);
+        setAllMemberStats(data.memberStats);
+        // Initial calculation will happen in the new useEffect below
       }
       setLoading(false);
     };
 
     loadTeamData();
   }, [selectedTeam, fetchTeamStats]);
+  // Apply filters and calculate stats whenever allMemberStats or dateFilter changes
+  useEffect(() => {
+    if (!allMemberStats || allMemberStats.length === 0) return;
+
+    const filteredStats = allMemberStats.map((memberStat) => {
+      const filteredTasks = filterTasksByDateRange(
+        memberStat.tasks || [],
+        dateFilter
+      );
+      return {
+        ...memberStat,
+        tasks: filteredTasks,
+      };
+    });
+
+    calculateTeamSummary(filteredStats);
+
+  }, [allMemberStats, dateFilter]);
+
+  // Apply filters and calculate stats whenever allMemberStats or dateFilter changes
+  useEffect(() => {
+    if (!allMemberStats || allMemberStats.length === 0) return;
+
+    const filteredStats = allMemberStats.map((memberStat) => {
+      const filteredTasks = filterTasksByDateRange(
+        memberStat.tasks || [],
+        dateFilter
+      );
+      return {
+        ...memberStat,
+        tasks: filteredTasks,
+      };
+    });
+
+    calculateTeamSummary(filteredStats);
+
+  }, [allMemberStats, dateFilter]);
 
   // Calculate team statistics summary
   const calculateTeamSummary = (filteredStats) => {
@@ -202,10 +234,37 @@ const TeamDashboard = () => {
         0
       );
 
-      const efficiency =
-        totalAssignedHours > 0
-          ? Math.round((totalAssignedHours / totalWorkedHours) * 100)
+      // Efficiency Calculation: Only for COMPLETED tasks
+      const completedTasksList = filteredStats.flatMap((m) =>
+        m.tasks.filter((task) => task.status === "COMPLETE")
+      );
+
+      const efficiencyAssignedHours = completedTasksList.reduce(
+        (sum, task) =>
+          sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
+        0
+      );
+
+      const efficiencyWorkedHours = completedTasksList
+        .flatMap((task) => task.workingHourTask || [])
+        .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0);
+
+      const hoursEfficiency =
+        efficiencyWorkedHours > 0
+          ? efficiencyAssignedHours / efficiencyWorkedHours
           : 0;
+
+      // For completed tasks, task efficiency is effectively 100% relative to themselves,
+      // but the original logic combined "Hours Efficiency" and "Task Efficiency".
+      // "Task Efficiency" was (Completed / Total).
+      // If we strictly follow "calculate the efficiency of only completed task",
+      // it likely means we only check how well they did on the tasks they finished (Time based).
+      // So we should rely primarily on Hours Efficiency for the "Efficiency" metric.
+
+      let efficiency = 0;
+      if (efficiencyWorkedHours > 0) {
+        efficiency = Math.round(hoursEfficiency * 100);
+      }
 
       const completionRate =
         totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -323,32 +382,50 @@ const TeamDashboard = () => {
               (sum, task) =>
                 sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
               0
-            )
-            .toFixed(2) || "0.00";
+            ) || 0;
 
         const workedHours =
           memberStat?.tasks
             .flatMap((task) => task.workingHourTask || [])
-            .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0)
-            .toFixed(2) || "0.00";
+            .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0) || 0;
 
         const totalTasks = memberStat?.tasks.length || 0;
         const completedTasks =
-          memberStat?.tasks.filter((task) => task.status === "COMPLETE").length ||
+          memberStat?.tasks.filter((task) => task.status === "COMPLETE" || task.status === "USER_FAULT" || task.status === "VALIDATE_COMPLETED").length ||
           0;
 
-        const efficiency =
-          assignedHours > 0
-            ? Math.round((assignedHours / workedHours) * 100)
-            : 0;
+        // Efficiency: Only for COMPLETED tasks
+        const memberCompletedTasks = memberStat?.tasks.filter(
+          (task) => task.status === "COMPLETE"
+        );
+
+        const efficiencyAssigned =
+          memberCompletedTasks?.reduce(
+            (sum, task) =>
+              sum + parseDurationToMinutes(task.duration || "00:00:00") / 60,
+            0
+          ) || 0;
+
+        const efficiencyWorked =
+          memberCompletedTasks
+            ?.flatMap((task) => task.workingHourTask || [])
+            .reduce((sum, entry) => sum + (entry.duration || 0) / 60, 0) || 0;
+
+        const hoursEfficiency =
+          efficiencyWorked > 0 ? efficiencyAssigned / efficiencyWorked : 0;
+
+        let efficiency = 0;
+        if (efficiencyWorked > 0) {
+          efficiency = Math.round(hoursEfficiency * 100);
+        }
 
         return {
           sno: index + 1,
           id: member.id,
           name: `${member.f_name} ${member.m_name || ""} ${member.l_name}`,
           role: member.role || "Member",
-          assignedHours,
-          workedHours,
+          assignedHours: assignedHours.toFixed(2),
+          workedHours: workedHours.toFixed(2),
           totalTasks,
           completedTasks,
           efficiency,
@@ -561,6 +638,7 @@ const TeamDashboard = () => {
         dateFilter={dateFilter}
         onDateFilterChange={setDateFilter}
         onGenerateReport={generateGlobalPDF}
+        onDailyReport={() => setIsReportModalOpen(true)}
       />
 
       {loading && !selectedTeam ? (
@@ -637,6 +715,13 @@ const TeamDashboard = () => {
       )}
 
       {isModalOpen && <AddTeam onClose={handleCloseAddTeam} />}
+
+      <DailyWorkReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        members={allMemberStats}
+        dateFilter={dateFilter}
+      />
     </div>
   );
 };
@@ -645,8 +730,12 @@ export default TeamDashboard;
 
 const parseDurationToMinutes = (duration) => {
   if (!duration) return 0;
+  if (typeof duration === "number") return duration; // Assume minutes if number
+  if (typeof duration === "string" && !duration.includes(":")) {
+    return parseFloat(duration); // Assume stringified number is minutes
+  }
   const [hours, minutes, seconds] = duration.split(":").map(Number);
-  return hours * 60 + minutes + Math.floor(seconds / 60);
+  return hours * 60 + minutes + Math.floor((seconds || 0) / 60);
 };
 
 const filterTasksByDateRange = (tasks, filter) => {
