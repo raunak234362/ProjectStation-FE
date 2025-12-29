@@ -42,6 +42,8 @@ const Milestone = ({ projectData }) => {
   }, [projectId, fabricationId]);
 
   const onSubmit = async (data) => {
+    console.log(data);
+    
     try {
       console.log("Form Data Submitted:", data);
       const response = await Service.addMilestone(data, projectId, fabricationId);

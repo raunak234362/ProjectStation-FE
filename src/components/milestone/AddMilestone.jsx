@@ -65,6 +65,17 @@ const AddMilestone = ({ projectData, onSubmit }) => {
           className="w-full border border-gray-300 rounded-md"
         />
         <CustomSelect
+          label="Stage"
+          name="stage"
+          options={[
+            { label: "IFA - Approval", value: "IFA" },
+            { label: "IFC - Completion", value: "IFC" },
+            { label: "CO - Change Order", value: "CO" },
+          ]}
+          {...register("stage")}
+          onChange={setValue}
+        />
+        <CustomSelect
           label="Status"
           name="status"
           options={[

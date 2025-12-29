@@ -47,6 +47,7 @@ const GetFabricator = ({ fabricatorId, onClose }) => {
                         >
                             Client&#39;s Detail
                         </button>
+                      
                         <button
                             onClick={() => setActiveTab('addClient')}
                             className={`px-2 py-1 rounded ${activeTab === 'addClient' ? 'bg-teal-500 text-white font-semibold text-sm' : 'text-xs md:text-sm'}`}
@@ -72,6 +73,7 @@ const GetFabricator = ({ fabricatorId, onClose }) => {
                             <AllClients fabricator={fabricator} />
                         </div>
                     )}
+                  
                 </div>
             </div>
         </div>

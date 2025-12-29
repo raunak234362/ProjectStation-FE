@@ -40,6 +40,8 @@ const EditFabricator = ({ fabricator, onClose }) => {
       },
       website: fabricator?.website,
       drive: fabricator?.drive,
+      IFAComepletionAlertPercentage: fabricator?.IFAComepletionAlertPercentage,
+      IFCompletionAlertPercentage: fabricator?.IFCompletionAlertPercentage,
     }
   });
 
@@ -67,6 +69,8 @@ const EditFabricator = ({ fabricator, onClose }) => {
   }, [state, country]);
 
   const onSubmit = async (data) => {
+    console.log(data);
+
     try {
       const response = await Service.editFabricator(fabricator.id, data);
       dispatch(updateFabricator(response.data));
@@ -165,6 +169,23 @@ const EditFabricator = ({ fabricator, onClose }) => {
                 placeholder="https://drive.google.com/..."
                 {...register("drive")}
               />
+            </div>
+
+            <SectionTitle title="Invoice Percent" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Approval Percent"
+                type="number"
+                placeholder="Enter Approval percent"
+                {...register("IFAComepletionAlertPercentage", { valueAsNumber: true })}
+              />
+              <Input
+                label="Fabrication Percent"
+                type="number"
+                placeholder="Enter Fabrication percent"
+                {...register("IFCompletionAlertPercentage", { valueAsNumber: true })}
+              />
+
             </div>
 
             <div className="pt-4 flex gap-4">
