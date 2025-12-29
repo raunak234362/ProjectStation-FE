@@ -133,7 +133,7 @@ const TeamDashboard = () => {
     const loadTeamData = async () => {
       setLoading(true);
       const data = await fetchTeamStats(selectedTeam);
-      console.log(data);
+      // console.log(data);
       if (data) {
         setTeamMembers(data.members);
         setAllMemberStats(data.memberStats);
@@ -144,25 +144,6 @@ const TeamDashboard = () => {
 
     loadTeamData();
   }, [selectedTeam, fetchTeamStats]);
-  // Apply filters and calculate stats whenever allMemberStats or dateFilter changes
-  useEffect(() => {
-    if (!allMemberStats || allMemberStats.length === 0) return;
-
-    const filteredStats = allMemberStats.map((memberStat) => {
-      const filteredTasks = filterTasksByDateRange(
-        memberStat.tasks || [],
-        dateFilter
-      );
-      return {
-        ...memberStat,
-        tasks: filteredTasks,
-      };
-    });
-
-    calculateTeamSummary(filteredStats);
-
-  }, [allMemberStats, dateFilter]);
-
   // Apply filters and calculate stats whenever allMemberStats or dateFilter changes
   useEffect(() => {
     if (!allMemberStats || allMemberStats.length === 0) return;

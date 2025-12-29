@@ -20,6 +20,7 @@ const DailyWorkReportModal = ({ isOpen, onClose, members, dateFilter: parentDate
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
     });
+    console.log(members);
 
     // Sync with parent DateFilter when provided (and when modal opens)
     useEffect(() => {
@@ -74,29 +75,24 @@ const DailyWorkReportModal = ({ isOpen, onClose, members, dateFilter: parentDate
             const tasks = member.tasks || [];
             const daily = {}; // { [dateKey]: { worked: minutes, assigned: minutes } }
 
-            // Worked minutes by day from workingHourTask entries
-            tasks.forEach((task) => {
-                (task.workingHourTask || []).forEach((entry) => {
-                    if (!entry?.date) return;
-                    if (!includeByFilter(entry.date)) return;
-                    const entryDate = new Date(entry.date);
-                    const dateKey = entryDate.toLocaleDateString();
-                    if (!daily[dateKey]) daily[dateKey] = { worked: 0, assigned: 0 };
-                    daily[dateKey].worked += Number(entry.duration || 0);
-                });
-            });
-
-            // Assigned minutes by day based on task start date
             tasks.forEach((task) => {
                 const taskDateStr = task.start_date || task.startDate;
                 if (!taskDateStr) return;
                 if (!includeByFilter(taskDateStr)) return;
+
                 const taskDate = new Date(taskDateStr);
                 const dateKey = taskDate.toLocaleDateString();
+
                 if (!daily[dateKey]) daily[dateKey] = { worked: 0, assigned: 0 };
+
+                // Worked minutes from the first entry of workingHourTask
+                const workedMinutes = task.workingHourTask?.[0]?.duration || 0;
+                daily[dateKey].worked += Number(workedMinutes);
+
+                // Assigned minutes from task duration
                 const [h = 0, m = 0, s = 0] = String(task.duration || "00:00:00").split(":").map(Number);
-                const minutes = h * 60 + m + Math.floor(s / 60);
-                daily[dateKey].assigned += minutes;
+                const assignedMinutes = h * 60 + m + Math.floor(s / 60);
+                daily[dateKey].assigned += assignedMinutes;
             });
 
             // Flatten
@@ -120,7 +116,6 @@ const DailyWorkReportModal = ({ isOpen, onClose, members, dateFilter: parentDate
                     status = "More";
                     colorClass = "bg-blue-100 text-blue-800";
                 }
-                // Else diff is within +/- 0.1, considered Perfect (Green)
 
                 data.push({
                     date,
