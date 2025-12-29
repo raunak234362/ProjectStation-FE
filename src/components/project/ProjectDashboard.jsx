@@ -24,6 +24,7 @@ import {
   PauseCircle,
 } from "lucide-react";
 import ProjectStatus from "./projectTab/ProjectStatus";
+import ProjectCalendar from "./ProjectCalendar";
 import { useSortBy, useTable } from "react-table";
 import Button from "../fields/Button";
 
@@ -782,7 +783,7 @@ const ProjectDashboard = () => {
         </div>
 
         {/* Table Section */}
-        <div className="overflow-x-auto rounded-md border max-h-[65vh]">
+        <div className="overflow-x-auto rounded-md border max-h-[65vh] mb-8">
           <table
             {...getTableProps()}
             className="min-w-[800px] w-full border-collapse text-sm text-center"
@@ -813,7 +814,7 @@ const ProjectDashboard = () => {
                 rows.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-100">
+                    <tr {...row.getRowProps()} className="hover:bg-gray-50 transition-colors">
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}

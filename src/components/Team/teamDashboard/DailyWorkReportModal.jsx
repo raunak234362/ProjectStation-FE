@@ -185,7 +185,7 @@ const DailyWorkReportModal = ({ isOpen, onClose, members, dateFilter: parentDate
                                 reportData.map((row, index) => (
                                     <tr key={index}>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.date}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{row.userName}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900" title={row.userName}>{row.userName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.workedHours} hrs</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{row.assignedHours} hrs</td>
                                         <td className="px-6 py-4 whitespace-nowrap">

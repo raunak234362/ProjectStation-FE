@@ -454,7 +454,7 @@ const EmployeeStatus = ({ employee, onClose }) => {
                         <li key={index} className="py-3 text-sm">
                           <div className="flex justify-between">
                             <div>
-                              <p className="text-sm font-medium text-gray-800">{task.title || `Task ${index + 1}`}</p>
+                              <p className="text-sm font-medium text-gray-800" title={task.title || `Task ${index + 1}`}>{task.title || `Task ${index + 1}`}</p>
                               <p className="text-xs text-gray-500">
                                 {task.description?.substring(0, 60) || "No description"}
                                 {task.description?.length > 60 ? "..." : ""}
@@ -515,7 +515,7 @@ const EmployeeStatus = ({ employee, onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {employeeProjects.map((project, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-3">
-                      <h4 className="font-medium text-gray-800">{project.name || `Project ${index + 1}`}</h4>
+                      <h4 className="font-medium text-gray-800" title={project.name || `Project ${index + 1}`}>{project.name || `Project ${index + 1}`}</h4>
                       <p className="text-xs text-gray-500 mt-1">
                         {project.description?.substring(0, 100) || "No description"}
                         {project.description?.length > 100 ? "..." : ""}

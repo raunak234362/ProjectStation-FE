@@ -23,6 +23,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import toast from "react-hot-toast";
 import DailyWorkReportModal from "./DailyWorkReportModal";
+import TeamCalendar from "./TeamCalendar";
 
 const TeamDashboard = () => {
   const dispatch = useDispatch();
@@ -429,14 +430,14 @@ const TeamDashboard = () => {
         Header: "Name",
         accessor: "name",
         Cell: ({ value }) => (
-          <div className="font-medium text-gray-900">{value}</div>
+          <div className="font-medium text-gray-900" title={value}>{value}</div>
         ),
       },
       {
         Header: "Role",
         accessor: "role",
         Cell: ({ value }) => (
-          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800" title={value}>
             {value}
           </span>
         ),
@@ -660,6 +661,10 @@ const TeamDashboard = () => {
                     </Button>
                   </div>
                   <TeamStatsCards teamStats={teamStats} />
+                  <TeamCalendar
+                    members={allMemberStats}
+                    selectedTeamName={teams?.find((t) => t.id === selectedTeam)?.name}
+                  />
                   <MonthlyEfficiencyChart
                     monthlyEfficiency={monthlyEfficiency}
                     teamStats={teamStats}
@@ -674,6 +679,7 @@ const TeamDashboard = () => {
                     formatToHoursMinutes={formatToHoursMinutes}
                     getEfficiencyColorClass={getEfficiencyColorClass}
                   />
+                  
                   <ProjectsSection projects={teamStats?.projects || []} />
                   <TaskDistribution teamStats={teamStats} />
                 </div>
