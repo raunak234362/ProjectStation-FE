@@ -234,7 +234,8 @@ const ProjectCalendar = ({ projects, allTasks }) => {
                                         {/* Tooltip */}
                                         {showTooltip && dayData && (
                                             <div
-                                                className={`absolute top-0 z-[100] w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-3 animate-in fade-in zoom-in duration-200 ${(idx % 7) >= 5 ? "right-full mr-2" : "left-full ml-2"
+                                                className={`absolute z-[100] w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-3 animate-in fade-in zoom-in duration-200 ${Math.floor(idx / 7) >= Math.floor((daysInMonth.length - 1) / 7) - 1 ? "bottom-0" : "top-0"
+                                                    } ${(idx % 7) >= 5 ? "right-full mr-2" : "left-full ml-2"
                                                     } ${isSelected ? "pointer-events-auto" : "pointer-events-none"}`}
                                                 onClick={(e) => e.stopPropagation()}
                                             >

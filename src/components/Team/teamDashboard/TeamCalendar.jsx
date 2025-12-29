@@ -30,6 +30,13 @@ const TeamCalendar = ({ members, selectedTeamName }) => {
         return day === 0 || day === 6;
     };
 
+    const formatMinutesToHHMM = (totalMinutes) => {
+        if (!totalMinutes) return "00:00";
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.round(totalMinutes % 60);
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    };
+
     const handlePrevMonth = () => {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
         setSelectedDate(null);
@@ -302,7 +309,8 @@ const TeamCalendar = ({ members, selectedTeamName }) => {
                                         {/* Tooltip */}
                                         {showTooltip && dayData && (
                                             <div
-                                                className={`absolute top-0 z-[100] w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-3 animate-in fade-in zoom-in duration-200 ${(idx % 7) >= 5 ? "right-full mr-2" : "left-full ml-2"
+                                                className={`absolute z-[100] w-64 bg-white rounded-lg shadow-xl border border-gray-200 p-3 animate-in fade-in zoom-in duration-200 ${Math.floor(idx / 7) >= Math.floor((daysInMonth.length - 1) / 7) - 1 ? "bottom-0" : "top-0"
+                                                    } ${(idx % 7) >= 5 ? "right-full mr-2" : "left-full ml-2"
                                                     } ${isSelected ? "pointer-events-auto" : "pointer-events-none"}`}
                                                 onClick={(e) => e.stopPropagation()}
                                             >
@@ -322,16 +330,17 @@ const TeamCalendar = ({ members, selectedTeamName }) => {
                                                 </div>
 
                                                 {viewMode === "user" ? (
-                                                    <div className="space-y-2">
+                                                    <div className="space-y-2 ">
                                                         <div className="text-[10px] font-semibold text-gray-400 uppercase">Tasks ({dayData.tasks.length})</div>
                                                         {dayData.tasks.length > 0 ? (
                                                             <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
                                                                 {dayData.tasks.map((task, tIdx) => (
                                                                     <div key={tIdx} className="text-sm text-gray-700 bg-blue-50/50 p-1.5 rounded border border-blue-100/50">
                                                                         <div className="font-medium truncate" title={task.name}>{task.name}</div>
-                                                                        <div className="text-sm text-gray-500 mt-0.5 flex justify-between">
-                                                                            <span className="truncate max-w-[150px]" title={task.project?.name || "No Project"}>{task.project?.name || "No Project"}</span>
-                                                                            <span className="font-mono">{task.duration || "00:00:00"}</span>
+                                                                        <div className="text-sm text-gray-500 mt-0.5 flex flex-col justify-between">
+                                                                            <span className="truncate max-w-[150px] text-gray-800 font-semibold" title={task.project?.name || "No Project"}>{task.project?.name || "No Project"}</span>
+                                                                            <span className="font-mono">Assigned Hours: <span className="text-gray-800">{task.duration || "00:00:00"}</span></span>
+                                                                            <span className="font-mono">Taken Hours: <span className="text-gray-800">{formatMinutesToHHMM(task.workingHourTask?.[0]?.duration)}</span></span>
                                                                         </div>
                                                                     </div>
                                                                 ))}
