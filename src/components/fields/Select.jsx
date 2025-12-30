@@ -22,6 +22,17 @@ function Select(
     const sortedOptions = [...options].sort((a, b) => {
       const labelA = (a?.label || "").toString().toLowerCase();
       const labelB = (b?.label || "").toString().toLowerCase();
+      const valA = a?.value;
+      const valB = b?.value;
+
+      // Prioritize placeholder options (empty value or label starting with "select")
+      const isPlaceholderA =
+        valA === "" || valA === null || valA === undefined || labelA.startsWith("select");
+      const isPlaceholderB =
+        valB === "" || valB === null || valB === undefined || labelB.startsWith("select");
+
+      if (isPlaceholderA && !isPlaceholderB) return -1;
+      if (!isPlaceholderA && isPlaceholderB) return 1;
 
       // Prioritize labels starting with "all"
       const isAllA = labelA.startsWith("all");

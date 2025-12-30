@@ -33,10 +33,10 @@ const AddRFQ = () => {
   const ClientData = useSelector((state) => state.fabricatorData?.clientData);
   const userData = useSelector((state) => state.userData?.staffData);
   const userType = sessionStorage.getItem("userType");
+  console.log(ClientData);
 
   const [joditContent, setJoditContent] = useState("");
   const [files, setFiles] = useState([]);
-
   const joditConfig = {
     height: 100,
     width: "100%",
@@ -81,6 +81,14 @@ const AddRFQ = () => {
 
   const tools = watch("tools");
   const otherTool = watch("otherTool");
+  const selectedFabricatorId = watch("fabricatorId");
+
+  useEffect(() => {
+    if (selectedFabricatorId) {
+      setValue("sender_id", "");
+      clearErrors("sender_id");
+    }
+  }, [selectedFabricatorId, setValue, clearErrors]);
 
   useEffect(() => {
     if (tools !== "OTHER" && otherTool) {
@@ -155,7 +163,9 @@ const AddRFQ = () => {
                       </>
                     }
                     placeholder="Select Fabricator Point of Contact"
-                    options={ClientData?.map((fab) => ({
+                    options={ClientData?.filter(
+                      (fab) => fab.fabricatorId === selectedFabricatorId
+                    ).map((fab) => ({
                       label: `${fab.f_name} ${fab.m_name || ""} ${fab.l_name}`,
                       value: fab.id,
                     }))}

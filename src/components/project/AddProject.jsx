@@ -7,7 +7,7 @@ import SectionTitle from "../../util/SectionTitle";
 import ErrorMsg from "../../util/ErrorMsg";
 import Service from "../../config/Service";
 import JoditEditor from "jodit-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { showRFQs } from "../../store/rfqSlice";
 import { addProject } from "../../store/projectSlice";
 
@@ -50,6 +50,7 @@ const AddProject = ({ setActiveTab }) => {
   const fabricatorData = useSelector(
     (state) => state.fabricatorData?.fabricatorData
   );
+  const ClientData = useSelector((state) => state.fabricatorData?.clientData);
   const userData = useSelector((state) => state.userData?.staffData);
   const teams = useSelector((state) => state?.userData?.teamData);
 
@@ -64,17 +65,26 @@ const AddProject = ({ setActiveTab }) => {
   // Watch values
   const selectedRfqId = watch("rfqId");
   const selectedFabricatorId = watch("fabricator");
-
   const selectedRfq = rfq?.find((rfqData) => rfqData.id === selectedRfqId);
-  const selectedFabricator = fabricatorData?.find(
-    (fab) => fab.id === selectedFabricatorId
-  );
+
+  useEffect(() => {
+    if (selectedFabricatorId) {
+      // Only reset clientId if the fabricator change was NOT due to RFQ auto-population
+      const rfqFabId =
+        selectedRfq?.sender?.fabricator?.id || selectedRfq?.fabricatorId;
+      if (selectedFabricatorId !== rfqFabId) {
+        setValue("clientId", "");
+      }
+    }
+  }, [selectedFabricatorId, selectedRfq, setValue]);
 
   const clientOptions =
-    selectedFabricator?.userss?.map((user) => ({
-      label: `${user.f_name} ${user.l_name}`,
-      value: user.id,
-    })) || [];
+    ClientData?.filter((user) => user.fabricatorId === selectedFabricatorId).map(
+      (user) => ({
+        label: `${user.f_name} ${user.l_name}`,
+        value: user.id,
+      })
+    ) || [];
 
   // Fetch RFQs
   const fetchInboxRFQ = async () => {
@@ -99,16 +109,28 @@ const AddProject = ({ setActiveTab }) => {
 
   // Auto-populate fields when RFQ is selected
   useEffect(() => {
-    if (selectedRfq && selectedRfq.sender) {
-      setValue("fabricator", selectedRfq.sender?.fabricator?.id || "", {
-        shouldValidate: true,
-      });
-      setValue("clientId", selectedRfq.sender?.id || "", {
-        shouldValidate: true,
-      });
+    if (selectedRfq) {
+      const fabId =
+        selectedRfq.sender?.fabricator?.id || selectedRfq.fabricatorId;
+      const pocId = selectedRfq.sender?.id || selectedRfq.sender_id;
+
+      if (fabId) {
+        setValue("fabricator", fabId, {
+          shouldValidate: true,
+        });
+      }
+      if (pocId) {
+        setValue("clientId", pocId, {
+          shouldValidate: true,
+        });
+      }
       setValue("name", selectedRfq.projectName || "", {
         shouldValidate: true,
       });
+      setValue("description", selectedRfq.description || "", {
+        shouldValidate: true,
+      });
+      setJoditContent(selectedRfq.description || "");
     }
   }, [selectedRfqId, selectedRfq, setValue]);
 
