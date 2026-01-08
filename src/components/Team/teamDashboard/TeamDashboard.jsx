@@ -23,6 +23,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import toast from "react-hot-toast";
 import DailyWorkReportModal from "./DailyWorkReportModal";
+import MonthlyWorkReportModal from "./MonthlyWorkReportModal";
 import TeamCalendar from "./TeamCalendar";
 
 const TeamDashboard = () => {
@@ -38,6 +39,7 @@ const TeamDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isMonthlyReportModalOpen, setIsMonthlyReportModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [allMemberStats, setAllMemberStats] = useState([]); // Store raw unfiltered stats
   const [monthlyEfficiency, setMonthlyEfficiency] = useState([]);
@@ -621,6 +623,7 @@ const TeamDashboard = () => {
         onDateFilterChange={setDateFilter}
         onGenerateReport={generateGlobalPDF}
         onDailyReport={() => setIsReportModalOpen(true)}
+        onMonthlyReport={() => setIsMonthlyReportModalOpen(true)}
       />
 
       {loading && !selectedTeam ? (
@@ -679,7 +682,7 @@ const TeamDashboard = () => {
                     formatToHoursMinutes={formatToHoursMinutes}
                     getEfficiencyColorClass={getEfficiencyColorClass}
                   />
-                  
+
                   <ProjectsSection projects={teamStats?.projects || []} />
                   <TaskDistribution teamStats={teamStats} />
                 </div>
@@ -708,6 +711,12 @@ const TeamDashboard = () => {
         onClose={() => setIsReportModalOpen(false)}
         members={allMemberStats}
         dateFilter={dateFilter}
+      />
+
+      <MonthlyWorkReportModal
+        isOpen={isMonthlyReportModalOpen}
+        onClose={() => setIsMonthlyReportModalOpen(false)}
+        members={allMemberStats}
       />
     </div>
   );

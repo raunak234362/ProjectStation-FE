@@ -3,7 +3,7 @@ import Button from "../../fields/Button";
 import DateFilter from "../../../util/DateFilter";
 import { FaFilePdf } from "react-icons/fa";
 
-const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, onDateFilterChange, onGenerateReport, onDailyReport }) => {
+const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, onDateFilterChange, onGenerateReport, onDailyReport, onMonthlyReport }) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
       <h1 className="text-2xl font-bold text-gray-800">Team Performance Dashboard</h1>
@@ -37,6 +37,14 @@ const DashboardHeader = ({ onAddTeam, searchTerm, onSearchChange, dateFilter, on
           >
             <FaFilePdf />
             Daily Report
+          </button>
+          <button
+            onClick={onMonthlyReport}
+            className="flex items-center gap-2 px-3 py-2 bg-teal-500 text-white text-sm font-medium rounded-md hover:bg-teal-600 transition-colors shadow-sm"
+            title="Monthly Work Report"
+          >
+            <FaFilePdf />
+            Monthly Report
           </button>
         </div>
       </div>
