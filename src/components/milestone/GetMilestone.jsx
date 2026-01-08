@@ -90,8 +90,8 @@ const GetMilestone = ({ milestone, onClose, onUpdate }) => {
                 <p className="mt-1">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${milestone.status === "COMPLETED"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-teal-100 text-teal-800"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-teal-100 text-teal-800"
                       }`}
                   >
                     {milestone.status || "N/A"}
@@ -117,7 +117,7 @@ const GetMilestone = ({ milestone, onClose, onUpdate }) => {
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             Associated Tasks
             <span className="text-sm font-normal text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-              {milestone.tasks?.length || 0}
+              {(milestone.Tasks || milestone.tasks)?.length || 0}
             </span>
           </h3>
           <div className="overflow-x-auto border border-gray-200 rounded-lg">
@@ -139,11 +139,14 @@ const GetMilestone = ({ milestone, onClose, onUpdate }) => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
                   </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {milestone.tasks && milestone.tasks.length > 0 ? (
-                  milestone.tasks.map((task, idx) => (
+                {((milestone.Tasks || milestone.tasks) && (milestone.Tasks || milestone.tasks).length > 0) ? (
+                  (milestone.Tasks || milestone.tasks).map((task, idx) => (
                     <tr key={task.id || idx} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">
                         {task.name || task.task_name || "N/A"}
@@ -161,6 +164,16 @@ const GetMilestone = ({ milestone, onClose, onUpdate }) => {
                         {task.due_date || task.start_date || task.startDate
                           ? new Date(task.due_date || task.start_date || task.startDate).toLocaleDateString()
                           : "N/A"}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${task.status === "COMPLETE"
+                          ? "bg-green-100 text-green-800"
+                          : task.status === "IN_PROGRESS"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-gray-100 text-gray-800"
+                          }`}>
+                          {task.status || "N/A"}
+                        </span>
                       </td>
                     </tr>
                   ))

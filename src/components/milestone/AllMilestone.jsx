@@ -15,7 +15,7 @@ const TaskProgressBar = ({ progress, status }) => {
   };
 
   const color = getProgressColor(status, progress);
-  const displayProgress = Math.min(100, Math.max(0, Math.round(progress || 0)));
+  const displayProgress = status === "COMPLETED" ? 100 : Math.min(100, Math.max(0, Math.round(progress || 0)));
 
   return (
     <div className="flex items-center gap-2 w-full min-w-[150px]">
@@ -38,7 +38,7 @@ const AllMilestone = ({ milestoneData, projectData }) => {
   const [selectedMilestone, setSelectedMilestone] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const data = useMemo(() => {
+  const processedData = useMemo(() => {
     if (!Array.isArray(milestoneData?.value)) return [];
 
     const tasks = projectData?.tasks || [];
@@ -47,9 +47,26 @@ const AllMilestone = ({ milestoneData, projectData }) => {
     return milestoneData.value
       .filter((milestone) => ["COMPLETED", "IN_REVIEW", "ACTIVE"].includes(milestone.status))
       .map((milestone) => {
+        // 0. Force 100% if status is COMPLETED
+        if (milestone.status === "COMPLETED") {
+          return { ...milestone, calculatedProgress: 100 };
+        }
+
         // 1. Manual Override Priority
         if (milestone.percentage !== undefined && milestone.percentage !== null && milestone.percentage !== "") {
           return { ...milestone, calculatedProgress: Math.min(100, Math.max(0, Math.round(Number(milestone.percentage)))) };
+        }
+
+        // Filter tasks for this specific milestone
+        const milestoneTasks = tasks.filter(t => {
+          const ms = t.milestone || t.mileStone || {};
+          const msId = t.milestone_id || t.mileStone_id || ms.id;
+          return msId === milestone.id;
+        });
+
+        // 0.5 Force 100% if all milestone tasks are completed
+        if (milestoneTasks.length > 0 && milestoneTasks.every(t => completedStatuses.includes(t.status))) {
+          return { ...milestone, calculatedProgress: 100 };
         }
 
         // 2. Daily Percentage Distribution Logic
@@ -70,13 +87,6 @@ const AllMilestone = ({ milestoneData, projectData }) => {
         const dailyPercentage = 100 / totalDays;
         let currentProgress = 0;
         let carriedOver = 0;
-
-        // Filter tasks for this specific milestone
-        const milestoneTasks = tasks.filter(t => {
-          const ms = t.milestone || t.mileStone || {};
-          const msId = t.milestone_id || t.mileStone_id || ms.id;
-          return msId === milestone.id;
-        });
 
         for (let i = 0; i < totalDays; i++) {
           const currentDate = new Date(start);
@@ -103,6 +113,7 @@ const AllMilestone = ({ milestoneData, projectData }) => {
               carriedOver += dailyPercentage;
             }
           } else {
+            // If no tasks for the day, carry over the percentage to the next day with tasks
             carriedOver += dailyPercentage;
           }
         }
@@ -113,6 +124,9 @@ const AllMilestone = ({ milestoneData, projectData }) => {
         };
       });
   }, [milestoneData.value, projectData?.tasks, projectData?.startDate]);
+
+  const ifaMilestones = useMemo(() => processedData.filter(m => (m.stage || "").toUpperCase() === "IFA"), [processedData]);
+  const ifcMilestones = useMemo(() => processedData.filter(m => (m.stage || "").toUpperCase() === "IFC"), [processedData]);
 
   const columns = useMemo(
     () => [
@@ -152,13 +166,39 @@ const AllMilestone = ({ milestoneData, projectData }) => {
   }, []);
 
   return (
-    <section className="w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans p-4">
-      <DataTable
-        columns={columns}
-        data={data}
-        onRowClick={handleRowClick}
-        searchPlaceholder="Search milestones..."
-      />
+    <section className="w-full bg-gray-50 dark:bg-gray-900 transition-colors duration-300 font-sans p-4 space-y-8">
+      {/* IFA Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">IFA Milestones</h2>
+          <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+            {ifaMilestones.length}
+          </span>
+        </div>
+        <DataTable
+          columns={columns}
+          data={ifaMilestones}
+          onRowClick={handleRowClick}
+          searchPlaceholder="Search IFA milestones..."
+        />
+      </div>
+
+      {/* IFC Section */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100">IFC Milestones</h2>
+          <span className="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">
+            {ifcMilestones.length}
+          </span>
+        </div>
+        <DataTable
+          columns={columns}
+          data={ifcMilestones}
+          onRowClick={handleRowClick}
+          searchPlaceholder="Search IFC milestones..."
+        />
+      </div>
+
       {isModalOpen && (
         <GetMilestone milestone={selectedMilestone} onClose={closeModal} />
       )}
