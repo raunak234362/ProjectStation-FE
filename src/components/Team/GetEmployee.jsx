@@ -20,6 +20,10 @@ import {
   SkeletonTasks,
 } from "./utils/EmployeeSkeleton";
 import DateFilter from "../../util/DateFilter";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { FileText } from "lucide-react";
+import toast from "react-hot-toast";
 
 const GetEmployee = ({ employee, onClose }) => {
   const employeeID = employee;
@@ -29,7 +33,7 @@ const GetEmployee = ({ employee, onClose }) => {
   const [employeeStatus, setEmployeeStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filteredData, setFilteredData] = useState(null);
-  const [dateFilter, setDateFilter] = useState({
+  const [dateFilter, setDateFilter] = useState({U
     type: "all",
     month: new Date().getMonth(),
     year: new Date().getFullYear(),
@@ -261,6 +265,119 @@ const GetEmployee = ({ employee, onClose }) => {
     setSelectedEditEmployee(null);
   };
 
+  const generateReport = () => {
+    try {
+      if (!filteredData || !filteredData.tasks) {
+        toast.error("No data available to generate report");
+        return;
+      }
+
+      console.log("Generating report for:", filteredData.f_name);
+
+      const doc = new jsPDF();
+      const employeeName = `${filteredData.f_name || ""} ${
+        filteredData.l_name || ""
+      }`.trim();
+      const reportTitle = "Employee Task Report";
+      const generatedDate = new Date().toLocaleDateString();
+
+      // Header Section
+      doc.setFontSize(20);
+      doc.setTextColor(20, 184, 166); // Teal-500
+      doc.text(reportTitle, 14, 20);
+
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Employee: ${employeeName}`, 14, 30);
+      doc.text(`Generated on: ${generatedDate}`, 14, 35);
+
+      let filterText = "Period: All Time";
+      if (dateFilter.type !== "all") {
+        filterText = `Period: ${
+          dateFilter.type.charAt(0).toUpperCase() + dateFilter.type.slice(1)
+        }`;
+
+        if (dateFilter.type === "month") {
+          const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
+          filterText += ` (${monthNames[dateFilter.month]} ${dateFilter.year})`;
+        } else if (dateFilter.type === "year") {
+          filterText += ` (${dateFilter.year})`;
+        } else if (dateFilter.startDate && dateFilter.endDate) {
+          filterText += ` (${new Date(
+            dateFilter.startDate
+          ).toLocaleDateString()} - ${new Date(
+            dateFilter.endDate
+          ).toLocaleDateString()})`;
+        }
+      }
+      doc.text(filterText, 14, 40);
+
+      // Table preparation
+      const tableColumn = [
+        "Project Name",
+        "Task Name",
+        "Status",
+        "Start Date",
+        "End Date",
+      ];
+      const tableRows = filteredData.tasks.map((task) => [
+        task.project?.name || "N/A",
+        task.name || "N/A",
+        task.status || "N/A",
+        task.start_date
+          ? new Date(task.start_date).toLocaleDateString()
+          : "N/A",
+        task.end_date ? new Date(task.end_date).toLocaleDateString() : "N/A",
+      ]);
+
+      // Using explicit autoTable call
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 50,
+        theme: "grid",
+        headStyles: {
+          fillColor: [20, 184, 166], // Teal-500
+          textColor: [255, 255, 255],
+          fontSize: 10,
+          fontStyle: "bold",
+        },
+        styles: {
+          fontSize: 9,
+          cellPadding: 3,
+        },
+        alternateRowStyles: {
+          fillColor: [240, 253, 250], // Teal-50
+        },
+      });
+
+      // Save PDF
+      const fileName = `Report_${employeeName.replace(
+        /\s+/g,
+        "_"
+      )}_${generatedDate.replace(/\//g, "-")}.pdf`;
+      doc.save(fileName);
+      
+      toast.success("Report generated successfully!");
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      toast.error("Failed to generate PDF report");
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-5 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white h-[100vh] overflow-y-auto p-4 md:p-6 rounded-lg shadow-lg w-full">
@@ -285,7 +402,14 @@ const GetEmployee = ({ employee, onClose }) => {
               employee={filteredData}
               onEditClick={handleEditClick}
             />
-            <div className="flex justify-end w-full items-center mb-4">
+            <div className="flex justify-end w-full items-center mb-4 gap-4">
+              <button
+                onClick={generateReport}
+                className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors duration-200"
+              >
+                <FileText size={16} />
+                Generate Report
+              </button>
               <DateFilter
                 dateFilter={dateFilter}
                 setDateFilter={setDateFilter}
