@@ -33,7 +33,7 @@ const GetEmployee = ({ employee, onClose }) => {
   const [employeeStatus, setEmployeeStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filteredData, setFilteredData] = useState(null);
-  const [dateFilter, setDateFilter] = useState({U
+  const [dateFilter, setDateFilter] = useState({
     type: "all",
     month: new Date().getMonth(),
     year: new Date().getFullYear(),
